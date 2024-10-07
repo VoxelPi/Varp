@@ -1,0 +1,11 @@
+name: Varp
+description: VoxelPi's warp plugin
+version: '${version}'
+authors:
+  - VoxelPi
+website: https://voxelpi.net
+
+main: net.voxelpi.varp.mod.paper.PaperVarpPlugin
+bootstrapper: net.voxelpi.varp.mod.paper.PaperVarpPluginBootstrap
+loader: net.voxelpi.varp.mod.paper.PaperVarpPluginLoader
+api-version: '${api_version}'

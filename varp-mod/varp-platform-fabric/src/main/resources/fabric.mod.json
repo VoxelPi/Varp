@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "id": "varp",
+  "version": "${version}",
+
+  "name": "Varp",
+  "description": "VoxelPi's warp mod",
+  "authors": [
+    {
+      "name": "VoxelPi",
+      "contact": {
+        "sources": "https://github.com/VoxelPi",
+        "homepage": "https://voxelpi.net"
+      }
+    }
+  ],
+  "contact": {
+    "homepage": "https://voxelpi.net",
+    "sources": "https://github.com/VoxelPi/Varp",
+    "issues": "https://github.com/VoxelPi/Varp/issues"
+  },
+
+  "license": "MIT",
+  "icon": "assets/varp/textures/icon.png",
+
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      {
+        "adapter": "kotlin",
+        "value": "net.voxelpi.varp.mod.fabric.client.FabricVarpClientMod"
+      }
+    ],
+    "main": [
+      {
+        "adapter": "kotlin",
+        "value": "net.voxelpi.varp.mod.fabric.FabricVarpMod"
+      }
+    ]
+  },
+
+  "mixins": [],
+
+  "depends": {
+    "fabricloader": ">=0.16.5",
+    "fabric-api": ">=0.105.0+1.21.1",
+    "fabric-language-kotlin": ">=1.12.2+kotlin.2.0.20",
+    "minecraft": "~1.21.1",
+    "java": ">=21"
+  }
+}
