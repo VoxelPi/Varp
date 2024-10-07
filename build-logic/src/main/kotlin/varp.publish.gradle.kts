@@ -3,7 +3,7 @@ plugins {
     id("org.jetbrains.dokka")
     id("org.jetbrains.dokka-javadoc")
     `maven-publish`
-    signing
+//    signing
 }
 
 val javadocJar by tasks.register<Jar>("dokkaJavadocJar") {
@@ -81,13 +81,13 @@ publishing {
     }
 }
 
-signing {
-    val signingSecretKey = System.getenv("SIGNING_KEY")
-    val signingPassword = System.getenv("SIGNING_PASSWORD")
-    if (signingSecretKey != null && signingPassword != null) {
-        useInMemoryPgpKeys(signingSecretKey, signingPassword)
-    } else {
-        useGpgCmd()
-    }
-    sign(publishing.publications)
-}
+//signing {
+//    val signingSecretKey = System.getenv("SIGNING_KEY")
+//    val signingPassword = System.getenv("SIGNING_PASSWORD")
+//    if (signingSecretKey != null && signingPassword != null) {
+//        useInMemoryPgpKeys(signingSecretKey, signingPassword)
+//    } else {
+//        useGpgCmd()
+//    }
+//    sign(publishing.publications)
+//}

@@ -5,7 +5,7 @@ plugins {
 }
 
 allprojects {
-    group = "net.voxelpi"
+    group = "net.voxelpi.varp"
     version = "0.1.0-SNAPSHOT"
 
     repositories {

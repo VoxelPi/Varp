@@ -1,6 +1,5 @@
 plugins {
     id("varp.build")
-    id("varp.publish")
     alias(libs.plugins.indra.git)
     alias(libs.plugins.blossom)
 }
