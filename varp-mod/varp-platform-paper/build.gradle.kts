@@ -21,6 +21,9 @@ dependencies {
 
     // Paper
     paperweight.paperDevBundle(paperVersion)
+
+    // Libraries
+    compileOnly(libs.cloud.paper)
 }
 
 paperweight.reobfArtifactConfiguration = io.papermc.paperweight.userdev.ReobfArtifactConfiguration.MOJANG_PRODUCTION

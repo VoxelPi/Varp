@@ -70,6 +70,8 @@ kotlin-jvm-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", vers
 ktlint-plugin = { module = "org.jlleitschuh.gradle:ktlint-gradle", version.ref = "ktlint" }
 
 [bundles]
+adventure = ["adventure-api", "adventure-text-minimessage", "adventure-text-serializer-gson", "adventure-text-serializer-plain", "adventure-serializer-configurate4", "adventure-text-logger-slf4j"]
+cloud = ["cloud-core", "cloud-kotlin-extensions", "cloud-minecraft-extras"]
 build-plugins = [
     "blossom",
     "dokka-plugin",
