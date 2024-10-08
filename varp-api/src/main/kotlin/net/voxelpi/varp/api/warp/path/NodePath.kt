@@ -14,23 +14,12 @@ sealed interface NodePath {
     val value: String
 
     /**
-     * The id of the node.
-     */
-    val id: String
-
-    /**
-     * The module of the node.
-     */
-    val module: ModulePath
-        get() = ModulePath.module(value.substring(0, value.indexOf(":")))
-
-    /**
      * The level of the node.
      */
     val level: Int
 
     companion object {
-        private val PATH_PATTERN = Pattern.compile("^([a-z0-9_]+):((?:[a-z0-9_]+/)*)([a-z0-9_]+)?\$")
+        private val PATH_PATTERN = Pattern.compile("^/((?:[a-z0-9_]+/)*)([a-z0-9_]+)?\$")
 
         /**
          * Checks if the given [text] is a valid [NodePath].
@@ -49,8 +38,8 @@ sealed interface NodePath {
                 return Result.failure(InvalidNodeParentPathException(value))
             }
             return kotlin.runCatching {
-                if (value.endsWith(':')) {
-                    ModulePath(value)
+                if (value == "/") {
+                    RootPath
                 } else if (value.endsWith("/")) {
                     FolderPath(value)
                 } else {

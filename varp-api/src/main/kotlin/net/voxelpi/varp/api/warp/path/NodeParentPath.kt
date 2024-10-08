@@ -37,7 +37,7 @@ sealed interface NodeParentPath : NodePath {
     }
 
     companion object {
-        private val PATH_PATTERN = Pattern.compile("^([a-z0-9_]+):((?:[a-z0-9_]+/)*)$")
+        private val PATH_PATTERN = Pattern.compile("^/((?:[a-z0-9_]+/)*)\$")
 
         /**
          * Checks if the given [text] is a valid [NodeParentPath].
@@ -56,8 +56,8 @@ sealed interface NodeParentPath : NodePath {
                 return Result.failure(InvalidNodeParentPathException(value))
             }
             return kotlin.runCatching {
-                if (value.endsWith(':')) {
-                    ModulePath(value)
+                if (value == "/") {
+                    RootPath
                 } else {
                     FolderPath(value)
                 }
@@ -67,9 +67,9 @@ sealed interface NodeParentPath : NodePath {
         @JvmStatic
         fun build(module: String, vararg folders: String): NodeParentPath {
             return if (folders.isEmpty()) {
-                ModulePath("$module:")
+                RootPath
             } else {
-                FolderPath("$module:${folders.joinToString("/")}")
+                FolderPath("/${folders.joinToString("/")}")
             }
         }
     }

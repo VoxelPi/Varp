@@ -6,6 +6,11 @@ import java.util.regex.Pattern
 sealed interface NodeChildPath : NodePath {
 
     /**
+     * The id of the node.
+     */
+    val id: String
+
+    /**
      * The path to the parent node.
      */
     val parent: NodeParentPath
@@ -31,7 +36,7 @@ sealed interface NodeChildPath : NodePath {
         get() = value.removeSuffix("/").count { it == '/' || it == ':' }
 
     companion object {
-        private val PATH_PATTERN = Pattern.compile("^([a-z0-9_]+):((?:[a-z0-9_]+/(?!$))*)([a-z0-9_]+)/?$")
+        private val PATH_PATTERN = Pattern.compile("^/((?:[a-z0-9_]+/(?!\$))*)([a-z0-9_]+)/?\$")
 
         /**
          * Checks if the given [text] is a valid [NodeChildPath].

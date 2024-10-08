@@ -3,15 +3,32 @@ package net.voxelpi.varp.api.warp.tree
 import net.voxelpi.varp.api.DuplicatesStrategy
 import net.voxelpi.varp.api.warp.path.NodeChildPath
 import net.voxelpi.varp.api.warp.path.NodeParentPath
+import net.voxelpi.varp.api.warp.state.NodeState
 
 interface NodeChild : Node {
 
     override val path: NodeChildPath
 
     /**
+     * The state of the node.
+     */
+    val state: NodeState
+
+    /**
+     * The id of the node.
+     */
+    val id: String
+        get() = path.id
+
+    /**
      * The parent node of this node.
      */
     val parent: NodeParent
+
+    /**
+     * Changes the id of the node.
+     */
+    fun move(id: String, duplicatesStrategy: DuplicatesStrategy): Result<Unit>
 
     /**
      * Moves the node the given path.
@@ -34,4 +51,9 @@ interface NodeChild : Node {
      * @return the created node.
      */
     fun copy(destination: NodeChildPath, duplicatesStrategy: DuplicatesStrategy): Result<NodeChild>
+
+    /**
+     * Delete the node.
+     */
+    fun delete(): Result<Unit>
 }

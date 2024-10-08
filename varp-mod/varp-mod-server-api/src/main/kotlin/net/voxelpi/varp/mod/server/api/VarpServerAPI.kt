@@ -16,7 +16,7 @@ interface VarpServerAPI {
          * Returns the currently loaded api implementation.
          */
         fun get(): VarpServerAPI {
-            return provider ?: throw IllegalStateException("No implementation fo the client varp api is loaded.")
+            return provider ?: throw IllegalStateException("No implementation of the client varp api is loaded.")
         }
 
         @Internal
