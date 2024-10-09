@@ -1,9 +1,9 @@
 package net.voxelpi.varp.api.warp
 
+import net.voxelpi.varp.api.warp.node.NodeChild
+import net.voxelpi.varp.api.warp.node.NodeParent
 import net.voxelpi.varp.api.warp.path.FolderPath
 import net.voxelpi.varp.api.warp.state.FolderState
-import net.voxelpi.varp.api.warp.tree.NodeChild
-import net.voxelpi.varp.api.warp.tree.NodeParent
 
 interface Folder : NodeChild, NodeParent {
 

@@ -1,18 +1,12 @@
-package net.voxelpi.varp.api.warp.tree
+package net.voxelpi.varp.api.warp.node
 
 import net.voxelpi.varp.api.DuplicatesStrategy
 import net.voxelpi.varp.api.warp.path.NodeChildPath
 import net.voxelpi.varp.api.warp.path.NodeParentPath
-import net.voxelpi.varp.api.warp.state.NodeState
 
 interface NodeChild : Node {
 
     override val path: NodeChildPath
-
-    /**
-     * The state of the node.
-     */
-    val state: NodeState
 
     /**
      * The id of the node.

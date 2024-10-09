@@ -41,6 +41,8 @@ dependencies {
     modImplementationAndInclude(libs.adventure.platform.fabric)
     modImplementationAndInclude(libs.cloud.fabric)
     modImplementationAndInclude(libs.fabric.permission.api)
+
+    implementationAndInclude(libs.event)
 }
 
 loom {

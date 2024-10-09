@@ -4,6 +4,7 @@ adventure-fabric = "5.14.1"
 cloud-command = "2.0.0"
 cloud-command-minecraft = "2.0.0-beta.10"
 cloud-command-minecraft-modded = "2.0.0-beta.9"
+event = "0.6.2"
 junit = "5.11.2"
 kotlin = "2.0.20"
 log4j = "2.23.1"
@@ -43,6 +44,8 @@ cloud-kotlin-extensions = { module = "org.incendo:cloud-kotlin-extensions", vers
 cloud-minecraft-extras = { module = "org.incendo:cloud-minecraft-extras", version.ref = "cloud-command-minecraft" }
 cloud-fabric = { module = "org.incendo:cloud-fabric", version.ref = "cloud-command-minecraft-modded" }
 cloud-paper = { module = "org.incendo:cloud-paper", version.ref = "cloud-command-minecraft" }
+
+event = { module = "net.voxelpi.event:event", version.ref = "event" }
 
 junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }

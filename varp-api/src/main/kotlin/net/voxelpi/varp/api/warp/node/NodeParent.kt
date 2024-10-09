@@ -1,4 +1,4 @@
-package net.voxelpi.varp.api.warp.tree
+package net.voxelpi.varp.api.warp.node
 
 import net.voxelpi.varp.api.warp.Folder
 import net.voxelpi.varp.api.warp.Warp

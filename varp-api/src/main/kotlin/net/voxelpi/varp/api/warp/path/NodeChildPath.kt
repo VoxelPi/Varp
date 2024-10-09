@@ -1,6 +1,6 @@
 package net.voxelpi.varp.api.warp.path
 
-import net.voxelpi.varp.api.warp.exception.path.InvalidNodeChildPathException
+import net.voxelpi.varp.api.exception.path.InvalidNodeChildPathException
 import java.util.regex.Pattern
 
 sealed interface NodeChildPath : NodePath {

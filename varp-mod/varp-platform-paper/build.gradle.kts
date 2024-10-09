@@ -24,6 +24,7 @@ dependencies {
 
     // Libraries
     compileOnly(libs.cloud.paper)
+    implementation(libs.event) // Bundle in fat-jar
 }
 
 paperweight.reobfArtifactConfiguration = io.papermc.paperweight.userdev.ReobfArtifactConfiguration.MOJANG_PRODUCTION

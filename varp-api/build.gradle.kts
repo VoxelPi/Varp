@@ -10,4 +10,6 @@ dependencies {
     // Libraries
     compileOnlyApi(libs.adventure.api)
     compileOnlyApi(libs.adventure.text.logger.slf4j)
+
+    compileOnlyApi(libs.event)
 }

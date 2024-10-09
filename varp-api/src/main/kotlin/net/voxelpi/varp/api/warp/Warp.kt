@@ -1,8 +1,8 @@
 package net.voxelpi.varp.api.warp
 
+import net.voxelpi.varp.api.warp.node.NodeChild
 import net.voxelpi.varp.api.warp.path.WarpPath
 import net.voxelpi.varp.api.warp.state.WarpState
-import net.voxelpi.varp.api.warp.tree.NodeChild
 
 interface Warp : NodeChild {
 

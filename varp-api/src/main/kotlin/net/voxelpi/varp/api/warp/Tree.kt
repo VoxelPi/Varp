@@ -1,11 +1,14 @@
 package net.voxelpi.varp.api.warp
 
+import net.voxelpi.varp.api.warp.node.NodeParent
 import net.voxelpi.varp.api.warp.path.FolderPath
+import net.voxelpi.varp.api.warp.path.NodeChildPath
 import net.voxelpi.varp.api.warp.path.NodeParentPath
+import net.voxelpi.varp.api.warp.path.NodePath
 import net.voxelpi.varp.api.warp.path.WarpPath
 import net.voxelpi.varp.api.warp.state.FolderState
+import net.voxelpi.varp.api.warp.state.RootState
 import net.voxelpi.varp.api.warp.state.WarpState
-import net.voxelpi.varp.api.warp.tree.NodeParent
 
 /**
  * Manages all registered warps.
@@ -88,6 +91,16 @@ interface Tree {
     fun folderState(path: FolderPath, state: FolderState): Result<Unit>
 
     /**
+     * Returns the [RootState] of the root.
+     */
+    fun rootState(): RootState?
+
+    /**
+     * Sets the state of the root.
+     */
+    fun rootState(state: RootState): Result<Unit>
+
+    /**
      * All warps of the collection in the given [path].
      * If [recursive] is true, warps of child directories will also be returned.
      */
@@ -140,6 +153,16 @@ interface Tree {
      * Checks if a node parent with the given [path] exists.
      */
     fun exists(path: NodeParentPath): Boolean
+
+    /**
+     * Checks if a node parent with the given [path] exists.
+     */
+    fun exists(path: NodeChildPath): Boolean
+
+    /**
+     * Checks if a node parent with the given [path] exists.
+     */
+    fun exists(path: NodePath): Boolean
 
     /**
      * Moves the warp at [src] to [dst].
