@@ -8,7 +8,6 @@ import net.voxelpi.varp.api.warp.path.NodePath
 import net.voxelpi.varp.api.warp.path.WarpPath
 import net.voxelpi.varp.api.warp.provider.TreeProvider
 import net.voxelpi.varp.api.warp.state.FolderState
-import net.voxelpi.varp.api.warp.state.RootState
 import net.voxelpi.varp.api.warp.state.WarpState
 
 /**
@@ -97,14 +96,14 @@ interface Tree {
     fun folderState(path: FolderPath, state: FolderState): Result<Unit>
 
     /**
-     * Returns the [RootState] of the root.
+     * Returns the [FolderState] of the root.
      */
-    fun rootState(): RootState?
+    fun rootState(): FolderState?
 
     /**
      * Sets the state of the root.
      */
-    fun rootState(state: RootState): Result<Unit>
+    fun rootState(state: FolderState): Result<Unit>
 
     /**
      * All warps of the collection in the given [path].

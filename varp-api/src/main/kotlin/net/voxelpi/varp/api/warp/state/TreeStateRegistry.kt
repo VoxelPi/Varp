@@ -7,7 +7,7 @@ import net.voxelpi.varp.api.warp.path.WarpPath
 data class TreeStateRegistry(
     override val warps: MutableMap<WarpPath, WarpState> = mutableMapOf(),
     override val folders: MutableMap<FolderPath, FolderState> = mutableMapOf(),
-    override var root: RootState = RootState(Component.empty(), emptyList(), emptySet(), emptyMap()),
+    override var root: FolderState = FolderState(Component.empty(), emptyList(), emptySet(), emptyMap()),
 ) : TreeStateRegistryView {
 
     override operator fun get(path: WarpPath): WarpState? {

@@ -6,7 +6,7 @@ import net.voxelpi.varp.api.warp.path.WarpPath
 interface TreeStateRegistryView {
     val warps: Map<WarpPath, WarpState>
     val folders: Map<FolderPath, FolderState>
-    val root: RootState
+    val root: FolderState
 
     operator fun get(path: WarpPath): WarpState? {
         return warps[path]

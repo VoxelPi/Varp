@@ -2,7 +2,7 @@ package net.voxelpi.varp.api.event.root
 
 import net.voxelpi.varp.api.event.node.NodeStateChangeEvent
 import net.voxelpi.varp.api.warp.Root
-import net.voxelpi.varp.api.warp.state.RootState
+import net.voxelpi.varp.api.warp.state.FolderState
 
 /**
  * Called when the state of the root is modified.
@@ -13,6 +13,6 @@ import net.voxelpi.varp.api.warp.state.RootState
 @JvmRecord
 data class RootStateChangeEvent(
     override val root: Root,
-    override val newState: RootState,
-    override val oldState: RootState,
+    override val newState: FolderState,
+    override val oldState: FolderState,
 ) : RootEvent, NodeStateChangeEvent

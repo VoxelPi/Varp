@@ -3,7 +3,6 @@ package net.voxelpi.varp.api.warp.provider
 import net.voxelpi.varp.api.warp.path.FolderPath
 import net.voxelpi.varp.api.warp.path.WarpPath
 import net.voxelpi.varp.api.warp.state.FolderState
-import net.voxelpi.varp.api.warp.state.RootState
 import net.voxelpi.varp.api.warp.state.TreeStateRegistryView
 import net.voxelpi.varp.api.warp.state.WarpState
 
@@ -19,7 +18,7 @@ interface TreeProvider {
 
     fun saveFolderState(path: FolderPath, state: FolderState): Result<Unit>
 
-    fun saveRootState(state: RootState): Result<Unit>
+    fun saveRootState(state: FolderState): Result<Unit>
 
     fun deleteWarpState(path: WarpPath): Result<Unit>
 

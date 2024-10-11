@@ -32,7 +32,6 @@ import net.voxelpi.varp.api.warp.path.RootPath
 import net.voxelpi.varp.api.warp.path.WarpPath
 import net.voxelpi.varp.api.warp.provider.TreeProvider
 import net.voxelpi.varp.api.warp.state.FolderState
-import net.voxelpi.varp.api.warp.state.RootState
 import net.voxelpi.varp.api.warp.state.WarpState
 import net.voxelpi.varp.warp.tree.VarpNodeParent
 
@@ -103,11 +102,11 @@ class VarpTree(
         return Result.success(Unit)
     }
 
-    override fun rootState(): RootState {
+    override fun rootState(): FolderState {
         return provider.registry.root
     }
 
-    override fun rootState(state: RootState): Result<Unit> {
+    override fun rootState(state: FolderState): Result<Unit> {
         // Check if a module exists at the given path.
         val previousState = rootState()
 

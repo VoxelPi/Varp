@@ -2,7 +2,7 @@ package net.voxelpi.varp.warp
 
 import net.voxelpi.varp.api.warp.Root
 import net.voxelpi.varp.api.warp.path.RootPath
-import net.voxelpi.varp.api.warp.state.RootState
+import net.voxelpi.varp.api.warp.state.FolderState
 import net.voxelpi.varp.warp.tree.VarpNodeParent
 
 class VarpRoot(
@@ -12,6 +12,6 @@ class VarpRoot(
     override val path: RootPath
         get() = RootPath
 
-    override val state: RootState
+    override val state: FolderState
         get() = tree.rootState()
 }

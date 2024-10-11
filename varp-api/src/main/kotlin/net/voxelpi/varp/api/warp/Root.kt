@@ -2,7 +2,7 @@ package net.voxelpi.varp.api.warp
 
 import net.voxelpi.varp.api.warp.node.NodeParent
 import net.voxelpi.varp.api.warp.path.RootPath
-import net.voxelpi.varp.api.warp.state.RootState
+import net.voxelpi.varp.api.warp.state.FolderState
 
 interface Root : NodeParent {
 
@@ -14,5 +14,5 @@ interface Root : NodeParent {
     /**
      * The state of the root folder.
      */
-    override val state: RootState
+    override val state: FolderState
 }

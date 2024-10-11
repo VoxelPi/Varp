@@ -5,7 +5,6 @@ import net.voxelpi.varp.api.warp.path.WarpPath
 import net.voxelpi.varp.api.warp.provider.compositor.TreeCompositor
 import net.voxelpi.varp.api.warp.provider.compositor.TreeCompositorMount
 import net.voxelpi.varp.api.warp.state.FolderState
-import net.voxelpi.varp.api.warp.state.RootState
 import net.voxelpi.varp.api.warp.state.TreeStateRegistry
 import net.voxelpi.varp.api.warp.state.WarpState
 
@@ -34,7 +33,7 @@ class VarpTreeCompositor : TreeCompositor {
         TODO("Not yet implemented")
     }
 
-    override fun saveRootState(state: RootState): Result<Unit> {
+    override fun saveRootState(state: FolderState): Result<Unit> {
         TODO("Not yet implemented")
     }
 
