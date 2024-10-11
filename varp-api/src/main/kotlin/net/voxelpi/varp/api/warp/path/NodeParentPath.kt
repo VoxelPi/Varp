@@ -30,11 +30,20 @@ sealed interface NodeParentPath : NodePath {
     }
 
     /**
-     * Returns if the parent contains the child at the given [childPath].
+     * Returns if this path is part of or equal to the given [path].
      */
-    fun contains(childPath: NodeChildPath): Boolean {
-        return childPath.parent.value.startsWith(this.value)
+    fun isSubPathOf(path: NodePath): Boolean {
+        return path.value.startsWith(value)
     }
+
+    /**
+     * Returns if this path is part of but not equal to the given [path].
+     */
+    fun isTrueSubPathOf(path: NodePath): Boolean {
+        return isSubPathOf(path) && path != this
+    }
+
+    override fun relativeTo(path: NodeParentPath): NodeParentPath?
 
     companion object {
         private val PATH_PATTERN = Pattern.compile("^/((?:[a-z0-9_]+/)*)\$")
@@ -65,7 +74,7 @@ sealed interface NodeParentPath : NodePath {
         }
 
         @JvmStatic
-        fun build(module: String, vararg folders: String): NodeParentPath {
+        fun build(vararg folders: String): NodeParentPath {
             return if (folders.isEmpty()) {
                 RootPath
             } else {

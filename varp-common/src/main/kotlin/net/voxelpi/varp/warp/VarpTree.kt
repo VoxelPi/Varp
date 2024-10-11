@@ -236,7 +236,7 @@ class VarpTree(
 
     override fun warps(path: NodeParentPath, recursive: Boolean): Collection<VarpWarp> {
         return if (recursive) {
-            warps().filter { path.contains(it.path) }
+            warps().filter { path.isTrueSubPathOf(it.path) }
         } else {
             warps().filter { it.path.parent == path }
         }
@@ -244,7 +244,7 @@ class VarpTree(
 
     override fun folders(path: NodeParentPath, recursive: Boolean): Collection<VarpFolder> {
         return if (recursive) {
-            folders().filter { path.contains(it.path) }
+            folders().filter { path.isTrueSubPathOf(it.path) }
         } else {
             folders().filter { it.path.parent == path }
         }
@@ -297,7 +297,7 @@ class VarpTree(
         }
 
         // Throw exception when trying to move a folder into one of its children.
-        if (src.contains(dst)) {
+        if (src.isTrueSubPathOf(dst)) {
             return Result.failure(FolderMoveIntoChildException(src, dst))
         }
 

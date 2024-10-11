@@ -28,6 +28,15 @@ data class WarpPath(
             return NodeParentPath.parse("${matcher.group(1)}:${matcher.group(2)}").getOrThrow()
         }
 
+    override fun relativeTo(path: NodeParentPath): WarpPath? {
+        if (!path.isSubPathOf(this)) {
+            return null
+        }
+
+        // Remove the path prefix from this value (but keep the slash).
+        return WarpPath(this.value.substring(path.value.length - 1))
+    }
+
     override fun toString(): String {
         return value
     }

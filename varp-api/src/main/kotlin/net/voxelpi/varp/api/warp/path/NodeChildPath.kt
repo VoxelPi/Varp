@@ -25,15 +25,10 @@ sealed interface NodeChildPath : NodePath {
             return matcher.group(2).removeSuffix("/").split("/")
         }
 
-    /**
-     * Returns if the container of the given [parentPath] contains the child.
-     */
-    fun containedBy(parentPath: NodeParentPath): Boolean {
-        return parentPath.contains(this)
-    }
-
     override val level: Int
         get() = value.removeSuffix("/").count { it == '/' || it == ':' }
+
+    override fun relativeTo(path: NodeParentPath): NodePath?
 
     companion object {
         private val PATH_PATTERN = Pattern.compile("^/((?:[a-z0-9_]+/(?!\$))*)([a-z0-9_]+)/?\$")

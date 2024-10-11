@@ -18,6 +18,12 @@ sealed interface NodePath {
      */
     val level: Int
 
+    /**
+     * Returns this path as if the given [path] is the root path.
+     * If the given [path] is not a parent of this path, null is returned.
+     */
+    fun relativeTo(path: NodeParentPath): NodePath?
+
     companion object {
         private val PATH_PATTERN = Pattern.compile("^/((?:[a-z0-9_]+/)*)([a-z0-9_]+)?\$")
 

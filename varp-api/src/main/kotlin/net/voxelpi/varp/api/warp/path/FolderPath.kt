@@ -28,6 +28,15 @@ data class FolderPath(
             return NodeParentPath.parse("${matcher.group(1)}:${matcher.group(2)}").getOrThrow()
         }
 
+    override fun relativeTo(path: NodeParentPath): NodeParentPath? {
+        if (!path.isSubPathOf(this)) {
+            return null
+        }
+
+        // Remove the path prefix from this value (but keep the slash).
+        return NodeParentPath.parse(this.value.substring(path.value.length - 1)).getOrThrow()
+    }
+
     override fun toString(): String {
         return value
     }
