@@ -26,6 +26,20 @@ data class TreeStateRegistry(
         folders[path] = state
     }
 
+    fun move(src: WarpPath, dst: WarpPath): WarpState? {
+        val state = warps[src] ?: return null
+        warps[dst] = state
+        warps.remove(src)
+        return state
+    }
+
+    fun move(src: FolderPath, dst: FolderPath): FolderState? {
+        val state = folders[src] ?: return null
+        folders[dst] = state
+        folders.remove(src)
+        return state
+    }
+
     fun remove(path: WarpPath): WarpState? {
         return warps.remove(path)
     }
