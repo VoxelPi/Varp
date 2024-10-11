@@ -4,11 +4,16 @@ adventure-fabric = "5.14.1"
 cloud-command = "2.0.0"
 cloud-command-minecraft = "2.0.0-beta.10"
 cloud-command-minecraft-modded = "2.0.0-beta.9"
+coroutine = "1.9.0"
 event = "0.6.2"
 junit = "5.11.2"
 kotlin = "2.0.20"
 log4j = "2.23.1"
 slf4j = "1.7.36"
+
+# CLI
+terminalconsoleappender = "1.3.0"
+jline = "3.26.3"
 
 # Paper
 papwerweight = "1.7.3"
@@ -33,6 +38,7 @@ shadow = "8.3.1"
 [libraries]
 adventure-api = { module = "net.kyori:adventure-api", version.ref = "adventure" }
 adventure-text-minimessage = { module = "net.kyori:adventure-text-minimessage", version.ref = "adventure" }
+adventure-text-serializer-ansi = { module = "net.kyori:adventure-text-serializer-ansi", version.ref = "adventure"}
 adventure-text-serializer-gson = { module = "net.kyori:adventure-text-serializer-gson", version.ref = "adventure" }
 adventure-text-serializer-plain = { module = "net.kyori:adventure-text-serializer-plain", version.ref = "adventure" }
 adventure-serializer-configurate4 = { module = "net.kyori:adventure-serializer-configurate4", version.ref = "adventure" }
@@ -50,11 +56,20 @@ event = { module = "net.voxelpi.event:event", version.ref = "event" }
 junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
 
+kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutine" }
 
 # Logging
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
+log4j-core = { module = "org.apache.logging.log4j:log4j-core", version.ref = "log4j" }
 log4j-slf4j-impl = { module = "org.apache.logging.log4j:log4j-slf4j-impl", version.ref = "log4j" }
+
+# CLI
+terminalconsoleappender = { module = "net.minecrell:terminalconsoleappender", version.ref = "terminalconsoleappender" }
+jline-terminal-core = { module = "org.jline:jline-terminal", version.ref = "jline" }
+jline-terminal-jni = { module = "org.jline:jline-terminal-jni", version.ref = "jline" }
+jline-terminal-reader = { module = "org.jline:jline-reader", version.ref = "jline" }
 
 # Fabric
 minecraft = { module = "com.mojang:minecraft", version.ref = "minecraft"}
@@ -75,6 +90,7 @@ ktlint-plugin = { module = "org.jlleitschuh.gradle:ktlint-gradle", version.ref =
 [bundles]
 adventure = ["adventure-api", "adventure-text-minimessage", "adventure-text-serializer-gson", "adventure-text-serializer-plain", "adventure-serializer-configurate4", "adventure-text-logger-slf4j"]
 cloud = ["cloud-core", "cloud-kotlin-extensions", "cloud-minecraft-extras"]
+jline = ["jline-terminal-core", "jline-terminal-jni", "jline-terminal-reader"]
 build-plugins = [
     "blossom",
     "dokka-plugin",

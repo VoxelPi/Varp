@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    <Appenders>
+        <TerminalConsole name="LogToConsole">
+            <PatternLayout pattern="%style{[}{dim}%d{HH:mm:ss}%style{]}{dim} %highlight{%level}%style{:}{dim} %msg%n" disableAnsi="${tca:disableAnsi}"/>
+        </TerminalConsole>
+    </Appenders>
+    <Loggers>
+        <!-- avoid duplicated logs with additivity=false -->
+        <Logger name="net.voxelpi.varp" level="debug" additivity="false">
+            <AppenderRef ref="LogToConsole"/>
+        </Logger>
+        <Root level="info">
+            <AppenderRef ref="LogToConsole"/>
+        </Root>
+    </Loggers>
+</Configuration>

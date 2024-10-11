@@ -11,4 +11,9 @@ object VarpBuildParameters {
      * The current git commit.
      */
     const val GIT_COMMIT: String = "{{ git_commit }}"
+
+    /**
+     * The current git commit.
+     */
+    const val GIT_BRANCH: String = "{{ git_branch }}"
 }

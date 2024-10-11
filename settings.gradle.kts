@@ -11,6 +11,7 @@ pluginManagement {
 
 include("varp-api")
 include("varp-common")
+include("varp-cli")
 include("varp-mod:varp-mod-common")
 include("varp-mod:varp-mod-client-api")
 include("varp-mod:varp-mod-client-common")
@@ -20,5 +21,3 @@ include("varp-mod:varp-platform-fabric")
 include("varp-mod:varp-platform-paper")
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
-include("varp-mod:varp-mod-client-api")
-findProject(":varp-mod:varp-mod-client-api")?.name = "varp-mod-client-api"
