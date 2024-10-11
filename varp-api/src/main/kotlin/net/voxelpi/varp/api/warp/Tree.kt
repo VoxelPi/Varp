@@ -6,6 +6,7 @@ import net.voxelpi.varp.api.warp.path.NodeChildPath
 import net.voxelpi.varp.api.warp.path.NodeParentPath
 import net.voxelpi.varp.api.warp.path.NodePath
 import net.voxelpi.varp.api.warp.path.WarpPath
+import net.voxelpi.varp.api.warp.provider.TreeProvider
 import net.voxelpi.varp.api.warp.state.FolderState
 import net.voxelpi.varp.api.warp.state.RootState
 import net.voxelpi.varp.api.warp.state.WarpState
@@ -14,6 +15,11 @@ import net.voxelpi.varp.api.warp.state.WarpState
  * Manages all registered warps.
  */
 interface Tree {
+
+    /**
+     * The provider of this tree.
+     */
+    val provider: TreeProvider
 
     /**
      * The root of the node tree (the "/" folder)
