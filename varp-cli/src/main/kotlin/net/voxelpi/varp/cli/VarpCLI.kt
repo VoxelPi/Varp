@@ -4,7 +4,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import net.voxelpi.event.EventScope
 import net.voxelpi.event.eventScope
-import net.voxelpi.varp.VarpImpl
 import net.voxelpi.varp.cli.command.VarpCLICommandManager
 import net.voxelpi.varp.cli.console.VarpCLIConsole
 import net.voxelpi.varp.cli.coroutine.VarpCLIDispatcher
@@ -12,10 +11,6 @@ import org.slf4j.LoggerFactory
 import kotlin.system.exitProcess
 
 object VarpCLI {
-
-    init {
-        VarpImpl.load()
-    }
 
     private val logger = LoggerFactory.getLogger(VarpCLI::class.java)
 

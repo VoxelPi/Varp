@@ -9,8 +9,7 @@ pluginManagement {
     includeBuild("build-logic")
 }
 
-include("varp-api")
-include("varp-common")
+include("varp-core")
 include("varp-cli")
 include("varp-mod:varp-mod-common")
 include("varp-mod:varp-mod-client-api")

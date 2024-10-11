@@ -8,8 +8,7 @@ plugins {
 
 dependencies {
     // Project
-    api(projects.varpApi)
-    implementation(projects.varpCommon)
+    api(projects.varpCore)
 
     // Libraries
     implementation(libs.kotlin.stdlib)

@@ -7,5 +7,5 @@ dependencies {
     compileOnly(kotlin("stdlib"))
 
     // Project
-    api(projects.varpApi)
+    api(projects.varpCore)
 }

@@ -17,7 +17,9 @@ allprojects {
 }
 
 dependencies {
-    dokka(projects.varpApi)
+    dokka(projects.varpCore)
+    dokka(projects.varpMod.varpModClientApi)
+    dokka(projects.varpMod.varpModServerApi)
 }
 
 dokka {
