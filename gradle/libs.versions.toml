@@ -18,7 +18,7 @@ minecraft = "1.21.1"
 yarn = "1.21.1+build.3"
 fabric-loader = "0.16.5"
 fabric-api = "0.105.0+1.21.1"
-loom = "1.7-SNAPSHOT"
+loom = "1.8-SNAPSHOT"
 fabric-kotlin = "1.12.2+kotlin.2.0.20"
 fabric-permissions-api = "0.3.1"
 
