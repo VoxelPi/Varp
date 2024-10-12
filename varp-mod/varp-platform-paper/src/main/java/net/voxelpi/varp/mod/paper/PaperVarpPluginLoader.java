@@ -15,9 +15,9 @@ import org.jetbrains.annotations.NotNull;
 @SuppressWarnings("UnstableApiUsage")
 public class PaperVarpPluginLoader implements PluginLoader {
 
-    private static final String CLOUD_VERSION = "2.0.0-rc.2";
-    private static final String CLOUD_MINECRAFT_VERSION = "2.0.0-beta.9";
-    private static final String KOTLIN_VERSION = "2.0.0";
+    private static final String CLOUD_VERSION = "2.0.0";
+    private static final String CLOUD_MINECRAFT_VERSION = "2.0.0-beta.10";
+    private static final String KOTLIN_VERSION = "2.0.21";
 
     @Override
     public void classloader(@NotNull PluginClasspathBuilder classpathBuilder) {
