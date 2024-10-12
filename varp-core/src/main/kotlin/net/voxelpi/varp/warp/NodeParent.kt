@@ -1,7 +1,5 @@
-package net.voxelpi.varp.warp.node
+package net.voxelpi.varp.warp
 
-import net.voxelpi.varp.warp.Folder
-import net.voxelpi.varp.warp.Warp
 import net.voxelpi.varp.warp.path.NodeParentPath
 import net.voxelpi.varp.warp.state.FolderState
 import net.voxelpi.varp.warp.state.WarpState
@@ -9,7 +7,7 @@ import net.voxelpi.varp.warp.state.WarpState
 /**
  * A node that can contain child nodes.
  */
-public interface NodeParent : Node {
+public sealed interface NodeParent : Node {
 
     /**
      * The path to this container.

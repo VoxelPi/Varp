@@ -2,8 +2,6 @@ package net.voxelpi.varp.warp
 
 import net.voxelpi.varp.DuplicatesStrategy
 import net.voxelpi.varp.exception.tree.FolderAlreadyExistsException
-import net.voxelpi.varp.warp.node.NodeChild
-import net.voxelpi.varp.warp.node.NodeParent
 import net.voxelpi.varp.warp.path.FolderPath
 import net.voxelpi.varp.warp.path.NodeParentPath
 import net.voxelpi.varp.warp.state.FolderState

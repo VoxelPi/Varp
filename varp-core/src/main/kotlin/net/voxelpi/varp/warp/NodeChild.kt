@@ -1,10 +1,10 @@
-package net.voxelpi.varp.warp.node
+package net.voxelpi.varp.warp
 
 import net.voxelpi.varp.DuplicatesStrategy
 import net.voxelpi.varp.warp.path.NodeChildPath
 import net.voxelpi.varp.warp.path.NodeParentPath
 
-public interface NodeChild : Node {
+public sealed interface NodeChild : Node {
 
     override val path: NodeChildPath
 

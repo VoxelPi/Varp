@@ -2,7 +2,6 @@ package net.voxelpi.varp.warp
 
 import net.voxelpi.varp.DuplicatesStrategy
 import net.voxelpi.varp.exception.tree.WarpAlreadyExistsException
-import net.voxelpi.varp.warp.node.NodeChild
 import net.voxelpi.varp.warp.path.NodeParentPath
 import net.voxelpi.varp.warp.path.WarpPath
 import net.voxelpi.varp.warp.state.WarpState

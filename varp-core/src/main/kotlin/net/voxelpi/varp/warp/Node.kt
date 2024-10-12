@@ -1,10 +1,9 @@
-package net.voxelpi.varp.warp.node
+package net.voxelpi.varp.warp
 
-import net.voxelpi.varp.warp.Tree
 import net.voxelpi.varp.warp.path.NodePath
 import net.voxelpi.varp.warp.state.NodeState
 
-public interface Node {
+public sealed interface Node {
 
     /**
      * The tree this node belongs to.

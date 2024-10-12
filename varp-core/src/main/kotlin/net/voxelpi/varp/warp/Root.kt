@@ -1,6 +1,5 @@
 package net.voxelpi.varp.warp
 
-import net.voxelpi.varp.warp.node.NodeParent
 import net.voxelpi.varp.warp.path.RootPath
 import net.voxelpi.varp.warp.state.FolderState
 
