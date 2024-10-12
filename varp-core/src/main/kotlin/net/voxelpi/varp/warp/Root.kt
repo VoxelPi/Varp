@@ -17,6 +17,17 @@ public class Root internal constructor(
     /**
      * The state of the root folder.
      */
-    override val state: FolderState
+    override var state: FolderState
         get() = tree.rootState()
+        set(value) = tree.rootState(value).getOrThrow()
+
+    /**
+     * Modifies the state of the root folder.
+     */
+    public fun modify(init: FolderState.Builder.() -> Unit): FolderState {
+        val builder = FolderState.Builder(state)
+        builder.init()
+        state = builder.build()
+        return state
+    }
 }

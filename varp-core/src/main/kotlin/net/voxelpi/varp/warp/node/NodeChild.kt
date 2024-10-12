@@ -31,21 +31,10 @@ public interface NodeChild : Node {
     public fun move(destination: NodeParentPath, duplicatesStrategy: DuplicatesStrategy): Result<Unit>
 
     /**
-     * Moves the node the given path and changes its id.
-     */
-    public fun move(destination: NodeChildPath, duplicatesStrategy: DuplicatesStrategy): Result<Unit>
-
-    /**
      * Copies the node the given path.
      * @return the created node.
      */
     public fun copy(destination: NodeParentPath, duplicatesStrategy: DuplicatesStrategy): Result<NodeChild>
-
-    /**
-     * Copies the node the given path and changes its id.
-     * @return the created node.
-     */
-    public fun copy(destination: NodeChildPath, duplicatesStrategy: DuplicatesStrategy): Result<NodeChild>
 
     /**
      * Delete the node.

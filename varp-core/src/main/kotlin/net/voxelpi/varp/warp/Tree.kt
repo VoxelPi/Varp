@@ -3,6 +3,7 @@ package net.voxelpi.varp.warp
 import net.voxelpi.event.EventScope
 import net.voxelpi.event.eventScope
 import net.voxelpi.event.post
+import net.voxelpi.varp.DuplicatesStrategy
 import net.voxelpi.varp.event.folder.FolderCreateEvent
 import net.voxelpi.varp.event.folder.FolderDeleteEvent
 import net.voxelpi.varp.event.folder.FolderPathChangeEvent
@@ -364,7 +365,7 @@ public class Tree internal constructor(
     /**
      * Moves the warp at [src] to [dst].
      */
-    public fun move(src: WarpPath, dst: WarpPath): Result<Unit> {
+    public fun move(src: WarpPath, dst: WarpPath, duplicatesStrategy: DuplicatesStrategy): Result<Unit> {
         // Early return if source and destination path are the same.
         if (src == dst) {
             return Result.success(Unit)
@@ -372,7 +373,11 @@ public class Tree internal constructor(
 
         // Fail if a warp already exists at the destination path.
         if (exists(dst)) {
-            return Result.failure(WarpAlreadyExistsException(dst))
+            when (duplicatesStrategy) {
+                DuplicatesStrategy.REPLACE_EXISTING -> TODO()
+                DuplicatesStrategy.SKIP -> TODO()
+                DuplicatesStrategy.FAIL -> return Result.failure(WarpAlreadyExistsException(dst))
+            }
         }
 
         // Move the state.
@@ -387,7 +392,7 @@ public class Tree internal constructor(
     /**
      * Moves the folder at [src] to [dst].
      */
-    public fun move(src: FolderPath, dst: FolderPath): Result<Unit> {
+    public fun move(src: FolderPath, dst: FolderPath, duplicatesStrategy: DuplicatesStrategy): Result<Unit> {
         // Early return if source and destination path are the same.
         if (src == dst) {
             return Result.success(Unit)
@@ -400,7 +405,11 @@ public class Tree internal constructor(
 
         // Fail if a folder already exists at the destination path.
         if (exists(dst)) {
-            return Result.failure(FolderAlreadyExistsException(dst))
+            when (duplicatesStrategy) {
+                DuplicatesStrategy.REPLACE_EXISTING -> TODO()
+                DuplicatesStrategy.SKIP -> TODO()
+                DuplicatesStrategy.FAIL -> return Result.failure(FolderAlreadyExistsException(dst))
+            }
         }
 
         // Move the state.
