@@ -58,7 +58,7 @@ public sealed interface NodeParent : Node {
      * @return the warp with the given name.
      */
     public fun childWarp(id: String): Warp? {
-        return tree.warp(path.warp(id))
+        return tree.resolve(path.warp(id))
     }
 
     /**
@@ -69,7 +69,7 @@ public sealed interface NodeParent : Node {
      * @return the folder with the given name.
      */
     public fun childFolder(id: String): Folder? {
-        return tree.folder(path.folder(id))
+        return tree.resolve(path.folder(id))
     }
 
     /**

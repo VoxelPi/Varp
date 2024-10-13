@@ -18,7 +18,7 @@ public sealed interface NodeChild : Node {
      * The parent node of this node.
      */
     public val parent: NodeParent
-        get() = tree.container(path.parent)!!
+        get() = tree.resolve(path.parent)!!
 
     /**
      * Changes the id of the node.

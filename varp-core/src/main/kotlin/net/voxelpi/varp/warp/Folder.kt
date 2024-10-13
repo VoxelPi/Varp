@@ -80,7 +80,7 @@ public class Folder internal constructor(
 
     private fun copy(destination: FolderPath, duplicatesStrategy: DuplicatesStrategy, recursive: Boolean, skipPath: FolderPath): Result<Folder> {
         // Check if the folder already exists
-        tree.folder(destination)?.let { folder ->
+        tree.resolve(destination)?.let { folder ->
             when (duplicatesStrategy) {
                 DuplicatesStrategy.FAIL -> return Result.failure(FolderAlreadyExistsException(folder.path))
                 DuplicatesStrategy.SKIP -> return Result.success(folder)

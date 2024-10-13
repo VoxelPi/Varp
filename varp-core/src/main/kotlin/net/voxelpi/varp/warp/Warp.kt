@@ -61,7 +61,7 @@ public class Warp internal constructor(
      */
     public fun copy(destination: WarpPath, duplicatesStrategy: DuplicatesStrategy): Result<Warp> {
         // Check if the warp already exists
-        tree.warp(destination)?.let { warp ->
+        tree.resolve(destination)?.let { warp ->
             when (duplicatesStrategy) {
                 DuplicatesStrategy.FAIL -> return Result.failure(WarpAlreadyExistsException(warp.path))
                 DuplicatesStrategy.SKIP -> return Result.success(warp)

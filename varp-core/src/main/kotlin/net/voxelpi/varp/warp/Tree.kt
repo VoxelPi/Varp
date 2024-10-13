@@ -155,7 +155,7 @@ public class Tree internal constructor(
     /**
      * Returns the [Warp] at the given [path].
      */
-    public fun warp(path: WarpPath): Warp? {
+    public fun resolve(path: WarpPath): Warp? {
         if (!exists(path)) {
             return null
         }
@@ -165,7 +165,7 @@ public class Tree internal constructor(
     /**
      * Returns the [Folder] at the given [path].
      */
-    public fun folder(path: FolderPath): Folder? {
+    public fun resolve(path: FolderPath): Folder? {
         if (!exists(path)) {
             return null
         }
@@ -173,12 +173,41 @@ public class Tree internal constructor(
     }
 
     /**
+     * Returns the [Root] at the given [path].
+     */
+    @Suppress("unused")
+    public fun resolve(path: RootPath): Root {
+        return root
+    }
+
+    /**
      * Returns the [NodeParent] at the given [path].
      */
-    public fun container(path: NodeParentPath): NodeParent? {
+    public fun resolve(path: NodeParentPath): NodeParent? {
         return when (path) {
             is RootPath -> root
-            is FolderPath -> folder(path)
+            is FolderPath -> resolve(path)
+        }
+    }
+
+    /**
+     * Returns the [NodeChild] at the given [path].
+     */
+    public fun resolve(path: NodeChildPath): NodeChild? {
+        return when (path) {
+            is WarpPath -> resolve(path)
+            is FolderPath -> resolve(path)
+        }
+    }
+
+    /**
+     * Returns the [Node] at the given [path].
+     */
+    public fun resolve(path: NodePath): Node? {
+        return when (path) {
+            is WarpPath -> resolve(path)
+            is FolderPath -> resolve(path)
+            RootPath -> root
         }
     }
 
@@ -328,6 +357,14 @@ public class Tree internal constructor(
      */
     public fun exists(path: FolderPath): Boolean {
         return provider.registry.folders.contains(path)
+    }
+
+    /**
+     * Checks if the root exists. This is always true and this method exists just for completeness.
+     */
+    @Suppress("unused")
+    public fun exists(path: RootPath): Boolean {
+        return true
     }
 
     /**
