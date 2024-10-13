@@ -55,7 +55,7 @@ class VarpCLIConsole(
     }
 
     fun clear() {
-        val terminal = TerminalConsoleAppender.getTerminal()!!
+        val terminal = TerminalConsoleAppender.getTerminal() ?: return
         terminal.puts(InfoCmp.Capability.clear_screen)
         terminal.flush()
     }

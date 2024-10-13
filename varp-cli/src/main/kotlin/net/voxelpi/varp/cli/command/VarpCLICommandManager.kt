@@ -3,6 +3,7 @@ package net.voxelpi.varp.cli.command
 import net.voxelpi.event.post
 import net.voxelpi.varp.cli.VarpCLI
 import net.voxelpi.varp.cli.command.commands.ClearCommand
+import net.voxelpi.varp.cli.command.commands.ListCommand
 import net.voxelpi.varp.cli.command.commands.StopCommand
 import org.incendo.cloud.CommandManager
 import org.incendo.cloud.execution.ExecutionCoordinator
@@ -29,6 +30,7 @@ class VarpCLICommandManager(
 
     private fun registerCommands() {
         registerCommand(ClearCommand)
+        registerCommand(ListCommand)
         registerCommand(StopCommand)
     }
 
