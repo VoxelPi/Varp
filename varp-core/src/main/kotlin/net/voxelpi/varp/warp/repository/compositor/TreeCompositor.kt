@@ -1,18 +1,19 @@
-package net.voxelpi.varp.warp.provider.compositor
+package net.voxelpi.varp.warp.repository.compositor
 
 import net.voxelpi.varp.warp.path.FolderPath
 import net.voxelpi.varp.warp.path.NodeParentPath
 import net.voxelpi.varp.warp.path.NodePath
 import net.voxelpi.varp.warp.path.RootPath
 import net.voxelpi.varp.warp.path.WarpPath
-import net.voxelpi.varp.warp.provider.TreeProvider
+import net.voxelpi.varp.warp.repository.TreeRepository
 import net.voxelpi.varp.warp.state.FolderState
 import net.voxelpi.varp.warp.state.TreeStateRegistry
 import net.voxelpi.varp.warp.state.WarpState
 
 public class TreeCompositor internal constructor(
+    override val id: String,
     mounts: Collection<TreeCompositorMount>,
-) : TreeProvider {
+) : TreeRepository {
 
     private val mounts: MutableMap<NodeParentPath, TreeCompositorMount> = mounts
         .sortedByDescending { it.location.value.length }
@@ -33,14 +34,14 @@ public class TreeCompositor internal constructor(
             val location = mount.location
             when (location) {
                 is RootPath -> {
-                    registry.root = mount.provider.registry.root
+                    registry.root = mount.repository.registry.root
                 }
                 is FolderPath -> {
-                    registry[location] = mount.provider.registry.root
+                    registry[location] = mount.repository.registry.root
                 }
             }
 
-            for ((path, state) in mount.provider.registry.folders) {
+            for ((path, state) in mount.repository.registry.folders) {
                 // Combine mount location and local path. Ignore duplicate slash in the middle
                 val compositePath = FolderPath(location.value + path.value.substring(1))
 
@@ -62,7 +63,7 @@ public class TreeCompositor internal constructor(
     override fun createWarpState(path: WarpPath, state: WarpState): Result<Unit> {
         val mount = mountAt(path)
         val relativePath = path.relativeTo(mount.location)!!
-        mount.provider.createWarpState(relativePath, state).getOrElse { return Result.failure(it) }
+        mount.repository.createWarpState(relativePath, state).getOrElse { return Result.failure(it) }
 
         registry[path] = state
 
@@ -73,7 +74,7 @@ public class TreeCompositor internal constructor(
         val mount = mountAt(path)
         val relativePath = path.relativeTo(mount.location)!!
         require(relativePath is FolderPath)
-        mount.provider.createFolderState(relativePath, state).getOrElse { return Result.failure(it) }
+        mount.repository.createFolderState(relativePath, state).getOrElse { return Result.failure(it) }
 
         registry[path] = state
 
@@ -83,7 +84,7 @@ public class TreeCompositor internal constructor(
     override fun saveWarpState(path: WarpPath, state: WarpState): Result<Unit> {
         val mount = mountAt(path)
         val relativePath = path.relativeTo(mount.location)!!
-        mount.provider.saveWarpState(relativePath, state).getOrElse { return Result.failure(it) }
+        mount.repository.saveWarpState(relativePath, state).getOrElse { return Result.failure(it) }
 
         registry[path] = state
 
@@ -94,8 +95,8 @@ public class TreeCompositor internal constructor(
         val mount = mountAt(path)
         val relativePath = path.relativeTo(mount.location)!!
         when (relativePath) {
-            is RootPath -> mount.provider.saveRootState(state).getOrElse { return Result.failure(it) }
-            is FolderPath -> mount.provider.saveFolderState(path, state).getOrElse { return Result.failure(it) }
+            is RootPath -> mount.repository.saveRootState(state).getOrElse { return Result.failure(it) }
+            is FolderPath -> mount.repository.saveFolderState(path, state).getOrElse { return Result.failure(it) }
         }
 
         registry[path] = state
@@ -105,7 +106,7 @@ public class TreeCompositor internal constructor(
 
     override fun saveRootState(state: FolderState): Result<Unit> {
         val mount = mountAt(RootPath)
-        mount.provider.saveRootState(state).getOrElse { return Result.failure(it) }
+        mount.repository.saveRootState(state).getOrElse { return Result.failure(it) }
 
         registry.root = state
 
@@ -115,7 +116,7 @@ public class TreeCompositor internal constructor(
     override fun deleteWarpState(path: WarpPath): Result<Unit> {
         val mount = mountAt(path)
         val relativePath = path.relativeTo(mount.location)!!
-        mount.provider.deleteWarpState(relativePath).getOrElse { return Result.failure(it) }
+        mount.repository.deleteWarpState(relativePath).getOrElse { return Result.failure(it) }
 
         registry.remove(path)
 
@@ -130,7 +131,7 @@ public class TreeCompositor internal constructor(
                 TODO("REMOVING MOUNT DIR NOT YET IMPLEMENTED")
                 // This probably should just also remove the mount itself. (And clear the mounted storage)
             }
-            is FolderPath -> mount.provider.deleteFolderState(path).getOrElse { return Result.failure(it) }
+            is FolderPath -> mount.repository.deleteFolderState(path).getOrElse { return Result.failure(it) }
         }
 
         registry.remove(path)
@@ -146,7 +147,7 @@ public class TreeCompositor internal constructor(
 
         if (srcMount.location == dstMount.location) {
             val mount = srcMount
-            mount.provider.moveWarpState(srcRelativePath, dstRelativePath).getOrElse { return Result.failure(it) }
+            mount.repository.moveWarpState(srcRelativePath, dstRelativePath).getOrElse { return Result.failure(it) }
         } else {
             TODO("MOVEMENT BETWEEN MOUNTS NOT YET IMPLEMENTED")
             // This probably should just change the mount location.
@@ -167,7 +168,7 @@ public class TreeCompositor internal constructor(
             val mount = srcMount
             TODO("NOT IMPLEMENTED")
             // What happens if the folder is moved to the root of the mount?
-//            mount.provider.moveFolderState(srcRelativePath, dstRelativePath).getOrElse { return Result.failure(it) }
+//            mount.repository.moveFolderState(srcRelativePath, dstRelativePath).getOrElse { return Result.failure(it) }
         } else {
             TODO("MOVEMENT BETWEEN MOUNTS NOT YET IMPLEMENTED")
             // This probably should just change the mount location.

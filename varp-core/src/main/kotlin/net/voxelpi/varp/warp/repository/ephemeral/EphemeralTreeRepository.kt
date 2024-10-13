@@ -1,15 +1,17 @@
-package net.voxelpi.varp.warp.provider.registry
+package net.voxelpi.varp.warp.repository.ephemeral
 
 import net.voxelpi.varp.exception.tree.FolderNotFoundException
 import net.voxelpi.varp.exception.tree.WarpNotFoundException
 import net.voxelpi.varp.warp.path.FolderPath
 import net.voxelpi.varp.warp.path.WarpPath
-import net.voxelpi.varp.warp.provider.TreeProvider
+import net.voxelpi.varp.warp.repository.TreeRepository
 import net.voxelpi.varp.warp.state.FolderState
 import net.voxelpi.varp.warp.state.TreeStateRegistry
 import net.voxelpi.varp.warp.state.WarpState
 
-public class TreeRegistry : TreeProvider {
+public class EphemeralTreeRepository(
+    override val id: String,
+) : TreeRepository {
 
     override val registry: TreeStateRegistry = TreeStateRegistry()
 

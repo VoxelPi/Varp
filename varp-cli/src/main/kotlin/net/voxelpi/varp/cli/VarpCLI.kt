@@ -11,7 +11,7 @@ import net.voxelpi.varp.cli.command.VarpCLICommandManager
 import net.voxelpi.varp.cli.console.VarpCLIConsole
 import net.voxelpi.varp.cli.coroutine.VarpCLIDispatcher
 import net.voxelpi.varp.warp.Tree
-import net.voxelpi.varp.warp.provider.registry.TreeRegistry
+import net.voxelpi.varp.warp.repository.ephemeral.EphemeralTreeRepository
 import net.voxelpi.varp.warp.state.FolderState
 import org.slf4j.LoggerFactory
 import kotlin.system.exitProcess
@@ -29,7 +29,7 @@ object VarpCLI {
 
     val console = VarpCLIConsole(this, commandManager)
 
-    var tree: Tree = Varp.createTree(TreeRegistry())
+    var tree: Tree = Varp.createTree(EphemeralTreeRepository("main"))
 
     init {
         val folder1 = tree.root.createFolder("folder1", FolderState(Component.text("test1"))).getOrThrow()

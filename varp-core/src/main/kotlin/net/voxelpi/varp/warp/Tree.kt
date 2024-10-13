@@ -27,17 +27,17 @@ import net.voxelpi.varp.warp.path.NodeParentPath
 import net.voxelpi.varp.warp.path.NodePath
 import net.voxelpi.varp.warp.path.RootPath
 import net.voxelpi.varp.warp.path.WarpPath
-import net.voxelpi.varp.warp.provider.TreeProvider
+import net.voxelpi.varp.warp.repository.TreeRepository
 import net.voxelpi.varp.warp.state.FolderState
 import net.voxelpi.varp.warp.state.WarpState
 
 /**
  * Manages all registered warps.
  *
- * @property provider the provider of this tree.
+ * @property repository the repository of this tree.
  */
 public class Tree internal constructor(
-    public val provider: TreeProvider,
+    public val repository: TreeRepository,
 ) {
 
     public val eventScope: EventScope = eventScope()
@@ -51,14 +51,14 @@ public class Tree internal constructor(
      * Returns an [Collection] of all registered warps.
      */
     public fun warps(): Collection<Warp> {
-        return provider.registry.warps.keys.map { path -> Warp(this, path) }
+        return repository.registry.warps.keys.map { path -> Warp(this, path) }
     }
 
     /**
      * Returns an [Collection] of all registered folders.
      */
     public fun folders(): Collection<Folder> {
-        return provider.registry.folders.keys.map { path -> Folder(this, path) }
+        return repository.registry.folders.keys.map { path -> Folder(this, path) }
     }
 
     /**
@@ -83,7 +83,7 @@ public class Tree internal constructor(
         }
 
         // Create the warp state.
-        provider.createWarpState(path, state).onFailure { return Result.failure(it) }
+        repository.createWarpState(path, state).onFailure { return Result.failure(it) }
         val warp = Warp(this, path)
 
         // Post event.
@@ -107,7 +107,7 @@ public class Tree internal constructor(
         }
 
         // Save the folder state.
-        provider.createFolderState(path, state).onFailure { return Result.failure(it) }
+        repository.createFolderState(path, state).onFailure { return Result.failure(it) }
         val folder = Folder(this, path)
 
         // Post event.
@@ -127,7 +127,7 @@ public class Tree internal constructor(
         eventScope.post(WarpDeleteEvent(Warp(this, path)))
 
         // Delete the warp state.
-        provider.deleteWarpState(path)
+        repository.deleteWarpState(path)
 
         // Post event.
         eventScope.post(WarpPostDeleteEvent(path, state))
@@ -145,7 +145,7 @@ public class Tree internal constructor(
         eventScope.post(FolderDeleteEvent(Folder(this, path)))
 
         // Delete the folder state.
-        provider.deleteFolderState(path)
+        repository.deleteFolderState(path)
 
         // Post event.
         eventScope.post(FolderPostDeleteEvent(path, state))
@@ -215,7 +215,7 @@ public class Tree internal constructor(
      * Returns the [WarpState] at the given [path].
      */
     public fun warpState(path: WarpPath): WarpState? {
-        return provider.registry.warps[path]
+        return repository.registry.warps[path]
     }
 
     /**
@@ -228,7 +228,7 @@ public class Tree internal constructor(
         }
 
         // Save the warp state at the given path.
-        provider.saveWarpState(path, state).onFailure { return Result.failure(it) }
+        repository.saveWarpState(path, state).onFailure { return Result.failure(it) }
 
         // Post event.
         eventScope.post(WarpStateChangeEvent(Warp(this, path), state, previousState))
@@ -240,7 +240,7 @@ public class Tree internal constructor(
      * Returns the [FolderState] at the given [path].
      */
     public fun folderState(path: FolderPath): FolderState? {
-        return provider.registry.folders[path]
+        return repository.registry.folders[path]
     }
 
     /**
@@ -253,7 +253,7 @@ public class Tree internal constructor(
         }
 
         // Save the folder state at the given path.
-        provider.saveFolderState(path, state).onFailure { return Result.failure(it) }
+        repository.saveFolderState(path, state).onFailure { return Result.failure(it) }
 
         // Post event.
         eventScope.post(FolderStateChangeEvent(Folder(this, path), state, previousState))
@@ -265,7 +265,7 @@ public class Tree internal constructor(
      * Returns the [FolderState] of the root.
      */
     public fun rootState(): FolderState {
-        return provider.registry.root
+        return repository.registry.root
     }
 
     /**
@@ -276,7 +276,7 @@ public class Tree internal constructor(
         val previousState = rootState()
 
         // Save the module state at the given path.
-        provider.saveRootState(state).onFailure { return Result.failure(it) }
+        repository.saveRootState(state).onFailure { return Result.failure(it) }
 
         // Post event.
         eventScope.post(RootStateChangeEvent(root, state, previousState))
@@ -349,14 +349,14 @@ public class Tree internal constructor(
      * Checks if a warp with the given [path] exists.
      */
     public fun exists(path: WarpPath): Boolean {
-        return provider.registry.warps.contains(path)
+        return repository.registry.warps.contains(path)
     }
 
     /**
      * Checks if a folder with the given [path] exists.
      */
     public fun exists(path: FolderPath): Boolean {
-        return provider.registry.folders.contains(path)
+        return repository.registry.folders.contains(path)
     }
 
     /**
@@ -417,7 +417,7 @@ public class Tree internal constructor(
         }
 
         // Move the state.
-        provider.moveWarpState(src, dst).onFailure { return Result.failure(it) }
+        repository.moveWarpState(src, dst).onFailure { return Result.failure(it) }
 
         // Post event.
         eventScope.post(WarpPathChangeEvent(Warp(this, dst), dst, src))
@@ -449,7 +449,7 @@ public class Tree internal constructor(
         }
 
         // Move the state.
-        provider.moveFolderState(src, dst).onFailure { return Result.failure(it) }
+        repository.moveFolderState(src, dst).onFailure { return Result.failure(it) }
 
         // Post event.
         eventScope.post(FolderPathChangeEvent(Folder(this, dst), dst, src))

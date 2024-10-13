@@ -1,4 +1,4 @@
-package net.voxelpi.varp.warp.provider
+package net.voxelpi.varp.warp.repository
 
 import net.voxelpi.varp.warp.path.FolderPath
 import net.voxelpi.varp.warp.path.WarpPath
@@ -6,7 +6,9 @@ import net.voxelpi.varp.warp.state.FolderState
 import net.voxelpi.varp.warp.state.TreeStateRegistryView
 import net.voxelpi.varp.warp.state.WarpState
 
-public interface TreeProvider {
+public interface TreeRepository {
+
+    public val id: String
 
     public val registry: TreeStateRegistryView
 
