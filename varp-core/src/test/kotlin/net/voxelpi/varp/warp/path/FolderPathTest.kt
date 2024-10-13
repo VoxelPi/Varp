@@ -54,4 +54,24 @@ class FolderPathTest {
         // Relative to path that is not a sub path.
         assertEquals(null, path.relativeTo(folder3Path))
     }
+
+    @Test
+    fun `test id`() {
+        assertEquals("test_test", FolderPath("/test_test/").id)
+        assertEquals("test_2_test", FolderPath("/folder1/test_2_test/").id)
+        assertEquals("folder", FolderPath("/folder1/folder2/folder/").id)
+    }
+
+    @Test
+    fun `test parent`() {
+        val root = RootPath
+        val path = FolderPath("/folder1/folder2/folder/")
+        val path1 = FolderPath("/folder1/")
+        val path2 = FolderPath("/folder1/folder2/")
+        val path3 = FolderPath("/folder1/folder3/")
+
+        assertEquals(path2, path.parent)
+        assertEquals(path1, path2.parent)
+        assertEquals(root, path1.parent)
+    }
 }

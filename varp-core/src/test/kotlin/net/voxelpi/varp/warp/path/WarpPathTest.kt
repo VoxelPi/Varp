@@ -52,4 +52,20 @@ class WarpPathTest {
         // Relative to path that is not a sub path.
         assertEquals(null, path.relativeTo(folder3Path))
     }
+
+    @Test
+    fun `test id`() {
+        assertEquals("warp1", WarpPath("/warp1").id)
+        assertEquals("warp2", WarpPath("/folder1/warp2").id)
+        assertEquals("warp3", WarpPath("/folder1/folder2/warp3").id)
+    }
+
+    @Test
+    fun `test parent`() {
+        val root = RootPath
+        val path = WarpPath("/folder1/folder2/warp")
+        val path2 = FolderPath("/folder1/folder2/")
+
+        assertEquals(path2, path.parent)
+    }
 }

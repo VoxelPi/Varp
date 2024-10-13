@@ -18,14 +18,17 @@ public data class WarpPath(
         get() {
             val matcher = PATH_PATTERN.matcher(value)
             check(matcher.find())
-            return matcher.group(3)
+            return matcher.group(2)
         }
+
+    override val key: String
+        get() = id
 
     override val parent: NodeParentPath
         get() {
             val matcher = PATH_PATTERN.matcher(value)
             check(matcher.find())
-            return NodeParentPath.parse("${matcher.group(1)}:${matcher.group(2)}").getOrThrow()
+            return NodeParentPath.parse("/${matcher.group(1)}").getOrThrow()
         }
 
     override fun relativeTo(path: NodeParentPath): WarpPath? {

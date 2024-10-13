@@ -19,6 +19,11 @@ public sealed interface NodePath {
     public val level: Int
 
     /**
+     * The key of the node.
+     */
+    public val key: String
+
+    /**
      * Returns this path as if the given [path] is the root path.
      * If the given [path] is not a parent of this path, null is returned.
      */
@@ -36,10 +41,10 @@ public sealed interface NodePath {
         }
 
         /**
-         * Parses the given string into a [NodeParentPath].
+         * Parses the given string into a [NodePath].
          */
         @JvmStatic
-        public fun parse(value: String): Result<NodeParentPath> {
+        public fun parse(value: String): Result<NodePath> {
             if (!isValid(value)) {
                 return Result.failure(InvalidNodeParentPathException(value))
             }
@@ -49,7 +54,7 @@ public sealed interface NodePath {
                 } else if (value.endsWith("/")) {
                     FolderPath(value)
                 } else {
-                    FolderPath(value)
+                    WarpPath(value)
                 }
             }
         }
