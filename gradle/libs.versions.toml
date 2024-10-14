@@ -4,6 +4,7 @@ adventure-fabric = "5.14.1"
 cloud-command = "2.0.0"
 cloud-command-minecraft = "2.0.0-beta.10"
 cloud-command-minecraft-modded = "2.0.0-beta.9"
+configurate = "4.1.2"
 coroutine = "1.9.0"
 event = "0.6.2"
 junit = "5.11.2"
@@ -44,6 +45,13 @@ adventure-text-serializer-plain = { module = "net.kyori:adventure-text-serialize
 adventure-serializer-configurate4 = { module = "net.kyori:adventure-serializer-configurate4", version.ref = "adventure" }
 adventure-platform-fabric = { module = "net.kyori:adventure-platform-fabric", version.ref = "adventure-fabric"}
 adventure-text-logger-slf4j = { module = "net.kyori:adventure-text-logger-slf4j"}
+
+configurate-core = { module = "org.spongepowered:configurate-core", version.ref = "configurate" }
+configurate-extra-kotlin = { module = "org.spongepowered:configurate-extra-kotlin", version.ref = "configurate" }
+configurate-gson = { module = "org.spongepowered:configurate-gson", version.ref = "configurate" }
+configurate-hocon = { module = "org.spongepowered:configurate-hocon", version.ref = "configurate" }
+configurate-xml = { module = "org.spongepowered:configurate-xml", version.ref = "configurate" }
+configurate-yaml = { module = "org.spongepowered:configurate-yaml", version.ref = "configurate" }
 
 cloud-core = { module = "org.incendo:cloud-core", version.ref = "cloud-command" }
 cloud-kotlin-extensions = { module = "org.incendo:cloud-kotlin-extensions", version.ref = "cloud-command" }
@@ -90,6 +98,8 @@ ktlint-plugin = { module = "org.jlleitschuh.gradle:ktlint-gradle", version.ref =
 [bundles]
 adventure = ["adventure-api", "adventure-text-minimessage", "adventure-text-serializer-gson", "adventure-text-serializer-plain", "adventure-serializer-configurate4", "adventure-text-logger-slf4j"]
 cloud = ["cloud-core", "cloud-kotlin-extensions", "cloud-minecraft-extras"]
+configurate-core = ["configurate-core", "configurate-extra-kotlin"]
+configurate-formats = ["configurate-gson", "configurate-hocon", "configurate-yaml", "configurate-xml"]
 jline = ["jline-terminal-core", "jline-terminal-jni", "jline-terminal-reader"]
 build-plugins = [
     "blossom",

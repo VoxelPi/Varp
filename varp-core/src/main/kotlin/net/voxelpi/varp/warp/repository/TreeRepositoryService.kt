@@ -1,5 +1,7 @@
 package net.voxelpi.varp.warp.repository
 
+import java.nio.file.Path
+
 public class TreeRepositoryService internal constructor() {
 
     private val repositories: MutableMap<String, TreeRepository> = mutableMapOf()
@@ -18,5 +20,13 @@ public class TreeRepositoryService internal constructor() {
 
     public fun unregisterRepository(name: String): TreeRepository? {
         return this.repositories.remove(name)
+    }
+
+    public fun clearRepositories() {
+        repositories.clear()
+    }
+
+    public fun loadRepositories(path: Path): Collection<TreeRepository> {
+        return emptyList()
     }
 }
