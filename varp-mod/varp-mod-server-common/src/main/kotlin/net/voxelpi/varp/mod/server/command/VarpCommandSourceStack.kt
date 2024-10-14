@@ -1,3 +1,8 @@
 package net.voxelpi.varp.mod.server.command
 
-interface VarpCommandSourceStack
+import net.voxelpi.varp.MinecraftLocation
+
+interface VarpCommandSourceStack {
+
+    val location: MinecraftLocation
+}
