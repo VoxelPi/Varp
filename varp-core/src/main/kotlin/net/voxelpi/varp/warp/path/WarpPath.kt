@@ -60,7 +60,7 @@ public data class WarpPath(
          */
         @JvmStatic
         public fun parse(path: String): Result<WarpPath> {
-            return kotlin.runCatching { WarpPath(path) }
+            return runCatching { WarpPath(path) }
         }
 
         @JvmStatic

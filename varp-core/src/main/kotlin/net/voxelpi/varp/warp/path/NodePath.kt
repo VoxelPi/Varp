@@ -48,7 +48,7 @@ public sealed interface NodePath {
             if (!isValid(value)) {
                 return Result.failure(InvalidNodeParentPathException(value))
             }
-            return kotlin.runCatching {
+            return runCatching {
                 if (value == "/") {
                     RootPath
                 } else if (value.endsWith("/")) {

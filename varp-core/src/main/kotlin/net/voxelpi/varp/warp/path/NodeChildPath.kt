@@ -49,7 +49,7 @@ public sealed interface NodeChildPath : NodePath {
             if (!isValid(value)) {
                 return Result.failure(InvalidNodeChildPathException(value))
             }
-            return kotlin.runCatching {
+            return runCatching {
                 if (value.endsWith('/')) {
                     FolderPath(value)
                 } else {
