@@ -7,6 +7,7 @@ cloud-command-minecraft-modded = "2.0.0-beta.9"
 configurate = "4.1.2"
 coroutine = "1.9.0"
 event = "0.6.2"
+gson = "2.11.0"
 junit = "5.11.2"
 kotlin = "2.0.21"
 log4j = "2.23.1"
@@ -60,6 +61,7 @@ cloud-fabric = { module = "org.incendo:cloud-fabric", version.ref = "cloud-comma
 cloud-paper = { module = "org.incendo:cloud-paper", version.ref = "cloud-command-minecraft" }
 
 event = { module = "net.voxelpi.event:event", version.ref = "event" }
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 
 junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
