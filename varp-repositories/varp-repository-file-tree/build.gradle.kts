@@ -8,8 +8,8 @@ dependencies {
     compileOnly(libs.kotlin.stdlib)
 
     // Project
-    compileOnlyApi(projects.varpCore)
-    compileOnlyApi(projects.varpSerializers.varpSerializerConfigurate)
+    api(projects.varpCore)
+    api(projects.varpSerializers.varpSerializerConfigurate)
 
     // Libraries
     compileOnlyApi(libs.bundles.configurate.core)

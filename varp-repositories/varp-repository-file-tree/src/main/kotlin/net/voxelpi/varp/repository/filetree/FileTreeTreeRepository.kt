@@ -1,6 +1,8 @@
 package net.voxelpi.varp.repository.filetree
 
 import net.kyori.adventure.serializer.configurate4.ConfigurateComponentSerializer
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.serializer.ComponentSerializer
 import net.voxelpi.varp.serializer.configurate.VarpConfigurateSerializers
 import net.voxelpi.varp.warp.path.FolderPath
 import net.voxelpi.varp.warp.path.NodeParentPath
@@ -20,17 +22,19 @@ import kotlin.io.path.deleteIfExists
 import kotlin.io.path.isDirectory
 import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.name
+import kotlin.io.path.notExists
 
 class FileTreeTreeRepository(
     override val id: String,
     val path: Path,
     val format: RepositoryFileFormat,
+    val componentSerializer: ComponentSerializer<Component, *, String>? = null,
 ) : TreeRepository {
 
     override val registry: TreeStateRegistry = TreeStateRegistry()
 
     init {
-        load()
+        load().getOrThrow()
     }
 
     override fun reload(): Result<Unit> {
@@ -153,7 +157,14 @@ class FileTreeTreeRepository(
         return format.provider().apply {
             defaultOptions { options ->
                 options.serializers { builder ->
-                    builder.registerAll(ConfigurateComponentSerializer.configurate().serializers())
+                    builder.registerAll(
+                        ConfigurateComponentSerializer.builder().apply {
+                            if (componentSerializer != null) {
+                                scalarSerializer(componentSerializer)
+                                outputStringComponents(true)
+                            }
+                        }.build().serializers()
+                    )
                     builder.registerAll(VarpConfigurateSerializers.serializers)
                     builder.registerAnnotatedObjects(objectMapperFactory())
                 }
