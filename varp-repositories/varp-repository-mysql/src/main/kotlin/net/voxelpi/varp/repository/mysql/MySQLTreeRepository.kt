@@ -19,6 +19,10 @@ class MySQLTreeRepository(
     override val registry: TreeStateRegistryView
         get() = TODO("Not yet implemented")
 
+    override fun reload(): Result<Unit> {
+        TODO("Not yet implemented")
+    }
+
     override fun createWarpState(path: WarpPath, state: WarpState): Result<Unit> {
         TODO("Not yet implemented")
     }

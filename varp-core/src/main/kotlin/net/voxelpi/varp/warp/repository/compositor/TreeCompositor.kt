@@ -9,6 +9,9 @@ import net.voxelpi.varp.warp.repository.TreeRepository
 import net.voxelpi.varp.warp.state.FolderState
 import net.voxelpi.varp.warp.state.TreeStateRegistry
 import net.voxelpi.varp.warp.state.WarpState
+import kotlin.collections.component1
+import kotlin.collections.component2
+import kotlin.collections.iterator
 
 public class TreeCompositor internal constructor(
     override val id: String,
@@ -23,14 +26,25 @@ public class TreeCompositor internal constructor(
     override val registry: TreeStateRegistry = TreeStateRegistry()
 
     init {
+        load()
+    }
+
+    override fun reload(): Result<Unit> {
+        registry.clear()
+        load()
+        return Result.success(Unit)
+    }
+
+    private fun load() {
         // Check if all locations are unique
-        require(mounts.size == mounts.map(TreeCompositorMount::location).size) { "Duplicate mounts detected." }
+        require(mounts.size == mounts.values.map(TreeCompositorMount::location).size) { "Duplicate mounts detected." }
 
         // Check that root mount is present.
-        val rootMount = mounts.last() // Get mount with shorted location. Should be the root path.
-        require(rootMount.location == RootPath) { "No storage mounted in root path." }
+        val rootMount = mounts[RootPath] // Get mount with shorted location. Should be the root path.
+        require(rootMount != null) { "No repository mounted in the root path." }
 
-        for (mount in mounts.reversed()) {
+        val mountList = mounts().sortedByDescending { it.location.value.length }
+        for (mount in mountList) {
             val location = mount.location
             when (location) {
                 is RootPath -> {

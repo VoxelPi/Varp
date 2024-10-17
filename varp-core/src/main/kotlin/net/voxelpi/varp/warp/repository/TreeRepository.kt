@@ -12,6 +12,21 @@ public interface TreeRepository {
 
     public val registry: TreeStateRegistryView
 
+    /**
+     * Function that is called when the repository is loaded.
+     */
+    public fun onStartup() {}
+
+    /**
+     * Function that is called when the repository is unloaded.
+     */
+    public fun onShutdown() {}
+
+    /**
+     * Reloads the content of the repository
+     */
+    public fun reload(): Result<Unit>
+
     public fun createWarpState(path: WarpPath, state: WarpState): Result<Unit>
 
     public fun createFolderState(path: FolderPath, state: FolderState): Result<Unit>

@@ -15,6 +15,11 @@ public class EphemeralTreeRepository(
 
     override val registry: TreeStateRegistry = TreeStateRegistry()
 
+    override fun reload(): Result<Unit> {
+        registry.clear()
+        return Result.success(Unit)
+    }
+
     override fun createWarpState(path: WarpPath, state: WarpState): Result<Unit> {
         registry[path] = state
         return Result.success(Unit)

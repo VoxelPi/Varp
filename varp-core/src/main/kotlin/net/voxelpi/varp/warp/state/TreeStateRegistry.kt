@@ -47,4 +47,10 @@ public data class TreeStateRegistry(
     public fun remove(path: FolderPath): FolderState? {
         return folders.remove(path)
     }
+
+    public fun clear() {
+        warps.clear()
+        folders.clear()
+        root = FolderState(Component.text("root"), emptyList(), emptySet(), emptyMap())
+    }
 }
