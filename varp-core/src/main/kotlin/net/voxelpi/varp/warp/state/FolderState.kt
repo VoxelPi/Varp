@@ -34,4 +34,11 @@ public data class FolderState(
             return FolderState(name, description, tags, properties)
         }
     }
+
+    public companion object {
+
+        public fun defaultRootState(): FolderState {
+            return FolderState(Component.text("root"), emptyList(), emptySet(), emptyMap())
+        }
+    }
 }

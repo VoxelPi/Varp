@@ -45,6 +45,11 @@ class FileTreeTreeRepository(
                 path.createDirectories()
             }
 
+            // Create root file if it does not already exist.
+            if (RootPath.file().notExists()) {
+                saveRootState(FolderState.defaultRootState())
+            }
+
             // Load content.
             val rootState = loadRoot(path).getOrThrow()
             val (warps, folders) = loadContainerContent(RootPath, path).getOrThrow()
