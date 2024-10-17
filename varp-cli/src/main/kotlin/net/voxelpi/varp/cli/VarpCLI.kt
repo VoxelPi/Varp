@@ -2,18 +2,18 @@ package net.voxelpi.varp.cli
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
-import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.minimessage.MiniMessage.miniMessage
+import net.kyori.adventure.text.minimessage.MiniMessage
 import net.voxelpi.event.EventScope
 import net.voxelpi.event.eventScope
 import net.voxelpi.varp.Varp
 import net.voxelpi.varp.cli.command.VarpCLICommandManager
 import net.voxelpi.varp.cli.console.VarpCLIConsole
 import net.voxelpi.varp.cli.coroutine.VarpCLIDispatcher
+import net.voxelpi.varp.repository.filetree.FileTreeTreeRepository
+import net.voxelpi.varp.repository.filetree.RepositoryFileFormat
 import net.voxelpi.varp.warp.Tree
-import net.voxelpi.varp.warp.repository.ephemeral.EphemeralTreeRepository
-import net.voxelpi.varp.warp.state.FolderState
 import org.slf4j.LoggerFactory
+import kotlin.io.path.Path
 import kotlin.system.exitProcess
 
 object VarpCLI {
@@ -29,16 +29,9 @@ object VarpCLI {
 
     val console = VarpCLIConsole(this, commandManager)
 
-    var tree: Tree = Varp.createTree(EphemeralTreeRepository("main"))
+    val repository = FileTreeTreeRepository("default", Path("repositories/default"), RepositoryFileFormat.JSON, MiniMessage.miniMessage())
 
-    init {
-        val folder1 = tree.root.createFolder("folder1", FolderState(Component.text("test1"))).getOrThrow()
-        val folder2 = tree.root.createFolder("folder2", FolderState(Component.text("test2"))).getOrThrow()
-        val folder3 = folder1.createFolder("folder3", FolderState(Component.text("test3"))).getOrThrow()
-        val folder4 = folder3.createFolder("folder4", FolderState(Component.text("test4"))).getOrThrow()
-        val folder5 = folder2.createFolder("folder5", FolderState(miniMessage().deserialize("<underlined>This text is underlined</underlined>"))).getOrThrow()
-        val folder6 = folder3.createFolder("folder6", FolderState(miniMessage().deserialize("<rainbow>THIS IS A TEST</rainbow>"))).getOrThrow()
-    }
+    var tree: Tree = Varp.createTree(repository)
 
     fun start() {
         console.start()

@@ -9,12 +9,16 @@ plugins {
 dependencies {
     // Project
     api(projects.varpCore)
+    implementation(projects.varpRepositories.varpRepositoryFileTree)
 
     // Libraries
     implementation(libs.kotlin.stdlib)
     implementation(libs.kotlin.reflect)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.bundles.adventure)
+    implementation(libs.bundles.configurate.core)
+    implementation(libs.bundles.configurate.formats)
+    implementation(libs.adventure.serializer.configurate4)
     implementation(libs.event)
 
     // Logging

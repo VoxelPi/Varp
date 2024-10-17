@@ -56,7 +56,7 @@ object CreateCommand {
                     ),
                     name,
                 )
-                parent.createWarp(id, state)
+                parent.createWarp(id, state).getOrThrow()
             }
         }
 
@@ -78,7 +78,7 @@ object CreateCommand {
                 val state = FolderState(
                     name,
                 )
-                parent.createFolder(id, state)
+                parent.createFolder(id, state).getOrThrow()
             }
         }
     }
