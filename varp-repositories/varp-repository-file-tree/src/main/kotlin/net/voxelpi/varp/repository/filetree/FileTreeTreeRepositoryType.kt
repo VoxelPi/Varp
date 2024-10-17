@@ -7,6 +7,6 @@ object FileTreeTreeRepositoryType : TreeRepositoryType<FileTreeTreeRepository, F
     override val id: String = "file-tree"
 
     override fun createRepository(id: String, config: FileTreeTreeRepositoryConfig): FileTreeTreeRepository {
-        return FileTreeTreeRepository(id, config.format)
+        return FileTreeTreeRepository(id, TODO(), config.format)
     }
 }

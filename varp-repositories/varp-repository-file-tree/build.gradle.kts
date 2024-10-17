@@ -9,6 +9,7 @@ dependencies {
 
     // Project
     compileOnlyApi(projects.varpCore)
+    compileOnlyApi(projects.varpSerializers.varpSerializerConfigurate)
 
     // Libraries
     compileOnlyApi(libs.bundles.configurate.core)
