@@ -7,6 +7,7 @@ import net.voxelpi.varp.cli.VarpCLI
 import net.voxelpi.varp.cli.command.commands.ClearCommand
 import net.voxelpi.varp.cli.command.commands.CreateCommand
 import net.voxelpi.varp.cli.command.commands.ListCommand
+import net.voxelpi.varp.cli.command.commands.MoveCommand
 import net.voxelpi.varp.cli.command.commands.StopCommand
 import net.voxelpi.varp.cli.command.parser.KeyParser
 import net.voxelpi.varp.cli.command.parser.path.FolderPathParser
@@ -66,6 +67,7 @@ class VarpCLICommandManager(
         registerCommand(ClearCommand)
         registerCommand(CreateCommand)
         registerCommand(ListCommand)
+        registerCommand(MoveCommand)
         registerCommand(StopCommand)
     }
 

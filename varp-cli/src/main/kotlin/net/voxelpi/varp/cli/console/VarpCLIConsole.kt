@@ -10,7 +10,9 @@ import net.voxelpi.varp.VarpBuildParameters
 import net.voxelpi.varp.cli.VarpCLI
 import net.voxelpi.varp.cli.command.VarpCLICommandManager
 import net.voxelpi.varp.cli.command.VarpCLICommandSender
+import net.voxelpi.varp.exception.tree.FolderMoveIntoChildException
 import org.incendo.cloud.exception.ArgumentParseException
+import org.incendo.cloud.exception.CommandExecutionException
 import org.incendo.cloud.exception.InvalidSyntaxException
 import org.incendo.cloud.exception.NoSuchCommandException
 import org.jline.reader.LineReader
@@ -70,8 +72,19 @@ class VarpCLIConsole(
                 logger.error(exception.message)
             } catch (exception: ArgumentParseException) {
                 logger.error(exception.cause.message)
+            } catch (exception: CommandExecutionException) {
+                val cause = exception.cause
+                if (cause == null) {
+                    logger.error("An error occurred while executing the last command.", exception)
+                    return@runBlocking
+                }
+
+                when (cause) {
+                    is FolderMoveIntoChildException -> logger.error(cause.message)
+                    else -> logger.error("An error occurred while executing the last command.", cause)
+                }
             } catch (exception: Exception) {
-                logger.error("An error occurred while running the last command.", exception)
+                logger.error("An error occurred whilst processing the last command.", exception)
             }
         }
     }
