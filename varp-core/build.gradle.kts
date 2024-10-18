@@ -10,6 +10,7 @@ plugins {
 
 dependencies {
     compileOnly(libs.kotlin.stdlib)
+    compileOnly(libs.kotlin.reflect)
 
     // Libraries
     compileOnlyApi(libs.adventure.api)

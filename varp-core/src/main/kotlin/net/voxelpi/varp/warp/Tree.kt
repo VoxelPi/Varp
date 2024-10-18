@@ -27,7 +27,7 @@ import net.voxelpi.varp.warp.path.NodeParentPath
 import net.voxelpi.varp.warp.path.NodePath
 import net.voxelpi.varp.warp.path.RootPath
 import net.voxelpi.varp.warp.path.WarpPath
-import net.voxelpi.varp.warp.repository.TreeRepository
+import net.voxelpi.varp.warp.repository.Repository
 import net.voxelpi.varp.warp.state.FolderState
 import net.voxelpi.varp.warp.state.WarpState
 
@@ -37,7 +37,7 @@ import net.voxelpi.varp.warp.state.WarpState
  * @property repository the repository of this tree.
  */
 public class Tree internal constructor(
-    public val repository: TreeRepository,
+    public val repository: Repository,
 ) {
 
     public val eventScope: EventScope = eventScope()

@@ -5,8 +5,9 @@ import net.voxelpi.varp.warp.path.WarpPath
 import net.voxelpi.varp.warp.state.FolderState
 import net.voxelpi.varp.warp.state.TreeStateRegistryView
 import net.voxelpi.varp.warp.state.WarpState
+import kotlin.reflect.full.findAnnotation
 
-public interface TreeRepository {
+public interface Repository {
 
     public val id: String
 
@@ -44,4 +45,12 @@ public interface TreeRepository {
     public fun moveWarpState(src: WarpPath, dst: WarpPath): Result<Unit>
 
     public fun moveFolderState(src: FolderPath, dst: FolderPath): Result<Unit>
+
+    /**
+     * Gets the type id of this tree repository specified via the [RepositoryType] annotation.
+     * If this repository is not annotated with that annotation, null is returned.
+     */
+    public fun typeId(): String? {
+        return this::class.findAnnotation<RepositoryType>()?.id
+    }
 }

@@ -10,7 +10,9 @@ import net.voxelpi.varp.warp.path.FolderPath
 import net.voxelpi.varp.warp.path.NodeParentPath
 import net.voxelpi.varp.warp.path.RootPath
 import net.voxelpi.varp.warp.path.WarpPath
-import net.voxelpi.varp.warp.repository.TreeRepository
+import net.voxelpi.varp.warp.repository.Repository
+import net.voxelpi.varp.warp.repository.RepositoryLoader
+import net.voxelpi.varp.warp.repository.RepositoryType
 import net.voxelpi.varp.warp.state.FolderState
 import net.voxelpi.varp.warp.state.TreeStateRegistry
 import net.voxelpi.varp.warp.state.WarpState
@@ -26,18 +28,22 @@ import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.name
 import kotlin.io.path.notExists
 
-class FileTreeTreeRepository(
+@RepositoryType("file-tree")
+class FileTreeRepository(
     override val id: String,
     val path: Path,
     val format: RepositoryFileFormat,
     val componentSerializer: ComponentSerializer<Component, *, String>? = null,
-) : TreeRepository {
+) : Repository {
 
     override val registry: TreeStateRegistry = TreeStateRegistry()
 
     init {
         load().getOrThrow()
     }
+
+    @RepositoryLoader
+    public constructor(id: String, path: Path, config: FileTreeRepositoryConfig) : this(id, path, RepositoryFileFormat.format(config.format)!!)
 
     override fun reload(): Result<Unit> {
         registry.clear()

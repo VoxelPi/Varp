@@ -9,8 +9,7 @@ import net.voxelpi.varp.cli.command.VarpCLICommandManager
 import net.voxelpi.varp.cli.console.VarpCLIConsole
 import net.voxelpi.varp.cli.coroutine.VarpCLIDispatcher
 import net.voxelpi.varp.loader.VarpLoader
-import net.voxelpi.varp.repository.filetree.FileTreeTreeRepository
-import net.voxelpi.varp.repository.filetree.FileTreeTreeRepositoryType
+import net.voxelpi.varp.repository.filetree.FileTreeRepository
 import net.voxelpi.varp.repository.filetree.RepositoryFileFormat
 import net.voxelpi.varp.warp.Tree
 import org.slf4j.LoggerFactory
@@ -31,10 +30,10 @@ object VarpCLI {
     val console = VarpCLIConsole(this, commandManager)
 
     val loader = VarpLoader.loader(Path(".")) {
-        registerRepositoryType(FileTreeTreeRepositoryType)
+        registerRepositoryType<FileTreeRepository>()
     }
 
-    val repository = FileTreeTreeRepository("default", Path("repositories/default"), RepositoryFileFormat.JSON, MiniMessage.miniMessage())
+    val repository = FileTreeRepository("default", Path("repositories/default"), RepositoryFileFormat.JSON, MiniMessage.miniMessage())
 
     var tree: Tree = loader.tree
 

@@ -1,4 +1,3 @@
-import org.gradle.kotlin.dsl.invoke
 import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode
 
 plugins {
@@ -9,6 +8,7 @@ plugins {
 
 dependencies {
     compileOnly(libs.kotlin.stdlib)
+    compileOnly(libs.kotlin.reflect)
 
     // Project
     api(projects.varpCore)

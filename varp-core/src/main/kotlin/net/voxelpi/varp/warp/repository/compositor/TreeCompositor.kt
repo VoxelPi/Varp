@@ -5,7 +5,9 @@ import net.voxelpi.varp.warp.path.NodeParentPath
 import net.voxelpi.varp.warp.path.NodePath
 import net.voxelpi.varp.warp.path.RootPath
 import net.voxelpi.varp.warp.path.WarpPath
-import net.voxelpi.varp.warp.repository.TreeRepository
+import net.voxelpi.varp.warp.repository.Repository
+import net.voxelpi.varp.warp.repository.RepositoryLoader
+import net.voxelpi.varp.warp.repository.RepositoryType
 import net.voxelpi.varp.warp.state.FolderState
 import net.voxelpi.varp.warp.state.TreeStateRegistry
 import net.voxelpi.varp.warp.state.WarpState
@@ -13,10 +15,11 @@ import kotlin.collections.component1
 import kotlin.collections.component2
 import kotlin.collections.iterator
 
+@RepositoryType("compositor")
 public class TreeCompositor internal constructor(
     override val id: String,
     mounts: Collection<TreeCompositorMount>,
-) : TreeRepository {
+) : Repository {
 
     private val mounts: MutableMap<NodeParentPath, TreeCompositorMount> = mounts
         .sortedByDescending { it.location.value.length }
@@ -28,6 +31,9 @@ public class TreeCompositor internal constructor(
     init {
         load()
     }
+
+    @RepositoryLoader
+    public constructor(id: String, config: TreeCompositorConfig) : this(id, config.mounts) {}
 
     override fun reload(): Result<Unit> {
         registry.clear()
@@ -195,7 +201,7 @@ public class TreeCompositor internal constructor(
 
     public companion object {
 
-        public fun simple(id: String, repository: TreeRepository): TreeCompositor {
+        public fun simple(id: String, repository: Repository): TreeCompositor {
             return TreeCompositor(
                 id,
                 listOf(

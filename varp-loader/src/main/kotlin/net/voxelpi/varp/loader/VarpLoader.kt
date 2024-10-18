@@ -7,33 +7,32 @@ import com.google.gson.JsonParser
 import com.google.gson.JsonPrimitive
 import net.voxelpi.varp.Varp
 import net.voxelpi.varp.warp.Tree
-import net.voxelpi.varp.warp.repository.TreeRepository
-import net.voxelpi.varp.warp.repository.TreeRepositoryConfig
-import net.voxelpi.varp.warp.repository.TreeRepositoryType
+import net.voxelpi.varp.warp.repository.Repository
+import net.voxelpi.varp.warp.repository.RepositoryConfig
+import net.voxelpi.varp.warp.repository.RepositoryTypeData
 import net.voxelpi.varp.warp.repository.compositor.TreeCompositor
-import net.voxelpi.varp.warp.repository.compositor.TreeCompositorType
-import net.voxelpi.varp.warp.repository.ephemeral.EphemeralTreeRepositoryConfig
-import net.voxelpi.varp.warp.repository.ephemeral.EphemeralTreeRepositoryType
+import net.voxelpi.varp.warp.repository.ephemeral.EphemeralRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import kotlin.io.path.bufferedReader
 import kotlin.io.path.createDirectories
+import kotlin.reflect.KClass
 
 public class VarpLoader internal constructor(
     public val path: Path,
-    repositoryTypes: Collection<TreeRepositoryType<*, *>>,
+    repositoryTypes: Collection<RepositoryTypeData>,
 ) {
 
     private val logger: Logger = LoggerFactory.getLogger(VarpLoader::class.java)
 
     public val repositoriesPath: Path = path.resolve("repositories")
 
-    private val repositoryTypes: Map<String, TreeRepositoryType<*, *>> = repositoryTypes.associateBy(TreeRepositoryType<*, *>::id)
+    private val repositoryTypes: Map<String, RepositoryTypeData> = repositoryTypes.associateBy(RepositoryTypeData::id)
 
-    private val repositories: MutableMap<String, TreeRepository> = mutableMapOf()
+    private val repositories: MutableMap<String, Repository> = mutableMapOf()
 
-    public var compositor: TreeCompositor = TreeCompositor.simple("main", EphemeralTreeRepositoryType.createRepository("default", EphemeralTreeRepositoryConfig))
+    public var compositor: TreeCompositor = TreeCompositor.simple("main", EphemeralRepository("default"))
         private set
 
     public var tree: Tree = Varp.createTree(compositor)
@@ -48,7 +47,7 @@ public class VarpLoader internal constructor(
         repositoriesPath.createDirectories()
     }
 
-    public fun repositories(): Collection<TreeRepository> {
+    public fun repositories(): Collection<Repository> {
         return repositories.values
     }
 
@@ -96,32 +95,83 @@ public class VarpLoader internal constructor(
                     continue
                 }
 
-                // Load the repository config.
-                val config = runCatching {
-                    gson.fromJson(repositoryConfig, type.configType)
-                }.getOrNull()
-                if (config == null) {
-                    logger.warn("Unable to load repository \"$id\": Unable to load repository type config")
+                val repositoryResult: Result<Repository> = when (type) {
+                    is RepositoryTypeData.WithConfig<*> -> {
+                        // Load the repository config.
+                        val configResult = runCatching {
+                            gson.fromJson<RepositoryConfig>(repositoryConfig, type.configType.java)
+                        }
+                        if (configResult.isFailure) {
+                            logger.warn("Unable to load repository \"$id\": Unable to load repository type config.", configResult.exceptionOrNull())
+                            continue
+                        }
+                        val config = configResult.getOrThrow()
+                        if (config == null) {
+                            logger.warn("Unable to load repository \"$id\": Unable to load repository type config.")
+                            continue
+                        }
+
+                        @Suppress("UNCHECKED_CAST")
+                        (type.generator as (id: String, config: RepositoryConfig) -> Result<Repository>).invoke(id, config)
+                    }
+                    is RepositoryTypeData.NoArgs -> {
+                        type.generator.invoke(id)
+                    }
+                    is RepositoryTypeData.WithPath -> {
+                        type.generator.invoke(id, repositoryPath(id))
+                    }
+                    is RepositoryTypeData.WithPathConfig<*> -> {
+                        // Load the repository config.
+                        val configResult = runCatching {
+                            gson.fromJson<RepositoryConfig>(repositoryConfig["config"], type.configType.java)
+                        }
+                        if (configResult.isFailure) {
+                            logger.warn("Unable to load repository \"$id\": Unable to load repository type config.", configResult.exceptionOrNull())
+                            continue
+                        }
+                        val config = configResult.getOrThrow()
+                        if (config == null) {
+                            logger.warn("Unable to load repository \"$id\": Unable to load repository type config.")
+                            continue
+                        }
+
+                        @Suppress("UNCHECKED_CAST")
+                        (type.generator as (id: String, path: Path, config: RepositoryConfig) -> Result<Repository>).invoke(id, repositoryPath(id), config)
+                    }
+                }
+                if (repositoryResult.isFailure) {
+                    logger.warn("Unable to create repository \"$id\".", repositoryResult.exceptionOrNull())
                     continue
                 }
-
-                // Create the repository.
-                @Suppress("UNCHECKED_CAST")
-                val repository = (type as TreeRepositoryType<TreeRepository, TreeRepositoryConfig>).createRepository(id, config)
+                val repository = repositoryResult.getOrThrow()
                 repositories[repository.id] = repository
             }
         }
     }
 
+    private fun repositoryPath(id: String): Path {
+        return repositoriesPath.resolve(id)
+    }
+
     public class Builder internal constructor(
         public val path: Path,
-        repositoryTypes: Collection<TreeRepositoryType<*, *>>,
+        repositoryTypes: Collection<KClass<out Repository>>,
     ) {
-        private val repositoryTypes: MutableMap<String, TreeRepositoryType<*, *>> = repositoryTypes.associateBy(TreeRepositoryType<*, *>::id).toMutableMap()
+        private val repositoryTypes: MutableMap<String, RepositoryTypeData> = mutableMapOf() // repositoryTypes.associateBy(RepositoryType<*, *>::id).toMutableMap()
 
-        public fun registerRepositoryType(repositoryType: TreeRepositoryType<*, *>): Builder {
-            repositoryTypes[repositoryType.id] = repositoryType
+        init {
+            repositoryTypes.forEach(this::registerRepositoryType)
+        }
+
+        public fun registerRepositoryType(repositoryType: KClass<out Repository>): Builder {
+            val data = RepositoryTypeData.Companion.fromClass(repositoryType).getOrThrow()
+            require(data != null) { "Repository is not marked as type" }
+            repositoryTypes[data.id] = data
             return this
+        }
+
+        public inline fun <reified T : Repository> registerRepositoryType(): Builder {
+            return registerRepositoryType(T::class)
         }
 
         public fun build(): VarpLoader {
@@ -151,9 +201,9 @@ public class VarpLoader internal constructor(
             return builder.build()
         }
 
-        private val DEFAULT_TYPES = listOf<TreeRepositoryType<*, *>>(
-            EphemeralTreeRepositoryType,
-            TreeCompositorType,
+        private val DEFAULT_TYPES = listOf<KClass<out Repository>>(
+            EphemeralRepository::class,
+            TreeCompositor::class,
         )
 
         private const val REPOSITORIES_FILE = "repositories.json"

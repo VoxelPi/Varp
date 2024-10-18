@@ -4,14 +4,17 @@ import net.voxelpi.varp.exception.tree.FolderNotFoundException
 import net.voxelpi.varp.exception.tree.WarpNotFoundException
 import net.voxelpi.varp.warp.path.FolderPath
 import net.voxelpi.varp.warp.path.WarpPath
-import net.voxelpi.varp.warp.repository.TreeRepository
+import net.voxelpi.varp.warp.repository.Repository
+import net.voxelpi.varp.warp.repository.RepositoryLoader
+import net.voxelpi.varp.warp.repository.RepositoryType
 import net.voxelpi.varp.warp.state.FolderState
 import net.voxelpi.varp.warp.state.TreeStateRegistry
 import net.voxelpi.varp.warp.state.WarpState
 
-public class EphemeralTreeRepository(
+@RepositoryType("ephemeral")
+public class EphemeralRepository @RepositoryLoader constructor(
     override val id: String,
-) : TreeRepository {
+) : Repository {
 
     override val registry: TreeStateRegistry = TreeStateRegistry()
 
