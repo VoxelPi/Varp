@@ -1,6 +1,5 @@
 package net.voxelpi.varp.warp.state
 
-import net.kyori.adventure.text.Component
 import net.voxelpi.varp.warp.path.FolderPath
 import net.voxelpi.varp.warp.path.WarpPath
 
