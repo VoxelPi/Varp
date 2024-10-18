@@ -3,6 +3,8 @@ package net.voxelpi.varp.repository.filetree
 import net.kyori.adventure.serializer.configurate4.ConfigurateComponentSerializer
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.serializer.ComponentSerializer
+import net.voxelpi.varp.exception.tree.FolderNotFoundException
+import net.voxelpi.varp.exception.tree.WarpNotFoundException
 import net.voxelpi.varp.serializer.configurate.VarpConfigurateSerializers
 import net.voxelpi.varp.warp.path.FolderPath
 import net.voxelpi.varp.warp.path.NodeParentPath
@@ -146,11 +148,25 @@ class FileTreeTreeRepository(
     }
 
     override fun moveWarpState(src: WarpPath, dst: WarpPath): Result<Unit> {
-        TODO("Not yet implemented")
+        return runCatching {
+            val srcPath = src.file()
+            val dstPath = dst.file()
+            Files.move(srcPath, dstPath)
+
+            registry.move(src, dst) ?: return Result.failure(WarpNotFoundException(src))
+            Unit
+        }
     }
 
     override fun moveFolderState(src: FolderPath, dst: FolderPath): Result<Unit> {
-        TODO("Not yet implemented")
+        return runCatching {
+            val srcPath = src.directory()
+            val dstPath = dst.directory()
+            Files.move(srcPath, dstPath)
+
+            registry.move(src, dst) ?: return Result.failure(FolderNotFoundException(src))
+            Unit
+        }
     }
 
     private fun loader(): AbstractConfigurationLoader.Builder<*, *> {
