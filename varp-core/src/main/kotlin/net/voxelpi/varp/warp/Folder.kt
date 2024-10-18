@@ -47,8 +47,8 @@ public class Folder internal constructor(
         return Result.success(Unit)
     }
 
-    override fun move(destination: NodeParentPath, duplicatesStrategy: DuplicatesStrategy): Result<Unit> {
-        return move(destination.folder(id), duplicatesStrategy)
+    override fun move(destination: NodeParentPath, duplicatesStrategy: DuplicatesStrategy, destinationId: String?): Result<Unit> {
+        return move(destination.folder(destinationId ?: id), duplicatesStrategy)
     }
 
     override fun move(id: String, duplicatesStrategy: DuplicatesStrategy): Result<Unit> {
@@ -67,15 +67,15 @@ public class Folder internal constructor(
      * Copies the folder to the given [destination].
      * If [recursive] is true child nodes will also be copied, otherwise only the folder itself is copied.
      */
-    public fun copy(destination: NodeParentPath, duplicatesStrategy: DuplicatesStrategy, recursive: Boolean = true): Result<Folder> {
-        return copy(destination.folder(id), duplicatesStrategy, recursive)
+    public fun copy(destination: NodeParentPath, duplicatesStrategy: DuplicatesStrategy, destinationId: String? = null, recursive: Boolean = true): Result<Folder> {
+        return copy(destination.folder(destinationId ?: id), duplicatesStrategy, recursive)
     }
 
     /**
      * Copies the folder and all its child nodes to the given [destination].
      */
-    override fun copy(destination: NodeParentPath, duplicatesStrategy: DuplicatesStrategy): Result<Folder> {
-        return copy(destination, duplicatesStrategy, true)
+    override fun copy(destination: NodeParentPath, duplicatesStrategy: DuplicatesStrategy, destinationId: String?): Result<Folder> {
+        return copy(destination, duplicatesStrategy, destinationId, true)
     }
 
     private fun copy(destination: FolderPath, duplicatesStrategy: DuplicatesStrategy, recursive: Boolean, skipPath: FolderPath): Result<Folder> {

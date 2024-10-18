@@ -47,8 +47,8 @@ public class Warp internal constructor(
         return Result.success(Unit)
     }
 
-    override fun move(destination: NodeParentPath, duplicatesStrategy: DuplicatesStrategy): Result<Unit> {
-        return move(destination.warp(id), duplicatesStrategy)
+    override fun move(destination: NodeParentPath, duplicatesStrategy: DuplicatesStrategy, destinationId: String?): Result<Unit> {
+        return move(destination.warp(destinationId ?: id), duplicatesStrategy)
     }
 
     override fun move(id: String, duplicatesStrategy: DuplicatesStrategy): Result<Unit> {
@@ -73,8 +73,12 @@ public class Warp internal constructor(
         return tree.createWarp(destination, state)
     }
 
-    override fun copy(destination: NodeParentPath, duplicatesStrategy: DuplicatesStrategy): Result<Warp> {
-        return copy(destination.warp(id), duplicatesStrategy)
+    override fun copy(
+        destination: NodeParentPath,
+        duplicatesStrategy: DuplicatesStrategy,
+        destinationId: String?,
+    ): Result<Warp> {
+        return copy(destination.warp(destinationId ?: id), duplicatesStrategy)
     }
 
     override fun delete(): Result<Unit> {

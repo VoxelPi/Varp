@@ -28,13 +28,13 @@ public sealed interface NodeChild : Node {
     /**
      * Moves the node the given path.
      */
-    public fun move(destination: NodeParentPath, duplicatesStrategy: DuplicatesStrategy): Result<Unit>
+    public fun move(destination: NodeParentPath, duplicatesStrategy: DuplicatesStrategy, destinationId: String? = null): Result<Unit>
 
     /**
      * Copies the node the given path.
      * @return the created node.
      */
-    public fun copy(destination: NodeParentPath, duplicatesStrategy: DuplicatesStrategy): Result<NodeChild>
+    public fun copy(destination: NodeParentPath, duplicatesStrategy: DuplicatesStrategy, destinationId: String? = null): Result<NodeChild>
 
     /**
      * Delete the node.
