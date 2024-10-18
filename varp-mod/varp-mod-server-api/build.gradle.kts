@@ -9,4 +9,5 @@ dependencies {
 
     // Project
     api(projects.varpCore)
+    api(projects.varpLoader)
 }

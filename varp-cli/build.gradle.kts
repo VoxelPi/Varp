@@ -9,6 +9,7 @@ plugins {
 dependencies {
     // Project
     api(projects.varpCore)
+    implementation(projects.varpLoader)
     implementation(projects.varpRepositories.varpRepositoryFileTree)
 
     // Libraries
@@ -20,6 +21,7 @@ dependencies {
     implementation(libs.bundles.configurate.formats)
     implementation(libs.adventure.serializer.configurate4)
     implementation(libs.event)
+    implementation(libs.gson)
 
     // Logging
     implementation(libs.slf4j.api)

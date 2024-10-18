@@ -10,6 +10,7 @@ pluginManagement {
 }
 
 include("varp-core")
+include("varp-loader")
 include("varp-repositories:varp-repository-file-tree")
 include("varp-repositories:varp-repository-mysql")
 include("varp-serializers:varp-serializer-configurate")

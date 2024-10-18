@@ -192,4 +192,16 @@ public class TreeCompositor internal constructor(
 
         return Result.success(Unit)
     }
+
+    public companion object {
+
+        public fun simple(id: String, repository: TreeRepository): TreeCompositor {
+            return TreeCompositor(
+                id,
+                listOf(
+                    TreeCompositorMount(RootPath, repository)
+                ),
+            )
+        }
+    }
 }

@@ -2,9 +2,7 @@ package net.voxelpi.varp.warp.repository.compositor
 
 import net.voxelpi.varp.warp.repository.TreeRepositoryType
 
-public object TreeCompositorType : TreeRepositoryType<TreeCompositor, TreeCompositorConfig> {
-
-    override val id: String = "compositor"
+public object TreeCompositorType : TreeRepositoryType<TreeCompositor, TreeCompositorConfig>("compositor", TreeCompositorConfig::class.java) {
 
     override fun createRepository(id: String, config: TreeCompositorConfig): TreeCompositor {
         return TreeCompositor(id, config.mounts)
