@@ -2,15 +2,18 @@ package net.voxelpi.varp.loader
 
 import com.google.gson.FieldNamingPolicy
 import com.google.gson.GsonBuilder
+import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import com.google.gson.JsonPrimitive
 import net.voxelpi.varp.Varp
 import net.voxelpi.varp.warp.Tree
+import net.voxelpi.varp.warp.path.NodeParentPath
 import net.voxelpi.varp.warp.repository.Repository
 import net.voxelpi.varp.warp.repository.RepositoryConfig
 import net.voxelpi.varp.warp.repository.RepositoryTypeData
 import net.voxelpi.varp.warp.repository.compositor.TreeCompositor
+import net.voxelpi.varp.warp.repository.compositor.TreeCompositorMount
 import net.voxelpi.varp.warp.repository.ephemeral.EphemeralRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -52,10 +55,8 @@ public class VarpLoader internal constructor(
     }
 
     public fun load(): Result<Unit> {
-        loadRepositories().getOrElse { return Result.failure(it) }
-
-        tree = Varp.createTree(compositor)
-
+        loadRepositories().onFailure { return Result.failure(it) }
+        loadTree().onFailure { return Result.failure(it) }
         return Result.success(Unit)
     }
 
@@ -146,6 +147,48 @@ public class VarpLoader internal constructor(
                 val repository = repositoryResult.getOrThrow()
                 repositories[repository.id] = repository
             }
+        }
+    }
+
+    private fun loadTree(): Result<Unit> {
+        return runCatching {
+            val mounts = mutableListOf<TreeCompositorMount>()
+
+            val treeConfig = JsonParser.parseReader(path.resolve(TREE_FILE).bufferedReader())
+            if (treeConfig !is JsonObject) {
+                return Result.failure(Exception("Tree config must be a json object"))
+            }
+
+            val mountsConfig = treeConfig["mounts"]
+            if (mountsConfig !is JsonArray) {
+                return Result.failure(Exception("Mounts config must be a json array"))
+            }
+
+            for (mountConfig in mountsConfig) {
+                if (mountConfig !is JsonObject) {
+                    logger.warn("Unable to load mount, invalid format")
+                    continue
+                }
+
+                val locationResult = NodeParentPath.parse(mountConfig["location"].asString)
+                if (locationResult.isFailure) {
+                    logger.warn("Unable to load mount, invalid location \"${(mountConfig["location"])}\"")
+                    continue
+                }
+                val location = locationResult.getOrThrow()
+
+                val repositoryId = mountConfig["repository"].asString
+                val repository = repositories[repositoryId]
+                if (repository == null) {
+                    logger.warn("Unable to load mount, unknown repository \"$repositoryId\"")
+                    continue
+                }
+
+                val mount = TreeCompositorMount(location, repository)
+                mounts.add(mount)
+            }
+
+            compositor.updateMounts(mounts)
         }
     }
 

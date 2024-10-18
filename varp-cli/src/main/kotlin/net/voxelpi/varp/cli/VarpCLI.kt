@@ -46,6 +46,7 @@ object VarpCLI {
             stop()
         }
         logger.info("Loaded ${loader.repositories().size} repositories")
+        logger.info("Loaded ${loader.compositor.mounts().size} mounts")
 
         while (true) {
             coroutineDispatcher.executor.runTasks()

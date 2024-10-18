@@ -4,4 +4,5 @@ import net.voxelpi.varp.warp.repository.RepositoryConfig
 
 data class FileTreeRepositoryConfig(
     val format: String,
+    val componentsAsObjects: Boolean,
 ) : RepositoryConfig

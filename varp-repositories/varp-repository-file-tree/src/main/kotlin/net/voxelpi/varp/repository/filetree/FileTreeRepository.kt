@@ -2,6 +2,7 @@ package net.voxelpi.varp.repository.filetree
 
 import net.kyori.adventure.serializer.configurate4.ConfigurateComponentSerializer
 import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.minimessage.MiniMessage
 import net.kyori.adventure.text.serializer.ComponentSerializer
 import net.voxelpi.varp.exception.tree.FolderNotFoundException
 import net.voxelpi.varp.exception.tree.WarpNotFoundException
@@ -43,7 +44,12 @@ class FileTreeRepository(
     }
 
     @RepositoryLoader
-    public constructor(id: String, path: Path, config: FileTreeRepositoryConfig) : this(id, path, RepositoryFileFormat.format(config.format)!!)
+    public constructor(id: String, path: Path, config: FileTreeRepositoryConfig) : this(
+        id,
+        path,
+        RepositoryFileFormat.format(config.format)!!,
+        if (!config.componentsAsObjects) MiniMessage.miniMessage() else null,
+    )
 
     override fun reload(): Result<Unit> {
         registry.clear()

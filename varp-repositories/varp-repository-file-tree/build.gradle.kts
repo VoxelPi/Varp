@@ -14,4 +14,5 @@ dependencies {
     // Libraries
     compileOnlyApi(libs.bundles.configurate.core)
     compileOnlyApi(libs.bundles.configurate.formats)
+    compileOnlyApi(libs.adventure.text.minimessage)
 }

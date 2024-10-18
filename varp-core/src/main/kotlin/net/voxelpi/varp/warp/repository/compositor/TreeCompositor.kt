@@ -8,6 +8,7 @@ import net.voxelpi.varp.warp.path.WarpPath
 import net.voxelpi.varp.warp.repository.Repository
 import net.voxelpi.varp.warp.repository.RepositoryLoader
 import net.voxelpi.varp.warp.repository.RepositoryType
+import net.voxelpi.varp.warp.repository.ephemeral.EphemeralRepository
 import net.voxelpi.varp.warp.state.FolderState
 import net.voxelpi.varp.warp.state.TreeStateRegistry
 import net.voxelpi.varp.warp.state.WarpState
@@ -29,7 +30,7 @@ public class TreeCompositor internal constructor(
     override val registry: TreeStateRegistry = TreeStateRegistry()
 
     init {
-        load()
+        buildTree()
     }
 
     @RepositoryLoader
@@ -37,11 +38,11 @@ public class TreeCompositor internal constructor(
 
     override fun reload(): Result<Unit> {
         registry.clear()
-        load()
+        buildTree()
         return Result.success(Unit)
     }
 
-    private fun load() {
+    private fun buildTree() {
         // Check if all locations are unique
         require(mounts.size == mounts.values.map(TreeCompositorMount::location).size) { "Duplicate mounts detected." }
 
@@ -72,6 +73,28 @@ public class TreeCompositor internal constructor(
 
     public fun mounts(): Collection<TreeCompositorMount> {
         return mounts.values
+    }
+
+    public fun addMount(path: NodeParentPath, repository: Repository) {
+        mounts[path] = TreeCompositorMount(path, repository)
+        buildTree()
+    }
+
+    public fun removeMount(path: NodeParentPath) {
+        mounts.remove(path)
+        buildTree()
+    }
+
+    public fun clearMounts() {
+        mounts.clear()
+        mounts[RootPath] = TreeCompositorMount(RootPath, EphemeralRepository("default"))
+        buildTree()
+    }
+
+    public fun updateMounts(mounts: Collection<TreeCompositorMount>) {
+        this.mounts.clear()
+        this.mounts.putAll(mounts.associateBy { it.location })
+        buildTree()
     }
 
     public fun mountAt(path: NodePath): TreeCompositorMount {
