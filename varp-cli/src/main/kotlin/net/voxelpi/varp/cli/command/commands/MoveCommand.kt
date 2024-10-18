@@ -9,6 +9,8 @@ import net.voxelpi.varp.warp.NodeChild
 import net.voxelpi.varp.warp.path.NodeParentPath
 import org.incendo.cloud.description.Description
 import org.incendo.cloud.kotlin.extension.buildAndRegister
+import org.incendo.cloud.parser.standard.StringParser.stringParser
+import kotlin.jvm.optionals.getOrNull
 
 object MoveCommand {
 
@@ -20,12 +22,14 @@ object MoveCommand {
         commandManager.buildAndRegister("move", Description.description("Moves tree elements"), arrayOf("mv")) {
             required("node", nodeChildParser { cli.tree })
             required("destination", nodeParentPathParser { cli.tree })
+            optional("id", stringParser())
 
             handler { context ->
                 val node: NodeChild = context["node"]
                 val destination: NodeParentPath = context["destination"]
+                val id = context.optional<String>("id").getOrNull()
 
-                node.move(destination, DuplicatesStrategy.FAIL).getOrThrow()
+                node.move(destination, DuplicatesStrategy.FAIL, id).getOrThrow()
             }
         }
     }
