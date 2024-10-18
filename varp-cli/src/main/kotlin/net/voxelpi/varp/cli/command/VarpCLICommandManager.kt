@@ -5,6 +5,7 @@ import net.kyori.adventure.key.Key
 import net.voxelpi.event.post
 import net.voxelpi.varp.cli.VarpCLI
 import net.voxelpi.varp.cli.command.commands.ClearCommand
+import net.voxelpi.varp.cli.command.commands.CopyCommand
 import net.voxelpi.varp.cli.command.commands.CreateCommand
 import net.voxelpi.varp.cli.command.commands.ListCommand
 import net.voxelpi.varp.cli.command.commands.MoveCommand
@@ -65,6 +66,7 @@ class VarpCLICommandManager(
 
     private fun registerCommands() {
         registerCommand(ClearCommand)
+        registerCommand(CopyCommand)
         registerCommand(CreateCommand)
         registerCommand(ListCommand)
         registerCommand(MoveCommand)
