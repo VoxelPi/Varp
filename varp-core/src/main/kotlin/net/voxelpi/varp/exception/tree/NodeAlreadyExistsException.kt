@@ -4,4 +4,4 @@ import net.voxelpi.varp.warp.path.NodePath
 
 public open class NodeAlreadyExistsException(
     public open val path: NodePath,
-) : Exception()
+) : Exception("A node with the path \"$path\" already exists.")

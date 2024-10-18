@@ -4,4 +4,4 @@ import net.voxelpi.varp.warp.path.NodePath
 
 public open class NodeNotFoundException(
     public open val path: NodePath,
-) : Exception()
+) : Exception("No node with the path \"$path\" exists.")
