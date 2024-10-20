@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode
+
 plugins {
     id("varp.build")
     id("varp.publish")
@@ -9,4 +11,8 @@ dependencies {
 
     // Project
     api(projects.varpCore)
+}
+
+kotlin {
+    explicitApi = ExplicitApiMode.Strict
 }

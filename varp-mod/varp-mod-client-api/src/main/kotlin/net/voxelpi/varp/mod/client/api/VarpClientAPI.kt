@@ -5,27 +5,27 @@ import org.jetbrains.annotations.ApiStatus.Internal
 /**
  * Provides the api for the client side varp implementation.
  */
-interface VarpClientAPI {
+public interface VarpClientAPI {
 
-    val version: String
+    public val version: String
 
-    companion object {
+    public companion object {
         private var provider: VarpClientAPI? = null
 
         /**
          * Returns the currently loaded api implementation.
          */
-        fun get(): VarpClientAPI {
+        public fun get(): VarpClientAPI {
             return provider ?: throw IllegalStateException("No implementation of the client varp api is loaded.")
         }
 
         @Internal
-        fun register(provider: VarpClientAPI) {
+        public fun register(provider: VarpClientAPI) {
             this.provider = provider
         }
 
         @Internal
-        fun unregister() {
+        public fun unregister() {
             this.provider = null
         }
     }
