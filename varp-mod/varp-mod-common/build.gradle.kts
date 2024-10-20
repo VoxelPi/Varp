@@ -4,8 +4,13 @@ plugins {
 }
 
 dependencies {
-    compileOnly(kotlin("stdlib"))
+    compileOnly(libs.kotlin.stdlib)
+    compileOnly(libs.kotlin.reflect)
 
     // Project
     api(projects.varpCore)
+    api(projects.varpSerializers.varpSerializerGson)
+
+    // Libraries
+    compileOnlyApi(libs.adventure.text.serializer.gson)
 }
