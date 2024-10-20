@@ -1,5 +1,6 @@
 package net.voxelpi.varp.mod.fabric.server.player
 
+import me.lucko.fabric.api.permissions.v0.Permissions
 import net.kyori.adventure.audience.Audience
 import net.kyori.adventure.audience.ForwardingAudience
 import net.kyori.adventure.identity.Identity
@@ -35,5 +36,9 @@ class FabricVarpServerPlayer(
 
     override fun identity(): Identity {
         return player.identity()
+    }
+
+    override fun hasPermission(permission: String?): Boolean {
+        return permission == null || Permissions.check(player, permission, 2)
     }
 }

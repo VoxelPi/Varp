@@ -35,4 +35,8 @@ class PaperVarpServerPlayer(
     override fun identity(): Identity {
         return player.identity()
     }
+
+    override fun hasPermission(permission: String?): Boolean {
+        return permission == null || player.hasPermission(permission)
+    }
 }
