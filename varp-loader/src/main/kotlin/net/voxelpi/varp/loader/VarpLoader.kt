@@ -12,8 +12,8 @@ import net.voxelpi.varp.warp.path.NodeParentPath
 import net.voxelpi.varp.warp.repository.Repository
 import net.voxelpi.varp.warp.repository.RepositoryConfig
 import net.voxelpi.varp.warp.repository.RepositoryTypeData
-import net.voxelpi.varp.warp.repository.compositor.TreeCompositor
-import net.voxelpi.varp.warp.repository.compositor.TreeCompositorMount
+import net.voxelpi.varp.warp.repository.compositor.Compositor
+import net.voxelpi.varp.warp.repository.compositor.CompositorMount
 import net.voxelpi.varp.warp.repository.ephemeral.EphemeralRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -35,7 +35,7 @@ public class VarpLoader internal constructor(
 
     private val repositories: MutableMap<String, Repository> = mutableMapOf()
 
-    public var compositor: TreeCompositor = TreeCompositor.simple("main", EphemeralRepository("default"))
+    public var compositor: Compositor = Compositor.empty("main")
         private set
 
     public var tree: Tree = Varp.createTree(compositor)
@@ -156,7 +156,7 @@ public class VarpLoader internal constructor(
 
     private fun loadTree(): Result<Unit> {
         return runCatching {
-            val mounts = mutableListOf<TreeCompositorMount>()
+            val mounts = mutableListOf<CompositorMount>()
 
             val treeConfig = JsonParser.parseReader(path.resolve(TREE_FILE).bufferedReader())
             if (treeConfig !is JsonObject) {
@@ -188,7 +188,7 @@ public class VarpLoader internal constructor(
                     continue
                 }
 
-                val mount = TreeCompositorMount(location, repository)
+                val mount = CompositorMount(location, repository)
                 mounts.add(mount)
             }
 
@@ -250,7 +250,7 @@ public class VarpLoader internal constructor(
 
         private val DEFAULT_TYPES = listOf<KClass<out Repository>>(
             EphemeralRepository::class,
-            TreeCompositor::class,
+            Compositor::class,
         )
 
         private const val REPOSITORIES_FILE = "repositories.json"

@@ -8,7 +8,7 @@ import net.voxelpi.varp.warp.repository.Repository
  * @property location the location where the storage should be mounted.
  * @property repository the repository that should be mounted.
  */
-public data class TreeCompositorMount(
+public data class CompositorMount(
     val location: NodeParentPath,
     val repository: Repository,
 )

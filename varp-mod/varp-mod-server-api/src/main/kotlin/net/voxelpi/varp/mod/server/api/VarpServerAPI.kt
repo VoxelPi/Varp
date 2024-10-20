@@ -4,7 +4,7 @@ import net.voxelpi.event.EventScope
 import net.voxelpi.varp.loader.VarpLoader
 import net.voxelpi.varp.mod.server.api.player.VarpServerPlayerService
 import net.voxelpi.varp.warp.Tree
-import net.voxelpi.varp.warp.repository.compositor.TreeCompositor
+import net.voxelpi.varp.warp.repository.compositor.Compositor
 import org.jetbrains.annotations.ApiStatus.Internal
 
 /**
@@ -30,7 +30,7 @@ public interface VarpServerAPI {
     /**
      * The varp compositor used to composite the varp tree.
      */
-    public val compositor: TreeCompositor
+    public val compositor: Compositor
         get() = loader.compositor
 
     /**
