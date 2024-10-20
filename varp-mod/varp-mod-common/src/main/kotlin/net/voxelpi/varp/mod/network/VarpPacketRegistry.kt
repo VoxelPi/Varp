@@ -88,7 +88,7 @@ sealed class VarpPacketRegistry<T : VarpPacket> {
     /**
      * Registry for all clientbound packets, that are packets that are send from the server to the client.
      */
-    object Client : VarpPacketRegistry<VarpClientboundPacket>() {
+    object Clientbound : VarpPacketRegistry<VarpClientboundPacket>() {
         init {
             registerInboundPacket<VarpClientboundCreateFolderPacket>()
             registerInboundPacket<VarpClientboundCreateWarpPacket>()
@@ -107,7 +107,7 @@ sealed class VarpPacketRegistry<T : VarpPacket> {
     /**
      * Registry for all serverbound packets, that are packets that are send from the client to the server.
      */
-    object Server : VarpPacketRegistry<VarpServerboundPacket>() {
+    object Serverbound : VarpPacketRegistry<VarpServerboundPacket>() {
         init {
             registerInboundPacket<VarpServerboundCreateFolderPacket>()
             registerInboundPacket<VarpServerboundCreateWarpPacket>()

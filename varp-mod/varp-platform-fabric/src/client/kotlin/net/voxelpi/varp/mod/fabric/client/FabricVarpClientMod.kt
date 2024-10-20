@@ -4,5 +4,10 @@ import net.fabricmc.api.ClientModInitializer
 
 object FabricVarpClientMod : ClientModInitializer {
 
-    override fun onInitializeClient() {}
+    lateinit var client: FabricVarpClient
+        private set
+
+    override fun onInitializeClient() {
+        client = FabricVarpClient()
+    }
 }

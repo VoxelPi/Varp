@@ -1,7 +1,11 @@
 package net.voxelpi.varp.mod.paper
 
+import net.kyori.adventure.text.logger.slf4j.ComponentLogger
+import net.voxelpi.event.EventScope
+import net.voxelpi.event.eventScope
 import net.voxelpi.varp.Varp
 import net.voxelpi.varp.loader.VarpLoader
+import net.voxelpi.varp.mod.paper.network.PaperVarpServerNetworkHandler
 import net.voxelpi.varp.mod.paper.player.PaperVarpServerPlayerService
 import net.voxelpi.varp.mod.server.VarpServerImpl
 import net.voxelpi.varp.mod.server.api.VarpServerAPI
@@ -17,9 +21,16 @@ class PaperVarpServer(
     override val version: String
         get() = Varp.version
 
+    override val logger: ComponentLogger
+        get() = plugin.componentLogger
+
+    override val eventScope: EventScope = eventScope()
+
     override val loader: VarpLoader = VarpLoader.loader(plugin.dataPath.resolve("data")) {
         registerRepositoryType<FileTreeRepository>()
     }
+
+    override val serverNetworkHandler: PaperVarpServerNetworkHandler = PaperVarpServerNetworkHandler(this)
 
     init {
         loader.load()

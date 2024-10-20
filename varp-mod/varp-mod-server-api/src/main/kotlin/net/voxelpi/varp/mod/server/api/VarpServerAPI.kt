@@ -1,5 +1,6 @@
 package net.voxelpi.varp.mod.server.api
 
+import net.voxelpi.event.EventScope
 import net.voxelpi.varp.loader.VarpLoader
 import net.voxelpi.varp.mod.server.api.player.VarpServerPlayerService
 import net.voxelpi.varp.warp.Tree
@@ -15,6 +16,11 @@ public interface VarpServerAPI {
      * The version of the server varp mod.
      */
     public val version: String
+
+    /**
+     * The server event service.
+     */
+    public val eventScope: EventScope
 
     /**
      * The varp loader used to load and store the varp tree.

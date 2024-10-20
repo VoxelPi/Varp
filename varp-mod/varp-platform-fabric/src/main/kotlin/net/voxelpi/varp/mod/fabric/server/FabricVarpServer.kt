@@ -1,10 +1,14 @@
 package net.voxelpi.varp.mod.fabric.server
 
+import net.kyori.adventure.text.logger.slf4j.ComponentLogger
 import net.minecraft.server.MinecraftServer
 import net.minecraft.util.WorldSavePath
+import net.voxelpi.event.EventScope
+import net.voxelpi.event.eventScope
 import net.voxelpi.varp.Varp
 import net.voxelpi.varp.loader.VarpLoader
 import net.voxelpi.varp.mod.fabric.FabricVarpMod
+import net.voxelpi.varp.mod.fabric.server.network.FabricVarpServerNetworkHandler
 import net.voxelpi.varp.mod.fabric.server.player.FabricVarpServerPlayerService
 import net.voxelpi.varp.mod.server.VarpServerImpl
 import net.voxelpi.varp.mod.server.api.VarpServerAPI
@@ -17,9 +21,16 @@ class FabricVarpServer(
     override val version: String
         get() = Varp.version
 
+    override val logger: ComponentLogger
+        get() = FabricVarpMod.logger
+
+    override val eventScope: EventScope = eventScope()
+
     override val loader: VarpLoader = VarpLoader.loader(server.getSavePath(WorldSavePath.ROOT).resolve("data").resolve("varp")) {
         registerRepositoryType<FileTreeRepository>()
     }
+
+    override val serverNetworkHandler: FabricVarpServerNetworkHandler = FabricVarpServerNetworkHandler(this)
 
     init {
         loader.load()
