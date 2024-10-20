@@ -11,7 +11,7 @@ class PaperVarpPlugin(
         private set
 
     override fun onEnable() {
-        varpServer = PaperVarpServer(this)
+        varpServer = PaperVarpServer(this, server)
     }
 
     override fun onDisable() {

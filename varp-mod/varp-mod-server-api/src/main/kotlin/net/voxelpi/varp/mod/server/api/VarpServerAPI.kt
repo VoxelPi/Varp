@@ -1,6 +1,7 @@
 package net.voxelpi.varp.mod.server.api
 
 import net.voxelpi.varp.loader.VarpLoader
+import net.voxelpi.varp.mod.server.api.player.VarpServerPlayerService
 import net.voxelpi.varp.warp.Tree
 import net.voxelpi.varp.warp.repository.compositor.TreeCompositor
 import org.jetbrains.annotations.ApiStatus.Internal
@@ -10,15 +11,32 @@ import org.jetbrains.annotations.ApiStatus.Internal
  */
 public interface VarpServerAPI {
 
+    /**
+     * The version of the server varp mod.
+     */
     public val version: String
 
+    /**
+     * The varp loader used to load and store the varp tree.
+     */
     public val loader: VarpLoader
 
+    /**
+     * The varp compositor used to composite the varp tree.
+     */
     public val compositor: TreeCompositor
         get() = loader.compositor
 
+    /**
+     * The varp tree.
+     */
     public val tree: Tree
         get() = loader.tree
+
+    /**
+     * The server player service.
+     */
+    public val playerService: VarpServerPlayerService
 
     public companion object {
         private var provider: VarpServerAPI? = null
