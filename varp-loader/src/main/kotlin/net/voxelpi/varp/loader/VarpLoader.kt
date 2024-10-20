@@ -60,6 +60,10 @@ public class VarpLoader internal constructor(
         return Result.success(Unit)
     }
 
+    public fun save(): Result<Unit> {
+        return Result.success(Unit)
+    }
+
     private fun loadRepositories(): Result<Unit> {
         repositories.clear()
 

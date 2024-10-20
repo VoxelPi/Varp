@@ -23,10 +23,10 @@ papwerweight = "1.7.3"
 # Fabric
 minecraft = "1.21.1"
 yarn = "1.21.1+build.3"
-fabric-loader = "0.16.5"
-fabric-api = "0.105.0+1.21.1"
+fabric-loader = "0.16.7"
+fabric-api = "0.106.0+1.21.1"
 loom = "1.8-SNAPSHOT"
-fabric-kotlin = "1.12.2+kotlin.2.0.20"
+fabric-kotlin = "1.12.3+kotlin.2.0.21"
 fabric-permissions-api = "0.3.1"
 
 # Plugins

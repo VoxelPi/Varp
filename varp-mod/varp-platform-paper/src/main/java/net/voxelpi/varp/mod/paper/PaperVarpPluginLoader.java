@@ -15,8 +15,10 @@ import org.jetbrains.annotations.NotNull;
 @SuppressWarnings("UnstableApiUsage")
 public class PaperVarpPluginLoader implements PluginLoader {
 
+    private static final String ADVENTURE_VERSION = "4.17.0";
     private static final String CLOUD_VERSION = "2.0.0";
     private static final String CLOUD_MINECRAFT_VERSION = "2.0.0-beta.10";
+    private static final String CONFIGURATE_VERSION = "4.1.2";
     private static final String KOTLIN_VERSION = "2.0.21";
 
     @Override
@@ -33,6 +35,14 @@ public class PaperVarpPluginLoader implements PluginLoader {
         addDependency(resolver, "org.incendo:cloud-kotlin-extensions", CLOUD_VERSION);
         addDependency(resolver, "org.incendo:cloud-minecraft-extras", CLOUD_MINECRAFT_VERSION);
         addDependency(resolver, "org.incendo:cloud-paper", CLOUD_MINECRAFT_VERSION);
+
+        addDependency(resolver, "org.spongepowered:configurate-core", CONFIGURATE_VERSION);
+        addDependency(resolver, "org.spongepowered:configurate-extra-kotlin", CONFIGURATE_VERSION);
+        addDependency(resolver, "org.spongepowered:configurate-gson", CONFIGURATE_VERSION);
+        addDependency(resolver, "org.spongepowered:configurate-hocon", CONFIGURATE_VERSION);
+        addDependency(resolver, "org.spongepowered:configurate-xml", CONFIGURATE_VERSION);
+        addDependency(resolver, "org.spongepowered:configurate-yaml", CONFIGURATE_VERSION);
+        addDependency(resolver, "net.kyori:adventure-serializer-configurate4", ADVENTURE_VERSION);
 
         classpathBuilder.addLibrary(resolver);
     }

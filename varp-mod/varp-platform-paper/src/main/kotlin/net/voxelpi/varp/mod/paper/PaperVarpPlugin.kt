@@ -7,7 +7,14 @@ class PaperVarpPlugin(
     val commandService: PaperVarpCommandService,
 ) : JavaPlugin() {
 
-    override fun onEnable() {}
+    lateinit var varpServer: PaperVarpServer
+        private set
 
-    override fun onDisable() {}
+    override fun onEnable() {
+        varpServer = PaperVarpServer(this)
+    }
+
+    override fun onDisable() {
+        varpServer.cleanup()
+    }
 }

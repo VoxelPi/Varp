@@ -18,6 +18,7 @@ dependencies {
 
     // Project
     api(projects.varpMod.varpModServerCommon)
+    api(projects.varpRepositories.varpRepositoryFileTree)
 
     // Paper
     paperweight.paperDevBundle(paperVersion)

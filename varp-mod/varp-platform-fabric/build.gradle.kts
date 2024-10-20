@@ -29,6 +29,7 @@ dependencies {
     // Project
     apiAndInclude(projects.varpMod.varpModClientCommon)
     apiAndInclude(projects.varpMod.varpModServerCommon)
+    apiAndInclude(projects.varpRepositories.varpRepositoryFileTree)
 
     // Fabric
     minecraft(libs.minecraft)
@@ -36,11 +37,16 @@ dependencies {
     modImplementation(libs.fabric.loader)
     modImplementation(libs.fabric.api)
     modImplementation(libs.fabric.language.kotlin)
+    modImplementationAndInclude(libs.fabric.permission.api)
 
     // Libraries
     modImplementationAndInclude(libs.adventure.platform.fabric)
+    implementationAndInclude(libs.adventure.serializer.configurate4)
+    implementationAndInclude(libs.bundles.cloud)
     modImplementationAndInclude(libs.cloud.fabric)
-    modImplementationAndInclude(libs.fabric.permission.api)
+    implementationAndInclude(libs.bundles.configurate.core)
+    implementationAndInclude(libs.bundles.configurate.formats)
+    implementationAndInclude(libs.event)
 
     implementationAndInclude(libs.event)
 }
