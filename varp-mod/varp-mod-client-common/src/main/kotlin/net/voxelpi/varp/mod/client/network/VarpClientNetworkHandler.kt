@@ -51,17 +51,17 @@ abstract class VarpClientNetworkHandler(
     private fun handleClientboundPacket(packet: VarpClientboundPacket): Result<Unit> {
         return runCatching {
             when (packet) {
-                is VarpClientboundCreateFolderPacket -> TODO()
-                is VarpClientboundCreateWarpPacket -> TODO()
-                is VarpClientboundDeleteFolderPacket -> TODO()
-                is VarpClientboundDeleteWarpPacket -> TODO()
+                is VarpClientboundCreateFolderPacket -> client.repository.handlePacket(packet)
+                is VarpClientboundCreateWarpPacket -> client.repository.handlePacket(packet)
+                is VarpClientboundDeleteFolderPacket -> client.repository.handlePacket(packet)
+                is VarpClientboundDeleteWarpPacket -> client.repository.handlePacket(packet)
                 is VarpClientboundOpenExplorerPacket -> client.openExplorer(packet.path)
-                is VarpClientboundSyncTreePacket -> TODO()
-                is VarpClientboundUpdateFolderPathPacket -> TODO()
-                is VarpClientboundUpdateFolderStatePacket -> TODO()
-                is VarpClientboundUpdateRootStatePacket -> TODO()
-                is VarpClientboundUpdateWarpPathPacket -> TODO()
-                is VarpClientboundUpdateWarpStatePacket -> TODO()
+                is VarpClientboundSyncTreePacket -> client.repository.handlePacket(packet)
+                is VarpClientboundUpdateFolderPathPacket -> client.repository.handlePacket(packet)
+                is VarpClientboundUpdateFolderStatePacket -> client.repository.handlePacket(packet)
+                is VarpClientboundUpdateRootStatePacket -> client.repository.handlePacket(packet)
+                is VarpClientboundUpdateWarpPathPacket -> client.repository.handlePacket(packet)
+                is VarpClientboundUpdateWarpStatePacket -> client.repository.handlePacket(packet)
             }
         }
     }

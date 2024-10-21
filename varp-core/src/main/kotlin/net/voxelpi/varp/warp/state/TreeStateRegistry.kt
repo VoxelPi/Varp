@@ -33,6 +33,7 @@ public data class TreeStateRegistry(
     }
 
     public fun move(src: FolderPath, dst: FolderPath): FolderState? {
+        // TODO: Recursive move required.
         val state = folders[src] ?: return null
         folders[dst] = state
         folders.remove(src)

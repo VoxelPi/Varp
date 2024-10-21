@@ -3,7 +3,7 @@ package net.voxelpi.varp.mod.fabric.client
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger
 import net.voxelpi.varp.Varp
 import net.voxelpi.varp.mod.client.VarpClientImpl
-import net.voxelpi.varp.mod.client.api.warp.ClientRepository
+import net.voxelpi.varp.mod.client.warp.ClientRepositoryImpl
 import net.voxelpi.varp.mod.fabric.FabricVarpMod
 import net.voxelpi.varp.mod.fabric.client.network.FabricVarpClientNetworkHandler
 import net.voxelpi.varp.warp.Tree
@@ -17,13 +17,11 @@ class FabricVarpClient : VarpClientImpl {
     override val version: String
         get() = Varp.version
 
-    override val repository: ClientRepository
-        get() = TODO("Not yet implemented")
-
-    override val tree: Tree
-        get() = TODO("Not yet implemented")
-
     override val clientNetworkHandler: FabricVarpClientNetworkHandler = FabricVarpClientNetworkHandler(this)
+
+    override val repository: ClientRepositoryImpl = ClientRepositoryImpl(this, clientNetworkHandler, "main")
+
+    override val tree: Tree = Varp.createTree(repository)
 
     override fun openExplorer(path: NodeParentPath) {
         TODO("Not yet implemented")
