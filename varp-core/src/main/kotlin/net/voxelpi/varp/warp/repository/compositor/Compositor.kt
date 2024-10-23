@@ -239,9 +239,12 @@ public class Compositor internal constructor(
 
         if (srcMount.location == dstMount.location) {
             val mount = srcMount
-            TODO("NOT IMPLEMENTED")
-            // What happens if the folder is moved to the root of the mount?
-//            mount.repository.moveFolderState(srcRelativePath, dstRelativePath).getOrElse { return Result.failure(it) }
+            if (dstRelativePath !is FolderPath || srcRelativePath !is FolderPath) {
+                // What happens if the folder is moved to the root of the mount?
+                TODO("NOT IMPLEMENTED")
+                return Result.success(Unit)
+            }
+            mount.repository.moveFolderState(srcRelativePath, dstRelativePath).getOrElse { return Result.failure(it) }
         } else {
             TODO("MOVEMENT BETWEEN MOUNTS NOT YET IMPLEMENTED")
             // This probably should just change the mount location.
