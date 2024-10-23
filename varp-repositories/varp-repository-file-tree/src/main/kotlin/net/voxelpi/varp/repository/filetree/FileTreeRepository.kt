@@ -4,16 +4,14 @@ import net.kyori.adventure.serializer.configurate4.ConfigurateComponentSerialize
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.minimessage.MiniMessage
 import net.kyori.adventure.text.serializer.ComponentSerializer
-import net.voxelpi.varp.exception.tree.FolderNotFoundException
-import net.voxelpi.varp.exception.tree.WarpNotFoundException
 import net.voxelpi.varp.serializer.configurate.VarpConfigurateSerializers
 import net.voxelpi.varp.warp.path.FolderPath
 import net.voxelpi.varp.warp.path.NodeParentPath
 import net.voxelpi.varp.warp.path.RootPath
 import net.voxelpi.varp.warp.path.WarpPath
-import net.voxelpi.varp.warp.repository.Repository
 import net.voxelpi.varp.warp.repository.RepositoryLoader
 import net.voxelpi.varp.warp.repository.RepositoryType
+import net.voxelpi.varp.warp.repository.SimpleRepository
 import net.voxelpi.varp.warp.state.FolderState
 import net.voxelpi.varp.warp.state.TreeStateRegistry
 import net.voxelpi.varp.warp.state.WarpState
@@ -31,17 +29,13 @@ import kotlin.io.path.notExists
 
 @RepositoryType("file-tree")
 class FileTreeRepository(
-    override val id: String,
+    id: String,
     val path: Path,
     val format: RepositoryFileFormat,
     val componentSerializer: ComponentSerializer<Component, *, String>? = null,
-) : Repository {
+) : SimpleRepository(id) {
 
-    override val registry: TreeStateRegistry = TreeStateRegistry()
-
-    init {
-        load().getOrThrow()
-    }
+    override val registryView: TreeStateRegistry = TreeStateRegistry()
 
     @RepositoryLoader
     public constructor(id: String, path: Path, config: FileTreeRepositoryConfig) : this(
@@ -51,12 +45,9 @@ class FileTreeRepository(
         if (!config.componentsAsObjects) MiniMessage.miniMessage() else null,
     )
 
-    override fun reload(): Result<Unit> {
-        registry.clear()
-        return load()
-    }
+    // region content functions
 
-    private fun load(): Result<Unit> {
+    override suspend fun handleLoad(): Result<Unit> {
         return runCatching {
             // Create main directory if it does not already exist.
             if (!path.isDirectory()) {
@@ -65,27 +56,27 @@ class FileTreeRepository(
 
             // Create root file if it does not already exist.
             if (RootPath.file().notExists()) {
-                saveRootState(FolderState.defaultRootState())
+                save(FolderState.defaultRootState())
             }
 
             // Load content.
             val rootState = loadRoot(path).getOrThrow()
             val (warps, folders) = loadContainerContent(RootPath, path).getOrThrow()
-            registry.root = rootState
-            registry.warps += warps
-            registry.folders += folders
+            registryView.root = rootState
+            registryView.warps += warps
+            registryView.folders += folders
         }
     }
 
-    override fun createWarpState(path: WarpPath, state: WarpState): Result<Unit> {
-        return saveWarpState(path, state)
+    override suspend fun handleCreate(path: WarpPath, state: WarpState): Result<Unit> {
+        return handleSave(path, state)
     }
 
-    override fun createFolderState(path: FolderPath, state: FolderState): Result<Unit> {
-        return saveFolderState(path, state)
+    override suspend fun handleCreate(path: FolderPath, state: FolderState): Result<Unit> {
+        return handleSave(path, state)
     }
 
-    override fun saveWarpState(path: WarpPath, state: WarpState): Result<Unit> {
+    override suspend fun handleSave(path: WarpPath, state: WarpState): Result<Unit> {
         return runCatching {
             val loader = loader().apply {
                 path(path.file())
@@ -94,13 +85,10 @@ class FileTreeRepository(
             val node = loader.createNode()
             node.set(state)
             loader.save(node)
-
-            // Update the registry.
-            registry[path] = state
         }
     }
 
-    override fun saveFolderState(path: FolderPath, state: FolderState): Result<Unit> {
+    override suspend fun handleSave(path: FolderPath, state: FolderState): Result<Unit> {
         return runCatching {
             val directory = path.directory()
             if (!directory.isDirectory()) {
@@ -114,13 +102,10 @@ class FileTreeRepository(
             val node = loader.createNode()
             node.set(state)
             loader.save(node)
-
-            // Update the registry.
-            registry[path] = state
         }
     }
 
-    override fun saveRootState(state: FolderState): Result<Unit> {
+    override suspend fun handleSave(state: FolderState): Result<Unit> {
         return runCatching {
             val directory = RootPath.directory()
             if (!directory.isDirectory()) {
@@ -134,52 +119,39 @@ class FileTreeRepository(
             val node = loader.createNode()
             node.set(state)
             loader.save(node)
-
-            // Update the registry.
-            registry.root = state
         }
     }
 
-    override fun deleteWarpState(path: WarpPath): Result<Unit> {
+    override suspend fun handleDelete(path: WarpPath): Result<Unit> {
         return runCatching {
             path.file().deleteIfExists()
-
-            // Update the registry.
-            registry.remove(path)
         }
     }
 
-    override fun deleteFolderState(path: FolderPath): Result<Unit> {
+    override suspend fun handleDelete(path: FolderPath): Result<Unit> {
         return runCatching {
             path.file().deleteIfExists()
             path.directory().deleteIfExists()
-
-            // Update the registry.
-            registry.remove(path)
         }
     }
 
-    override fun moveWarpState(src: WarpPath, dst: WarpPath): Result<Unit> {
+    override suspend fun handleMove(src: WarpPath, dst: WarpPath): Result<Unit> {
         return runCatching {
             val srcPath = src.file()
             val dstPath = dst.file()
             Files.move(srcPath, dstPath)
-
-            registry.move(src, dst) ?: return Result.failure(WarpNotFoundException(src))
-            Unit
         }
     }
 
-    override fun moveFolderState(src: FolderPath, dst: FolderPath): Result<Unit> {
+    override suspend fun handleMove(src: FolderPath, dst: FolderPath): Result<Unit> {
         return runCatching {
             val srcPath = src.directory()
             val dstPath = dst.directory()
             Files.move(srcPath, dstPath)
-
-            registry.move(src, dst) ?: return Result.failure(FolderNotFoundException(src))
-            Unit
         }
     }
+
+    // endregion
 
     private fun loader(): AbstractConfigurationLoader.Builder<*, *> {
         return format.provider().apply {

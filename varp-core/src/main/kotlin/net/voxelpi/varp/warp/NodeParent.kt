@@ -75,7 +75,7 @@ public sealed interface NodeParent : Node {
     /**
      * Creates a warp in this container with the given [id] and [state].
      */
-    public fun createWarp(id: String, state: WarpState): Result<Warp> {
+    public suspend fun createWarp(id: String, state: WarpState): Result<Warp> {
         val path = this.path.warp(id)
         return tree.createWarp(path, state)
     }
@@ -83,7 +83,7 @@ public sealed interface NodeParent : Node {
     /**
      * Creates a folder in this container with the given [id] and [state].
      */
-    public fun createFolder(id: String, state: FolderState): Result<Folder> {
+    public suspend fun createFolder(id: String, state: FolderState): Result<Folder> {
         val path = this.path.folder(id)
         return tree.createFolder(path, state)
     }

@@ -1,5 +1,6 @@
 package net.voxelpi.varp.cli.command.commands
 
+import kotlinx.coroutines.runBlocking
 import net.voxelpi.event.annotation.Subscribe
 import net.voxelpi.varp.DuplicatesStrategy
 import net.voxelpi.varp.cli.command.CommandsRegistrationEvent
@@ -29,7 +30,9 @@ object CopyCommand {
                 val destination: NodeParentPath = context["destination"]
                 val id = context.optional<String>("id").getOrNull()
 
-                node.copy(destination, DuplicatesStrategy.FAIL, id).getOrThrow()
+                runBlocking {
+                    node.copy(destination, DuplicatesStrategy.FAIL, id).getOrThrow()
+                }
             }
         }
     }

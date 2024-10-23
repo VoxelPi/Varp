@@ -40,11 +40,11 @@ public data class TreeStateRegistry(
         return state
     }
 
-    public fun remove(path: WarpPath): WarpState? {
+    public fun delete(path: WarpPath): WarpState? {
         return warps.remove(path)
     }
 
-    public fun remove(path: FolderPath): FolderState? {
+    public fun delete(path: FolderPath): FolderState? {
         return folders.remove(path)
     }
 

@@ -20,25 +20,33 @@ public class Warp internal constructor(
     /**
      * The state of the warp.
      */
-    override var state: WarpState
+    override val state: WarpState
         get() = tree.warpState(path)!!
-        set(value) = tree.warpState(path, value).getOrThrow()
+
+    /**
+     * Modifies the state of the folder.
+     */
+    public suspend fun modify(state: WarpState): Result<WarpState> {
+        tree.warpState(path, state).getOrElse {
+            return Result.failure(it)
+        }
+        return Result.success(state)
+    }
 
     /**
      * Modifies the state of the warp.
      */
-    public fun modify(init: WarpState.Builder.() -> Unit): WarpState {
+    public suspend fun modify(init: WarpState.Builder.() -> Unit): Result<WarpState> {
         val builder = WarpState.Builder(state)
         builder.init()
-        state = builder.build()
-        return state
+        return modify(builder.build())
     }
 
     /**
      * Moves the warp to the given [destination].
      * Also renames the warp to name given in the path.
      */
-    public fun move(destination: WarpPath, duplicatesStrategy: DuplicatesStrategy): Result<Unit> {
+    public suspend fun move(destination: WarpPath, duplicatesStrategy: DuplicatesStrategy): Result<Unit> {
         tree.move(path, destination, duplicatesStrategy).onFailure {
             return Result.failure(it)
         }
@@ -47,11 +55,11 @@ public class Warp internal constructor(
         return Result.success(Unit)
     }
 
-    override fun move(destination: NodeParentPath, duplicatesStrategy: DuplicatesStrategy, destinationId: String?): Result<Unit> {
+    override suspend fun move(destination: NodeParentPath, duplicatesStrategy: DuplicatesStrategy, destinationId: String?): Result<Unit> {
         return move(destination.warp(destinationId ?: id), duplicatesStrategy)
     }
 
-    override fun move(id: String, duplicatesStrategy: DuplicatesStrategy): Result<Unit> {
+    override suspend fun move(id: String, duplicatesStrategy: DuplicatesStrategy): Result<Unit> {
         return move(path.parent.warp(id), duplicatesStrategy)
     }
 
@@ -59,7 +67,7 @@ public class Warp internal constructor(
      * Copies the warp to the given [destination].
      * Also renames the warp to the id given in the path.
      */
-    public fun copy(destination: WarpPath, duplicatesStrategy: DuplicatesStrategy): Result<Warp> {
+    public suspend fun copy(destination: WarpPath, duplicatesStrategy: DuplicatesStrategy): Result<Warp> {
         // Check if the warp already exists
         tree.resolve(destination)?.let { warp ->
             when (duplicatesStrategy) {
@@ -73,7 +81,7 @@ public class Warp internal constructor(
         return tree.createWarp(destination, state)
     }
 
-    override fun copy(
+    override suspend fun copy(
         destination: NodeParentPath,
         duplicatesStrategy: DuplicatesStrategy,
         destinationId: String?,
@@ -81,7 +89,7 @@ public class Warp internal constructor(
         return copy(destination.warp(destinationId ?: id), duplicatesStrategy)
     }
 
-    override fun delete(): Result<Unit> {
+    override suspend fun delete(): Result<Unit> {
         return tree.deleteWarp(path)
     }
 }

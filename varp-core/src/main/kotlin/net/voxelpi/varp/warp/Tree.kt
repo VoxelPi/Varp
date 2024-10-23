@@ -51,14 +51,14 @@ public class Tree internal constructor(
      * Returns an [Collection] of all registered warps.
      */
     public fun warps(): Collection<Warp> {
-        return repository.registry.warps.keys.map { path -> Warp(this, path) }
+        return repository.registryView.warps.keys.map { path -> Warp(this, path) }
     }
 
     /**
      * Returns an [Collection] of all registered folders.
      */
     public fun folders(): Collection<Folder> {
-        return repository.registry.folders.keys.map { path -> Folder(this, path) }
+        return repository.registryView.folders.keys.map { path -> Folder(this, path) }
     }
 
     /**
@@ -71,7 +71,7 @@ public class Tree internal constructor(
     /**
      * Creates a new warp at the given [path] with the given [state].
      */
-    public fun createWarp(path: WarpPath, state: WarpState): Result<Warp> {
+    public suspend fun createWarp(path: WarpPath, state: WarpState): Result<Warp> {
         // Check if the warp already exists.
         if (exists(path)) {
             return Result.failure(WarpAlreadyExistsException(path))
@@ -83,7 +83,7 @@ public class Tree internal constructor(
         }
 
         // Create the warp state.
-        repository.createWarpState(path, state).onFailure { return Result.failure(it) }
+        repository.create(path, state).onFailure { return Result.failure(it) }
         val warp = Warp(this, path)
 
         // Post event.
@@ -95,7 +95,7 @@ public class Tree internal constructor(
     /**
      * Creates a new folder at the given [path] with the given [state].
      */
-    public fun createFolder(path: FolderPath, state: FolderState): Result<Folder> {
+    public suspend fun createFolder(path: FolderPath, state: FolderState): Result<Folder> {
         // Check if the folder already exists.
         if (exists(path)) {
             return Result.failure(FolderAlreadyExistsException(path))
@@ -107,7 +107,7 @@ public class Tree internal constructor(
         }
 
         // Save the folder state.
-        repository.createFolderState(path, state).onFailure { return Result.failure(it) }
+        repository.create(path, state).onFailure { return Result.failure(it) }
         val folder = Folder(this, path)
 
         // Post event.
@@ -119,7 +119,7 @@ public class Tree internal constructor(
     /**
      * Deletes the [Warp] at the given [path].
      */
-    public fun deleteWarp(path: WarpPath): Result<Unit> {
+    public suspend fun deleteWarp(path: WarpPath): Result<Unit> {
         // Check if the warp exists.
         val state = warpState(path) ?: return Result.failure(WarpNotFoundException(path))
 
@@ -127,7 +127,7 @@ public class Tree internal constructor(
         eventScope.post(WarpDeleteEvent(Warp(this, path)))
 
         // Delete the warp state.
-        repository.deleteWarpState(path)
+        repository.delete(path)
 
         // Post event.
         eventScope.post(WarpPostDeleteEvent(path, state))
@@ -137,7 +137,7 @@ public class Tree internal constructor(
     /**
      * Deletes the [Folder] at the given [path].
      */
-    public fun deleteFolder(path: FolderPath): Result<Unit> {
+    public suspend fun deleteFolder(path: FolderPath): Result<Unit> {
         // Check if the folder exists.
         val state = folderState(path) ?: return Result.failure(FolderNotFoundException(path))
 
@@ -145,7 +145,7 @@ public class Tree internal constructor(
         eventScope.post(FolderDeleteEvent(Folder(this, path)))
 
         // Delete the folder state.
-        repository.deleteFolderState(path)
+        repository.delete(path)
 
         // Post event.
         eventScope.post(FolderPostDeleteEvent(path, state))
@@ -215,20 +215,20 @@ public class Tree internal constructor(
      * Returns the [WarpState] at the given [path].
      */
     public fun warpState(path: WarpPath): WarpState? {
-        return repository.registry.warps[path]
+        return repository.registryView.warps[path]
     }
 
     /**
      * Sets the state of the warp at the given [path].
      */
-    public fun warpState(path: WarpPath, state: WarpState): Result<Unit> {
+    public suspend fun warpState(path: WarpPath, state: WarpState): Result<Unit> {
         // Check if a warp exists at the given path.
         val previousState = warpState(path) ?: run {
             return Result.failure(WarpNotFoundException(path))
         }
 
         // Save the warp state at the given path.
-        repository.saveWarpState(path, state).onFailure { return Result.failure(it) }
+        repository.save(path, state).onFailure { return Result.failure(it) }
 
         // Post event.
         eventScope.post(WarpStateChangeEvent(Warp(this, path), state, previousState))
@@ -240,20 +240,20 @@ public class Tree internal constructor(
      * Returns the [FolderState] at the given [path].
      */
     public fun folderState(path: FolderPath): FolderState? {
-        return repository.registry.folders[path]
+        return repository.registryView.folders[path]
     }
 
     /**
      * Sets the state of the folder at the given [path].
      */
-    public fun folderState(path: FolderPath, state: FolderState): Result<Unit> {
+    public suspend fun folderState(path: FolderPath, state: FolderState): Result<Unit> {
         // Check if a folder exists at the given path.
         val previousState = folderState(path) ?: run {
             return Result.failure(FolderNotFoundException(path))
         }
 
         // Save the folder state at the given path.
-        repository.saveFolderState(path, state).onFailure { return Result.failure(it) }
+        repository.save(path, state).onFailure { return Result.failure(it) }
 
         // Post event.
         eventScope.post(FolderStateChangeEvent(Folder(this, path), state, previousState))
@@ -265,18 +265,18 @@ public class Tree internal constructor(
      * Returns the [FolderState] of the root.
      */
     public fun rootState(): FolderState {
-        return repository.registry.root
+        return repository.registryView.root
     }
 
     /**
      * Sets the state of the root.
      */
-    public fun rootState(state: FolderState): Result<Unit> {
+    public suspend fun rootState(state: FolderState): Result<Unit> {
         // Check if a module exists at the given path.
         val previousState = rootState()
 
         // Save the module state at the given path.
-        repository.saveRootState(state).onFailure { return Result.failure(it) }
+        repository.save(state).onFailure { return Result.failure(it) }
 
         // Post event.
         eventScope.post(RootStateChangeEvent(root, state, previousState))
@@ -349,14 +349,14 @@ public class Tree internal constructor(
      * Checks if a warp with the given [path] exists.
      */
     public fun exists(path: WarpPath): Boolean {
-        return repository.registry.warps.contains(path)
+        return repository.registryView.warps.contains(path)
     }
 
     /**
      * Checks if a folder with the given [path] exists.
      */
     public fun exists(path: FolderPath): Boolean {
-        return repository.registry.folders.contains(path)
+        return repository.registryView.folders.contains(path)
     }
 
     /**
@@ -401,7 +401,7 @@ public class Tree internal constructor(
     /**
      * Moves the warp at [src] to [dst].
      */
-    public fun move(src: WarpPath, dst: WarpPath, duplicatesStrategy: DuplicatesStrategy): Result<Unit> {
+    public suspend fun move(src: WarpPath, dst: WarpPath, duplicatesStrategy: DuplicatesStrategy): Result<Unit> {
         // Early return if source and destination path are the same.
         if (src == dst) {
             return Result.success(Unit)
@@ -417,7 +417,7 @@ public class Tree internal constructor(
         }
 
         // Move the state.
-        repository.moveWarpState(src, dst).onFailure { return Result.failure(it) }
+        repository.move(src, dst).onFailure { return Result.failure(it) }
 
         // Post event.
         eventScope.post(WarpPathChangeEvent(Warp(this, dst), dst, src))
@@ -428,7 +428,7 @@ public class Tree internal constructor(
     /**
      * Moves the folder at [src] to [dst].
      */
-    public fun move(src: FolderPath, dst: FolderPath, duplicatesStrategy: DuplicatesStrategy): Result<Unit> {
+    public suspend fun move(src: FolderPath, dst: FolderPath, duplicatesStrategy: DuplicatesStrategy): Result<Unit> {
         // Early return if source and destination path are the same.
         if (src == dst) {
             return Result.success(Unit)
@@ -449,7 +449,7 @@ public class Tree internal constructor(
         }
 
         // Move the state.
-        repository.moveFolderState(src, dst).onFailure { return Result.failure(it) }
+        repository.move(src, dst).onFailure { return Result.failure(it) }
 
         // Post event.
         eventScope.post(FolderPathChangeEvent(Folder(this, dst), dst, src))

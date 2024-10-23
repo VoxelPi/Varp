@@ -20,25 +20,33 @@ public class Folder internal constructor(
     /**
      * The state of the folder.
      */
-    override var state: FolderState
+    override val state: FolderState
         get() = tree.folderState(path)!!
-        set(value) = tree.folderState(path, value).getOrThrow()
 
     /**
      * Modifies the state of the folder.
      */
-    public fun modify(init: FolderState.Builder.() -> Unit): FolderState {
+    public suspend fun modify(state: FolderState): Result<FolderState> {
+        tree.folderState(path, state).getOrElse {
+            return Result.failure(it)
+        }
+        return Result.success(state)
+    }
+
+    /**
+     * Modifies the state of the folder.
+     */
+    public suspend fun modify(init: FolderState.Builder.() -> Unit): Result<FolderState> {
         val builder = FolderState.Builder(state)
         builder.init()
-        state = builder.build()
-        return state
+        return modify(builder.build())
     }
 
     /**
      * Moves the folder to the given [destination].
      * Also renames the folder to the id given in the path.
      */
-    public fun move(destination: FolderPath, duplicatesStrategy: DuplicatesStrategy): Result<Unit> {
+    public suspend fun move(destination: FolderPath, duplicatesStrategy: DuplicatesStrategy): Result<Unit> {
         tree.move(path, destination, duplicatesStrategy).onFailure {
             return Result.failure(it)
         }
@@ -47,11 +55,11 @@ public class Folder internal constructor(
         return Result.success(Unit)
     }
 
-    override fun move(destination: NodeParentPath, duplicatesStrategy: DuplicatesStrategy, destinationId: String?): Result<Unit> {
+    override suspend fun move(destination: NodeParentPath, duplicatesStrategy: DuplicatesStrategy, destinationId: String?): Result<Unit> {
         return move(destination.folder(destinationId ?: id), duplicatesStrategy)
     }
 
-    override fun move(id: String, duplicatesStrategy: DuplicatesStrategy): Result<Unit> {
+    override suspend fun move(id: String, duplicatesStrategy: DuplicatesStrategy): Result<Unit> {
         return move(path.parent.folder(id), duplicatesStrategy)
     }
 
@@ -59,7 +67,7 @@ public class Folder internal constructor(
      * Copies the folder to the given [destination].
      * Also renames the folder to name given in the path.
      */
-    public fun copy(destination: FolderPath, duplicatesStrategy: DuplicatesStrategy, recursive: Boolean = true): Result<Folder> {
+    public suspend fun copy(destination: FolderPath, duplicatesStrategy: DuplicatesStrategy, recursive: Boolean = true): Result<Folder> {
         return copy(destination, duplicatesStrategy, recursive, destination)
     }
 
@@ -67,18 +75,18 @@ public class Folder internal constructor(
      * Copies the folder to the given [destination].
      * If [recursive] is true child nodes will also be copied, otherwise only the folder itself is copied.
      */
-    public fun copy(destination: NodeParentPath, duplicatesStrategy: DuplicatesStrategy, destinationId: String? = null, recursive: Boolean = true): Result<Folder> {
+    public suspend fun copy(destination: NodeParentPath, duplicatesStrategy: DuplicatesStrategy, destinationId: String? = null, recursive: Boolean = true): Result<Folder> {
         return copy(destination.folder(destinationId ?: id), duplicatesStrategy, recursive)
     }
 
     /**
      * Copies the folder and all its child nodes to the given [destination].
      */
-    override fun copy(destination: NodeParentPath, duplicatesStrategy: DuplicatesStrategy, destinationId: String?): Result<Folder> {
+    override suspend fun copy(destination: NodeParentPath, duplicatesStrategy: DuplicatesStrategy, destinationId: String?): Result<Folder> {
         return copy(destination, duplicatesStrategy, destinationId, true)
     }
 
-    private fun copy(destination: FolderPath, duplicatesStrategy: DuplicatesStrategy, recursive: Boolean, skipPath: FolderPath): Result<Folder> {
+    private suspend fun copy(destination: FolderPath, duplicatesStrategy: DuplicatesStrategy, recursive: Boolean, skipPath: FolderPath): Result<Folder> {
         // Check if the folder already exists
         tree.resolve(destination)?.let { folder ->
             when (duplicatesStrategy) {
@@ -115,7 +123,7 @@ public class Folder internal constructor(
         return Result.success(parent)
     }
 
-    override fun delete(): Result<Unit> {
+    override suspend fun delete(): Result<Unit> {
         return tree.deleteFolder(path)
     }
 }

@@ -36,57 +36,57 @@ class ClientRepositoryImpl(
     override val id: String,
 ) : ClientRepository {
 
-    override val registry: TreeStateRegistry = TreeStateRegistry()
+    override val registryView: TreeStateRegistry = TreeStateRegistry()
 
     override var active: Boolean = false
         private set
 
-    override fun reload(): Result<Unit> {
+    override suspend fun load(): Result<Unit> {
         clientNetworkHandler.sendServerboundPacket(VarpServerboundInitializationPacket(client.version, VarpModConstants.PROTOCOL_VERSION))
         return Result.success(Unit)
     }
 
-    override fun createWarpState(path: WarpPath, state: WarpState): Result<Unit> {
+    override suspend fun create(path: WarpPath, state: WarpState): Result<Unit> {
         clientNetworkHandler.sendServerboundPacket(VarpServerboundCreateWarpPacket(path, state))
         return Result.success(Unit)
     }
 
-    override fun createFolderState(path: FolderPath, state: FolderState): Result<Unit> {
+    override suspend fun create(path: FolderPath, state: FolderState): Result<Unit> {
         clientNetworkHandler.sendServerboundPacket(VarpServerboundCreateFolderPacket(path, state))
         return Result.success(Unit)
     }
 
-    override fun saveWarpState(path: WarpPath, state: WarpState): Result<Unit> {
+    override suspend fun save(path: WarpPath, state: WarpState): Result<Unit> {
         clientNetworkHandler.sendServerboundPacket(VarpServerboundModifyWarpStatePacket(path, state))
         return Result.success(Unit)
     }
 
-    override fun saveFolderState(path: FolderPath, state: FolderState): Result<Unit> {
+    override suspend fun save(path: FolderPath, state: FolderState): Result<Unit> {
         clientNetworkHandler.sendServerboundPacket(VarpServerboundModifyFolderStatePacket(path, state))
         return Result.success(Unit)
     }
 
-    override fun saveRootState(state: FolderState): Result<Unit> {
+    override suspend fun save(state: FolderState): Result<Unit> {
         clientNetworkHandler.sendServerboundPacket(VarpServerboundModifyRootStatePacket(state))
         return Result.success(Unit)
     }
 
-    override fun deleteWarpState(path: WarpPath): Result<Unit> {
+    override suspend fun delete(path: WarpPath): Result<Unit> {
         clientNetworkHandler.sendServerboundPacket(VarpServerboundDeleteWarpPacket(path))
         return Result.success(Unit)
     }
 
-    override fun deleteFolderState(path: FolderPath): Result<Unit> {
+    override suspend fun delete(path: FolderPath): Result<Unit> {
         clientNetworkHandler.sendServerboundPacket(VarpServerboundDeleteFolderPacket(path))
         return Result.success(Unit)
     }
 
-    override fun moveWarpState(src: WarpPath, dst: WarpPath): Result<Unit> {
+    override suspend fun move(src: WarpPath, dst: WarpPath): Result<Unit> {
         clientNetworkHandler.sendServerboundPacket(VarpServerboundModifyWarpPathPacket(src, dst))
         return Result.success(Unit)
     }
 
-    override fun moveFolderState(src: FolderPath, dst: FolderPath): Result<Unit> {
+    override suspend fun move(src: FolderPath, dst: FolderPath): Result<Unit> {
         clientNetworkHandler.sendServerboundPacket(VarpServerboundModifyFolderPathPacket(src, dst))
         return Result.success(Unit)
     }
@@ -94,19 +94,19 @@ class ClientRepositoryImpl(
     // region packet handlers
 
     fun handlePacket(packet: VarpClientboundCreateFolderPacket) {
-        registry[packet.path] = packet.state
+        registryView[packet.path] = packet.state
     }
 
     fun handlePacket(packet: VarpClientboundCreateWarpPacket) {
-        registry[packet.path] = packet.state
+        registryView[packet.path] = packet.state
     }
 
     fun handlePacket(packet: VarpClientboundDeleteFolderPacket) {
-        registry.remove(packet.path)
+        registryView.delete(packet.path)
     }
 
     fun handlePacket(packet: VarpClientboundDeleteWarpPacket) {
-        registry.remove(packet.path)
+        registryView.delete(packet.path)
     }
 
     fun handlePacket(packet: VarpClientboundSyncTreePacket) {
@@ -115,30 +115,30 @@ class ClientRepositoryImpl(
         active = true
 
         // Update registry.
-        registry.clear()
-        registry.root = packet.root
-        registry.folders.putAll(packet.folders)
-        registry.warps.putAll(packet.warps)
+        registryView.clear()
+        registryView.root = packet.root
+        registryView.folders.putAll(packet.folders)
+        registryView.warps.putAll(packet.warps)
     }
 
     fun handlePacket(packet: VarpClientboundUpdateFolderPathPacket) {
-        registry.move(packet.from, packet.to)
+        registryView.move(packet.from, packet.to)
     }
 
     fun handlePacket(packet: VarpClientboundUpdateFolderStatePacket) {
-        registry[packet.path] = packet.state
+        registryView[packet.path] = packet.state
     }
 
     fun handlePacket(packet: VarpClientboundUpdateRootStatePacket) {
-        registry.root = packet.state
+        registryView.root = packet.state
     }
 
     fun handlePacket(packet: VarpClientboundUpdateWarpPathPacket) {
-        registry.move(packet.from, packet.to)
+        registryView.move(packet.from, packet.to)
     }
 
     fun handlePacket(packet: VarpClientboundUpdateWarpStatePacket) {
-        registry[packet.path] = packet.state
+        registryView[packet.path] = packet.state
     }
 
     // endregion

@@ -33,7 +33,7 @@ public class Compositor internal constructor(
 
     public val eventScope: EventScope = eventScope()
 
-    override val registry: TreeStateRegistry = TreeStateRegistry()
+    override val registryView: TreeStateRegistry = TreeStateRegistry()
 
     init {
         buildTree()
@@ -45,13 +45,13 @@ public class Compositor internal constructor(
     @RepositoryLoader
     public constructor(id: String, config: CompositorConfig) : this(id, config.mounts) {}
 
-    override fun reload(): Result<Unit> {
+    override suspend fun load(): Result<Unit> {
         buildTree()
         return Result.success(Unit)
     }
 
     private fun buildTree() {
-        registry.clear()
+        registryView.clear()
 
         // Check if all locations are unique
         require(mounts.size == mounts.values.map(CompositorMount::location).size) { "Duplicate mounts detected." }
@@ -61,18 +61,18 @@ public class Compositor internal constructor(
             val location = mount.location
             when (location) {
                 is RootPath -> {
-                    registry.root = mount.repository.registry.root
+                    registryView.root = mount.repository.registryView.root
                 }
                 is FolderPath -> {
-                    registry[location] = mount.repository.registry.root
+                    registryView[location] = mount.repository.registryView.root
                 }
             }
 
-            for ((path, state) in mount.repository.registry.folders) {
+            for ((path, state) in mount.repository.registryView.folders) {
                 // Combine mount location and local path. Ignore duplicate slash in the middle
                 val compositePath = FolderPath(location.value + path.value.substring(1))
 
-                registry[compositePath] = state
+                registryView[compositePath] = state
             }
         }
     }
@@ -123,70 +123,70 @@ public class Compositor internal constructor(
         )
     }
 
-    override fun createWarpState(path: WarpPath, state: WarpState): Result<Unit> {
+    override suspend fun create(path: WarpPath, state: WarpState): Result<Unit> {
         val mount = mountAt(path).getOrElse { return Result.failure(it) }
         val relativePath = path.relativeTo(mount.location)!!
-        mount.repository.createWarpState(relativePath, state).getOrElse { return Result.failure(it) }
+        mount.repository.create(relativePath, state).getOrElse { return Result.failure(it) }
 
-        registry[path] = state
+        registryView[path] = state
 
         return Result.success(Unit)
     }
 
-    override fun createFolderState(path: FolderPath, state: FolderState): Result<Unit> {
+    override suspend fun create(path: FolderPath, state: FolderState): Result<Unit> {
         val mount = mountAt(path).getOrElse { return Result.failure(it) }
         val relativePath = path.relativeTo(mount.location)!!
         require(relativePath is FolderPath)
-        mount.repository.createFolderState(relativePath, state).getOrElse { return Result.failure(it) }
+        mount.repository.create(relativePath, state).getOrElse { return Result.failure(it) }
 
-        registry[path] = state
+        registryView[path] = state
 
         return Result.success(Unit)
     }
 
-    override fun saveWarpState(path: WarpPath, state: WarpState): Result<Unit> {
+    override suspend fun save(path: WarpPath, state: WarpState): Result<Unit> {
         val mount = mountAt(path).getOrElse { return Result.failure(it) }
         val relativePath = path.relativeTo(mount.location)!!
-        mount.repository.saveWarpState(relativePath, state).getOrElse { return Result.failure(it) }
+        mount.repository.save(relativePath, state).getOrElse { return Result.failure(it) }
 
-        registry[path] = state
+        registryView[path] = state
 
         return Result.success(Unit)
     }
 
-    override fun saveFolderState(path: FolderPath, state: FolderState): Result<Unit> {
+    override suspend fun save(path: FolderPath, state: FolderState): Result<Unit> {
         val mount = mountAt(path).getOrElse { return Result.failure(it) }
         val relativePath = path.relativeTo(mount.location)!!
         when (relativePath) {
-            is RootPath -> mount.repository.saveRootState(state).getOrElse { return Result.failure(it) }
-            is FolderPath -> mount.repository.saveFolderState(path, state).getOrElse { return Result.failure(it) }
+            is RootPath -> mount.repository.save(state).getOrElse { return Result.failure(it) }
+            is FolderPath -> mount.repository.save(path, state).getOrElse { return Result.failure(it) }
         }
 
-        registry[path] = state
+        registryView[path] = state
 
         return Result.success(Unit)
     }
 
-    override fun saveRootState(state: FolderState): Result<Unit> {
+    override suspend fun save(state: FolderState): Result<Unit> {
         val mount = mountAt(RootPath).getOrElse { return Result.failure(it) }
-        mount.repository.saveRootState(state).getOrElse { return Result.failure(it) }
+        mount.repository.save(state).getOrElse { return Result.failure(it) }
 
-        registry.root = state
+        registryView.root = state
 
         return Result.success(Unit)
     }
 
-    override fun deleteWarpState(path: WarpPath): Result<Unit> {
+    override suspend fun delete(path: WarpPath): Result<Unit> {
         val mount = mountAt(path).getOrElse { return Result.failure(it) }
         val relativePath = path.relativeTo(mount.location)!!
-        mount.repository.deleteWarpState(relativePath).getOrElse { return Result.failure(it) }
+        mount.repository.delete(relativePath).getOrElse { return Result.failure(it) }
 
-        registry.remove(path)
+        registryView.delete(path)
 
         return Result.success(Unit)
     }
 
-    override fun deleteFolderState(path: FolderPath): Result<Unit> {
+    override suspend fun delete(path: FolderPath): Result<Unit> {
         val mount = mountAt(path).getOrElse { return Result.failure(it) }
         val relativePath = path.relativeTo(mount.location)!!
 
@@ -195,7 +195,7 @@ public class Compositor internal constructor(
                 // This is handled by removing the mount itself.
                 // TODO: Should this also clear the mounted repository?
             }
-            is FolderPath -> mount.repository.deleteFolderState(path).getOrElse { return Result.failure(it) }
+            is FolderPath -> mount.repository.delete(path).getOrElse { return Result.failure(it) }
         }
 
         // Unmount all mounts that are part of the folder.
@@ -203,7 +203,7 @@ public class Compositor internal constructor(
         mounts -= removedMounts.map(CompositorMount::location)
 
         // TODO: Recursive remove from registry.
-        registry.remove(path)
+        registryView.delete(path)
 
         for (mount in mounts.values) {
             eventScope.post(CompositorRepositoryUnmountEvent(this, mount.repository, mount.location))
@@ -212,7 +212,7 @@ public class Compositor internal constructor(
         return Result.success(Unit)
     }
 
-    override fun moveWarpState(src: WarpPath, dst: WarpPath): Result<Unit> {
+    override suspend fun move(src: WarpPath, dst: WarpPath): Result<Unit> {
         val srcMount = mountAt(src).getOrElse { return Result.failure(it) }
         val dstMount = mountAt(dst).getOrElse { return Result.failure(it) }
         val srcRelativePath = src.relativeTo(srcMount.location)!!
@@ -220,18 +220,18 @@ public class Compositor internal constructor(
 
         if (srcMount.location == dstMount.location) {
             val mount = srcMount
-            mount.repository.moveWarpState(srcRelativePath, dstRelativePath).getOrElse { return Result.failure(it) }
+            mount.repository.move(srcRelativePath, dstRelativePath).getOrElse { return Result.failure(it) }
         } else {
             TODO("MOVEMENT BETWEEN MOUNTS NOT YET IMPLEMENTED")
             // This probably should just change the mount location.
         }
 
-        registry.move(src, dst)
+        registryView.move(src, dst)
 
         return Result.success(Unit)
     }
 
-    override fun moveFolderState(src: FolderPath, dst: FolderPath): Result<Unit> {
+    override suspend fun move(src: FolderPath, dst: FolderPath): Result<Unit> {
         val srcMount = mountAt(src).getOrElse { return Result.failure(it) }
         val dstMount = mountAt(dst).getOrElse { return Result.failure(it) }
         val srcRelativePath = src.relativeTo(srcMount.location)!!
@@ -244,13 +244,13 @@ public class Compositor internal constructor(
                 TODO("NOT IMPLEMENTED")
                 return Result.success(Unit)
             }
-            mount.repository.moveFolderState(srcRelativePath, dstRelativePath).getOrElse { return Result.failure(it) }
+            mount.repository.move(srcRelativePath, dstRelativePath).getOrElse { return Result.failure(it) }
         } else {
             TODO("MOVEMENT BETWEEN MOUNTS NOT YET IMPLEMENTED")
             // This probably should just change the mount location.
         }
 
-        registry.move(src, dst)
+        registryView.move(src, dst)
 
         return Result.success(Unit)
     }

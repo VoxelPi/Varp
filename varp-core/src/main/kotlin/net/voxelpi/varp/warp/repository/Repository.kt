@@ -11,40 +11,44 @@ public interface Repository {
 
     public val id: String
 
-    public val registry: TreeStateRegistryView
+    public val registryView: TreeStateRegistryView
 
     /**
-     * Function that is called when the repository is loaded.
+     * Function that is called when the repository is activated.
      */
-    public fun onStartup() {}
+    public suspend fun activate(): Result<Unit> {
+        return Result.success(Unit)
+    }
 
     /**
-     * Function that is called when the repository is unloaded.
+     * Function that is called when the repository is activated.
      */
-    public fun onShutdown() {}
+    public suspend fun deactivate(): Result<Unit> {
+        return Result.success(Unit)
+    }
 
     /**
      * Reloads the content of the repository
      */
-    public fun reload(): Result<Unit>
+    public suspend fun load(): Result<Unit>
 
-    public fun createWarpState(path: WarpPath, state: WarpState): Result<Unit>
+    public suspend fun create(path: WarpPath, state: WarpState): Result<Unit>
 
-    public fun createFolderState(path: FolderPath, state: FolderState): Result<Unit>
+    public suspend fun create(path: FolderPath, state: FolderState): Result<Unit>
 
-    public fun saveWarpState(path: WarpPath, state: WarpState): Result<Unit>
+    public suspend fun save(path: WarpPath, state: WarpState): Result<Unit>
 
-    public fun saveFolderState(path: FolderPath, state: FolderState): Result<Unit>
+    public suspend fun save(path: FolderPath, state: FolderState): Result<Unit>
 
-    public fun saveRootState(state: FolderState): Result<Unit>
+    public suspend fun save(state: FolderState): Result<Unit>
 
-    public fun deleteWarpState(path: WarpPath): Result<Unit>
+    public suspend fun delete(path: WarpPath): Result<Unit>
 
-    public fun deleteFolderState(path: FolderPath): Result<Unit>
+    public suspend fun delete(path: FolderPath): Result<Unit>
 
-    public fun moveWarpState(src: WarpPath, dst: WarpPath): Result<Unit>
+    public suspend fun move(src: WarpPath, dst: WarpPath): Result<Unit>
 
-    public fun moveFolderState(src: FolderPath, dst: FolderPath): Result<Unit>
+    public suspend fun move(src: FolderPath, dst: FolderPath): Result<Unit>
 
     /**
      * Gets the type id of this tree repository specified via the [RepositoryType] annotation.

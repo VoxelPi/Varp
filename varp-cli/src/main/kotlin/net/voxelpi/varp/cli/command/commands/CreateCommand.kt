@@ -1,5 +1,6 @@
 package net.voxelpi.varp.cli.command.commands
 
+import kotlinx.coroutines.runBlocking
 import net.kyori.adventure.key.Key
 import net.kyori.adventure.text.minimessage.MiniMessage.miniMessage
 import net.voxelpi.event.annotation.Subscribe
@@ -56,7 +57,9 @@ object CreateCommand {
                     ),
                     name,
                 )
-                parent.createWarp(id, state).getOrThrow()
+                runBlocking {
+                    parent.createWarp(id, state).getOrThrow()
+                }
             }
         }
 
@@ -78,7 +81,9 @@ object CreateCommand {
                 val state = FolderState(
                     name,
                 )
-                parent.createFolder(id, state).getOrThrow()
+                runBlocking {
+                    parent.createFolder(id, state).getOrThrow()
+                }
             }
         }
     }

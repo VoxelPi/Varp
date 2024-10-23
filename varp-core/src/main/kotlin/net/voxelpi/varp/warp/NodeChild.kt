@@ -23,21 +23,21 @@ public sealed interface NodeChild : Node {
     /**
      * Changes the id of the node.
      */
-    public fun move(id: String, duplicatesStrategy: DuplicatesStrategy): Result<Unit>
+    public suspend fun move(id: String, duplicatesStrategy: DuplicatesStrategy): Result<Unit>
 
     /**
      * Moves the node the given path.
      */
-    public fun move(destination: NodeParentPath, duplicatesStrategy: DuplicatesStrategy, destinationId: String? = null): Result<Unit>
+    public suspend fun move(destination: NodeParentPath, duplicatesStrategy: DuplicatesStrategy, destinationId: String? = null): Result<Unit>
 
     /**
      * Copies the node the given path.
      * @return the created node.
      */
-    public fun copy(destination: NodeParentPath, duplicatesStrategy: DuplicatesStrategy, destinationId: String? = null): Result<NodeChild>
+    public suspend fun copy(destination: NodeParentPath, duplicatesStrategy: DuplicatesStrategy, destinationId: String? = null): Result<NodeChild>
 
     /**
      * Delete the node.
      */
-    public fun delete(): Result<Unit>
+    public suspend fun delete(): Result<Unit>
 }

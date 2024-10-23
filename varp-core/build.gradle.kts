@@ -11,6 +11,7 @@ plugins {
 dependencies {
     compileOnly(libs.kotlin.stdlib)
     compileOnly(libs.kotlin.reflect)
+    compileOnlyApi(libs.kotlinx.coroutines.core)
 
     // Libraries
     compileOnlyApi(libs.adventure.api)

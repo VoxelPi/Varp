@@ -24,5 +24,5 @@ data class VarpClientboundSyncTreePacket(
 
     constructor(treeStateRegistry: TreeStateRegistryView) : this(treeStateRegistry.root, treeStateRegistry.folders, treeStateRegistry.warps)
 
-    constructor(tree: Tree) : this(tree.repository.registry)
+    constructor(tree: Tree) : this(tree.repository.registryView)
 }
