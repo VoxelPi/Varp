@@ -1,5 +1,6 @@
 package net.voxelpi.varp.mod.fabric.client
 
+import kotlinx.coroutines.cancel
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger
 import net.voxelpi.varp.Varp
 import net.voxelpi.varp.mod.client.VarpClientImpl
@@ -9,7 +10,7 @@ import net.voxelpi.varp.mod.fabric.client.network.FabricVarpClientNetworkHandler
 import net.voxelpi.varp.warp.Tree
 import net.voxelpi.varp.warp.path.NodeParentPath
 
-class FabricVarpClient : VarpClientImpl {
+class FabricVarpClient : VarpClientImpl() {
 
     override val logger: ComponentLogger
         get() = FabricVarpMod.logger
@@ -25,5 +26,9 @@ class FabricVarpClient : VarpClientImpl {
 
     override fun openExplorer(path: NodeParentPath) {
         TODO("Not yet implemented")
+    }
+
+    fun cleanup() {
+        coroutineScope.cancel()
     }
 }

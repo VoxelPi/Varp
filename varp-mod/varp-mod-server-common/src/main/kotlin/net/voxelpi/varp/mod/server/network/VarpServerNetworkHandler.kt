@@ -1,6 +1,7 @@
 package net.voxelpi.varp.mod.server.network
 
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import net.voxelpi.varp.exception.tree.WarpAlreadyExistsException
 import net.voxelpi.varp.mod.network.VarpPacketRegistry
 import net.voxelpi.varp.mod.network.protocol.VarpPacket
@@ -59,42 +60,41 @@ abstract class VarpServerNetworkHandler(
         }
 
         // Handle the packet.
-        handleServerboundPacket(player, packet).getOrElse {
-            server.logger.error("Unable to handle packet ${VarpPacket.packetId(packet::class)}. \"$message\"", it)
-            return
+        server.coroutineScope.launch(Dispatchers.IO) {
+            handleServerboundPacket(player, packet).getOrElse {
+                server.logger.error("Unable to handle packet ${VarpPacket.packetId(packet::class)}. \"$message\"", it)
+                return@launch
+            }
         }
     }
 
-    private fun handleServerboundPacket(player: VarpServerPlayerImpl, packet: VarpServerboundPacket): Result<Unit> {
+    private suspend fun handleServerboundPacket(player: VarpServerPlayerImpl, packet: VarpServerboundPacket): Result<Unit> {
         return runCatching {
-            // TODO: Run on async thread.
-            runBlocking {
-                when (packet) {
-                    is VarpServerboundCreateFolderPacket -> {
-                        player.requirePermissionOrElse(VarpPermissions.FOLDER_CREATE) {
-                            TODO("Messages")
-                            return@runBlocking
-                        }
-
-                        val warp = server.tree.createFolder(packet.path, packet.state).getOrElse { exception ->
-                            when (exception) {
-                                is WarpAlreadyExistsException -> TODO("Messages")
-                                else -> exception.printStackTrace()
-                            }
-                            return@runBlocking
-                        }
+            when (packet) {
+                is VarpServerboundCreateFolderPacket -> {
+                    player.requirePermissionOrElse(VarpPermissions.FOLDER_CREATE) {
+                        TODO("Messages")
+                        return@runCatching
                     }
-                    is VarpServerboundCreateWarpPacket -> TODO()
-                    is VarpServerboundDeleteFolderPacket -> TODO()
-                    is VarpServerboundDeleteWarpPacket -> TODO()
-                    is VarpServerboundInitializationPacket -> TODO()
-                    is VarpServerboundModifyFolderPathPacket -> TODO()
-                    is VarpServerboundModifyFolderStatePacket -> TODO()
-                    is VarpServerboundModifyRootStatePacket -> TODO()
-                    is VarpServerboundModifyWarpPathPacket -> TODO()
-                    is VarpServerboundModifyWarpStatePacket -> TODO()
-                    is VarpServerboundTeleportWarpPacket -> TODO()
+
+                    val warp = server.tree.createFolder(packet.path, packet.state).getOrElse { exception ->
+                        when (exception) {
+                            is WarpAlreadyExistsException -> TODO("Messages")
+                            else -> exception.printStackTrace()
+                        }
+                        return@runCatching
+                    }
                 }
+                is VarpServerboundCreateWarpPacket -> TODO()
+                is VarpServerboundDeleteFolderPacket -> TODO()
+                is VarpServerboundDeleteWarpPacket -> TODO()
+                is VarpServerboundInitializationPacket -> TODO()
+                is VarpServerboundModifyFolderPathPacket -> TODO()
+                is VarpServerboundModifyFolderStatePacket -> TODO()
+                is VarpServerboundModifyRootStatePacket -> TODO()
+                is VarpServerboundModifyWarpPathPacket -> TODO()
+                is VarpServerboundModifyWarpStatePacket -> TODO()
+                is VarpServerboundTeleportWarpPacket -> TODO()
             }
         }
     }

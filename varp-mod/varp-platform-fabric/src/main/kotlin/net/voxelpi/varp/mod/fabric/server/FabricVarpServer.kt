@@ -1,5 +1,6 @@
 package net.voxelpi.varp.mod.fabric.server
 
+import kotlinx.coroutines.cancel
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger
 import net.minecraft.server.MinecraftServer
 import net.minecraft.util.WorldSavePath
@@ -16,7 +17,7 @@ import net.voxelpi.varp.repository.filetree.FileTreeRepository
 
 class FabricVarpServer(
     val server: MinecraftServer,
-) : VarpServerImpl {
+) : VarpServerImpl() {
 
     override val version: String
         get() = Varp.version
@@ -48,6 +49,7 @@ class FabricVarpServer(
     fun cleanup() {
         playerService.handleShutdown()
         loader.save()
+        coroutineScope.cancel()
 
         // Unregister api service.
         VarpServerAPI.unregister()

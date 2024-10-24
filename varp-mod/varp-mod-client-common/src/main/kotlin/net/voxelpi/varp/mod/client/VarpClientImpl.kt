@@ -1,15 +1,20 @@
 package net.voxelpi.varp.mod.client
 
+import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger
 import net.voxelpi.varp.mod.client.api.VarpClientAPI
 import net.voxelpi.varp.mod.client.network.VarpClientNetworkHandler
 import net.voxelpi.varp.mod.client.warp.ClientRepositoryImpl
 
-interface VarpClientImpl : VarpClientAPI {
+abstract class VarpClientImpl() : VarpClientAPI {
 
-    val logger: ComponentLogger
+    abstract val logger: ComponentLogger
 
-    val clientNetworkHandler: VarpClientNetworkHandler
+    val coroutineScope = CoroutineScope(SupervisorJob() + CoroutineName("mc-client"))
 
-    override val repository: ClientRepositoryImpl
+    abstract val clientNetworkHandler: VarpClientNetworkHandler
+
+    abstract override val repository: ClientRepositoryImpl
 }

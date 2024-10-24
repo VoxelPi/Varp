@@ -1,6 +1,7 @@
 package net.voxelpi.varp.mod.fabric.client
 
 import net.fabricmc.api.ClientModInitializer
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents
 
 object FabricVarpClientMod : ClientModInitializer {
 
@@ -9,5 +10,9 @@ object FabricVarpClientMod : ClientModInitializer {
 
     override fun onInitializeClient() {
         client = FabricVarpClient()
+
+        ClientLifecycleEvents.CLIENT_STOPPING.register { _ ->
+            client.cleanup()
+        }
     }
 }

@@ -1,5 +1,6 @@
 package net.voxelpi.varp.mod.paper
 
+import kotlinx.coroutines.cancel
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger
 import net.voxelpi.event.EventScope
 import net.voxelpi.event.eventScope
@@ -16,7 +17,7 @@ import org.bukkit.plugin.ServicePriority
 class PaperVarpServer(
     val plugin: PaperVarpPlugin,
     val server: Server,
-) : VarpServerImpl {
+) : VarpServerImpl() {
 
     override val version: String
         get() = Varp.version
@@ -48,6 +49,7 @@ class PaperVarpServer(
 
     fun cleanup() {
         loader.save()
+        coroutineScope.cancel()
 
         // Unregister api service.
         VarpServerAPI.unregister()

@@ -2,6 +2,7 @@ package net.voxelpi.varp.cli
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import net.voxelpi.event.EventScope
 import net.voxelpi.event.eventScope
 import net.voxelpi.varp.cli.command.VarpCLICommandManager
@@ -51,6 +52,7 @@ object VarpCLI {
     }
 
     fun stop() {
+        coroutineScope.cancel()
         exitProcess(0)
     }
 }
