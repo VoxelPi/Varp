@@ -46,6 +46,9 @@ public class Compositor internal constructor(
     public constructor(id: String, config: CompositorConfig) : this(id, config.mounts) {}
 
     override suspend fun load(): Result<Unit> {
+        for (mount in this.mounts.values) {
+            mount.repository.load()
+        }
         buildTree()
         return Result.success(Unit)
     }

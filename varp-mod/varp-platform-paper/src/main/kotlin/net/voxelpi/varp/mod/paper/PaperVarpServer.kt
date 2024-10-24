@@ -1,6 +1,7 @@
 package net.voxelpi.varp.mod.paper
 
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.runBlocking
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger
 import net.voxelpi.event.EventScope
 import net.voxelpi.event.eventScope
@@ -34,7 +35,9 @@ class PaperVarpServer(
     override val serverNetworkHandler: PaperVarpServerNetworkHandler = PaperVarpServerNetworkHandler(this)
 
     init {
-        loader.load()
+        runBlocking {
+            loader.load()
+        }
         plugin.componentLogger.info("Loaded ${loader.repositories().size} repositories")
         plugin.componentLogger.info("Loaded ${compositor.mounts().size} mounts")
     }
@@ -48,7 +51,10 @@ class PaperVarpServer(
     }
 
     fun cleanup() {
-        loader.save()
+        runBlocking {
+            loader.save()
+            loader.cleanup()
+        }
         coroutineScope.cancel()
 
         // Unregister api service.

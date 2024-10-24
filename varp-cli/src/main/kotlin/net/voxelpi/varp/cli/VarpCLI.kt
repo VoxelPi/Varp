@@ -3,6 +3,7 @@ package net.voxelpi.varp.cli
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.runBlocking
 import net.voxelpi.event.EventScope
 import net.voxelpi.event.eventScope
 import net.voxelpi.varp.cli.command.VarpCLICommandManager
@@ -38,9 +39,11 @@ object VarpCLI {
         console.start()
         console.printHeader()
 
-        loader.load().getOrElse {
-            logger.error("Unable to load tree: ${it.message}", it)
-            stop()
+        runBlocking {
+            loader.load().getOrElse {
+                logger.error("Unable to load tree: ${it.message}", it)
+                stop()
+            }
         }
         logger.info("Loaded ${loader.repositories().size} repositories")
         logger.info("Loaded ${loader.compositor.mounts().size} mounts")
@@ -52,6 +55,10 @@ object VarpCLI {
     }
 
     fun stop() {
+        runBlocking {
+            loader.save()
+            loader.cleanup()
+        }
         coroutineScope.cancel()
         exitProcess(0)
     }

@@ -6,6 +6,8 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import com.google.gson.JsonPrimitive
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import net.voxelpi.varp.Varp
 import net.voxelpi.varp.warp.Tree
 import net.voxelpi.varp.warp.path.NodeParentPath
@@ -54,13 +56,45 @@ public class VarpLoader internal constructor(
         return repositories.values
     }
 
-    public fun load(): Result<Unit> {
+    public suspend fun load(): Result<Unit> {
+        // Deactivate all existing repositories.
+        coroutineScope {
+            for (repository in repositories.values) {
+                launch {
+                    repository.deactivate()
+                }
+            }
+        }
+
         loadRepositories().onFailure { return Result.failure(it) }
+
+        coroutineScope {
+            for (repository in repositories.values) {
+                launch {
+                    repository.activate()
+                }
+            }
+        }
+
         loadTree().onFailure { return Result.failure(it) }
+        compositor.load()
         return Result.success(Unit)
     }
 
-    public fun save(): Result<Unit> {
+    public suspend fun save(): Result<Unit> {
+        return Result.success(Unit)
+    }
+
+    public suspend fun cleanup(): Result<Unit> {
+        // Deactivate all existing repositories.
+        coroutineScope {
+            for (repository in repositories.values) {
+                launch {
+                    repository.deactivate()
+                }
+            }
+        }
+
         return Result.success(Unit)
     }
 

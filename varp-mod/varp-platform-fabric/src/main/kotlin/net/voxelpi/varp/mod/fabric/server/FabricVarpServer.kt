@@ -1,6 +1,7 @@
 package net.voxelpi.varp.mod.fabric.server
 
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.runBlocking
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger
 import net.minecraft.server.MinecraftServer
 import net.minecraft.util.WorldSavePath
@@ -34,7 +35,9 @@ class FabricVarpServer(
     override val serverNetworkHandler: FabricVarpServerNetworkHandler = FabricVarpServerNetworkHandler(this)
 
     init {
-        loader.load()
+        runBlocking {
+            loader.load()
+        }
         FabricVarpMod.logger.info("Loaded ${loader.repositories().size} repositories")
         FabricVarpMod.logger.info("Loaded ${compositor.mounts().size} mounts")
     }
@@ -48,7 +51,10 @@ class FabricVarpServer(
 
     fun cleanup() {
         playerService.handleShutdown()
-        loader.save()
+        runBlocking {
+            loader.save()
+            loader.cleanup()
+        }
         coroutineScope.cancel()
 
         // Unregister api service.
