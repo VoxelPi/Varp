@@ -5,6 +5,8 @@ import net.voxelpi.varp.warp.path.WarpPath
 import net.voxelpi.varp.warp.state.FolderState
 import net.voxelpi.varp.warp.state.TreeStateRegistryView
 import net.voxelpi.varp.warp.state.WarpState
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import kotlin.reflect.full.findAnnotation
 
 public interface Repository {
@@ -17,6 +19,7 @@ public interface Repository {
      * Function that is called when the repository is activated.
      */
     public suspend fun activate(): Result<Unit> {
+        logger.debug("Activating repository {} (type: {})", id, typeId())
         return Result.success(Unit)
     }
 
@@ -24,6 +27,7 @@ public interface Repository {
      * Function that is called when the repository is activated.
      */
     public suspend fun deactivate(): Result<Unit> {
+        logger.debug("Deactivating repository {} (type: {})", id, typeId())
         return Result.success(Unit)
     }
 
@@ -56,5 +60,9 @@ public interface Repository {
      */
     public fun typeId(): String? {
         return this::class.findAnnotation<RepositoryType>()?.id
+    }
+
+    public companion object {
+        private val logger: Logger = LoggerFactory.getLogger(this::class.java)
     }
 }

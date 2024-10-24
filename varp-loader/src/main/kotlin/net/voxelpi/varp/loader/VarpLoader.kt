@@ -8,6 +8,7 @@ import com.google.gson.JsonParser
 import com.google.gson.JsonPrimitive
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import net.voxelpi.varp.Varp
 import net.voxelpi.varp.warp.Tree
 import net.voxelpi.varp.warp.path.NodeParentPath
@@ -50,6 +51,10 @@ public class VarpLoader internal constructor(
     init {
         path.createDirectories()
         repositoriesPath.createDirectories()
+
+        runBlocking {
+            compositor.activate()
+        }
     }
 
     public fun repositories(): Collection<Repository> {
@@ -94,6 +99,8 @@ public class VarpLoader internal constructor(
                 }
             }
         }
+
+        compositor.deactivate()
 
         return Result.success(Unit)
     }

@@ -45,6 +45,14 @@ class FileTreeRepository(
         if (!config.componentsAsObjects) MiniMessage.miniMessage() else null,
     )
 
+    override suspend fun activate(): Result<Unit> {
+        return super.activate()
+    }
+
+    override suspend fun deactivate(): Result<Unit> {
+        return super.deactivate()
+    }
+
     // region content functions
 
     override suspend fun handleLoad(): Result<Unit> {
