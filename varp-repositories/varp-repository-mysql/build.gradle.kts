@@ -9,4 +9,9 @@ dependencies {
 
     // Project
     compileOnlyApi(projects.varpCore)
+
+    // Libraries
+    compileOnlyApi(libs.bundles.adventure)
+    compileOnly(libs.bundles.exposed)
+    compileOnly(libs.mysql.connector)
 }
