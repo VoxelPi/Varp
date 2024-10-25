@@ -1,6 +1,8 @@
 package net.voxelpi.varp.warp.state
 
 import net.voxelpi.varp.warp.path.FolderPath
+import net.voxelpi.varp.warp.path.NodeParentPath
+import net.voxelpi.varp.warp.path.RootPath
 import net.voxelpi.varp.warp.path.WarpPath
 
 public data class TreeStateRegistry(
@@ -9,20 +11,19 @@ public data class TreeStateRegistry(
     override var root: FolderState = FolderState.defaultRootState(),
 ) : TreeStateRegistryView {
 
-    override operator fun get(path: WarpPath): WarpState? {
-        return warps[path]
-    }
-
     public operator fun set(path: WarpPath, state: WarpState) {
         warps[path] = state
     }
 
-    override operator fun get(path: FolderPath): FolderState? {
-        return folders[path]
-    }
-
     public operator fun set(path: FolderPath, state: FolderState) {
         folders[path] = state
+    }
+
+    public operator fun set(path: NodeParentPath, state: FolderState) {
+        when (path) {
+            is FolderPath -> folders[path] = state
+            RootPath -> root = state
+        }
     }
 
     public fun move(src: WarpPath, dst: WarpPath): WarpState? {
