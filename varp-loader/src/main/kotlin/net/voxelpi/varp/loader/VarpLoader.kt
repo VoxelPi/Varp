@@ -82,7 +82,7 @@ public class VarpLoader internal constructor(
         }
 
         loadTree().onFailure { return Result.failure(it) }
-        compositor.load()
+        compositor.load().getOrElse { return Result.failure(it) }
         return Result.success(Unit)
     }
 
@@ -145,7 +145,7 @@ public class VarpLoader internal constructor(
                     is RepositoryTypeData.WithConfig<*> -> {
                         // Load the repository config.
                         val configResult = runCatching {
-                            gson.fromJson<RepositoryConfig>(repositoryConfig, type.configType.java)
+                            gson.fromJson<RepositoryConfig>(repositoryConfig["config"], type.configType.java)
                         }
                         if (configResult.isFailure) {
                             logger.warn("Unable to load repository \"$id\": Unable to load repository type config.", configResult.exceptionOrNull())
