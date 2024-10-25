@@ -44,16 +44,23 @@ object CreateCommand {
                 val parent: NodeParent = context["parent"]
                 val id: String = context["id"]
 
+                val world: Key = context["world"]
+                val x: Double = context["x"]
+                val y: Double = context["y"]
+                val z: Double = context["z"]
+                val yaw: Float = context["yaw"]
+                val pitch: Float = context["pitch"]
+
                 val name = miniMessage().deserialize(context.flags().getValue<String>("name").orElse(id))
 
                 val state = WarpState(
                     MinecraftLocation(
-                        Key.key("varp:test"),
-                        2.0,
-                        3.0,
-                        3.0,
-                        2f,
-                        3f
+                        world,
+                        x,
+                        y,
+                        z,
+                        yaw,
+                        pitch,
                     ),
                     name,
                 )
