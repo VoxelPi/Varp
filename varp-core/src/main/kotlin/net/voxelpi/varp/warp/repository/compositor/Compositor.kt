@@ -5,6 +5,7 @@ import net.voxelpi.event.eventScope
 import net.voxelpi.event.post
 import net.voxelpi.varp.event.compositor.CompositorRepositoryMountEvent
 import net.voxelpi.varp.event.compositor.CompositorRepositoryUnmountEvent
+import net.voxelpi.varp.exception.tree.WarpNotFoundException
 import net.voxelpi.varp.warp.path.FolderPath
 import net.voxelpi.varp.warp.path.NodeParentPath
 import net.voxelpi.varp.warp.path.NodePath
@@ -229,11 +230,14 @@ public class Compositor internal constructor(
         val dstRelativePath = dst.relativeTo(dstMount.location)!!
 
         if (srcMount.location == dstMount.location) {
+            // The warp doesn't change its mount during the move operation.
             val mount = srcMount
             mount.repository.move(srcRelativePath, dstRelativePath).getOrElse { return Result.failure(it) }
         } else {
-            TODO("MOVEMENT BETWEEN MOUNTS NOT YET IMPLEMENTED")
-            // This probably should just change the mount location.
+            // The warp is moved into a different mount.
+            val state = registryView[src] ?: return Result.failure(WarpNotFoundException(src))
+            srcMount.repository.delete(srcRelativePath).getOrElse { return Result.failure(it) }
+            dstMount.repository.create(dstRelativePath, state).getOrElse { return Result.failure(it) }
         }
 
         registryView.move(src, dst)
