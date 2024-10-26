@@ -212,7 +212,7 @@ public class Compositor internal constructor(
         val removedMounts = mounts.values.filter { path.isSubPathOf(it.location) }
         mounts -= removedMounts.map(CompositorMount::location)
 
-        // TODO: Recursive remove from registry.
+        // Remove folder from registry.
         registryView.delete(path)
 
         for (mount in mounts.values) {

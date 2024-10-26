@@ -56,6 +56,13 @@ public data class TreeStateRegistry(
     }
 
     public fun delete(path: FolderPath): FolderState? {
+        // Delete child warps.
+        warps.keys.removeAll(path::isSubPathOf)
+
+        // Delete child folders.
+        folders.keys.removeAll(path::isTrueSubPathOf)
+
+        // Delete folder.
         return folders.remove(path)
     }
 
