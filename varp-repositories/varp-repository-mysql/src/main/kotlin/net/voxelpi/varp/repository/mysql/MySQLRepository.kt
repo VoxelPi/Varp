@@ -47,8 +47,22 @@ class MySQLRepository(
             )
 
             transaction {
+                // Create tables.
                 SchemaUtils.create(Warps)
                 SchemaUtils.create(Folders)
+
+                // Create root folder data if doesn't already exist.
+                val rootExists = Folders.selectAll().where { Folders.path eq RootPath.toString() }.count() > 0
+                if (!rootExists) {
+                    Folders.insert {
+                        val state = FolderState.defaultRootState()
+                        it[path] = RootPath.toString()
+                        it[name] = miniMessage().serialize(state.name)
+                        it[description] = state.description.map { miniMessage().serialize(it) }.joinToString("\n")
+                        it[tags] = state.tags.joinToString(",")
+                        it[properties] = state.properties.map { "${it.key}=${it.value}" }.joinToString("\n")
+                    }
+                }
             }
         }
 
@@ -153,7 +167,6 @@ class MySQLRepository(
         return runCatching {
             transaction {
                 Folders.update({ Folders.path eq path.toString() }) {
-                    it[Folders.path] = path.toString()
                     it[name] = miniMessage().serialize(state.name)
                     it[description] = state.description.map { miniMessage().serialize(it) }.joinToString("\n")
                     it[tags] = state.tags.joinToString(",")
@@ -167,7 +180,6 @@ class MySQLRepository(
         return runCatching {
             transaction {
                 Folders.update({ Folders.path eq RootPath.toString() }) {
-                    it[path] = path.toString()
                     it[name] = miniMessage().serialize(state.name)
                     it[description] = state.description.map { miniMessage().serialize(it) }.joinToString("\n")
                     it[tags] = state.tags.joinToString(",")
