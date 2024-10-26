@@ -3,6 +3,7 @@ package net.voxelpi.varp.repository.mysql
 import net.kyori.adventure.key.Key
 import net.kyori.adventure.text.minimessage.MiniMessage.miniMessage
 import net.voxelpi.varp.MinecraftLocation
+import net.voxelpi.varp.repository.mysql.functions.ReplaceFunction
 import net.voxelpi.varp.repository.mysql.tables.Folders
 import net.voxelpi.varp.repository.mysql.tables.Warps
 import net.voxelpi.varp.warp.path.FolderPath
@@ -82,8 +83,8 @@ class MySQLRepository(
                         MinecraftLocation(Key.key(it[Warps.world]), it[Warps.x], it[Warps.y], it[Warps.z], it[Warps.yaw], it[Warps.pitch]),
                         miniMessage().deserialize(it[Warps.name]),
                         it[Warps.description].split("\n").map { miniMessage().deserialize(it) },
-                        it[Warps.tags].split(",").toSet(),
-                        it[Warps.properties].split(",").map {
+                        it[Warps.tags].split(",").filter { it.isNotBlank() }.toSet(),
+                        it[Warps.properties].split(",").filter { it.contains("=") }.map {
                             val parts = it.split("=")
                             parts[0] to parts[1]
                         }.toMap()
@@ -203,6 +204,15 @@ class MySQLRepository(
     }
 
     override suspend fun handleMove(src: FolderPath, dst: FolderPath): Result<Unit> {
-        TODO()
+        return runCatching {
+            transaction {
+                Folders.update({ Folders.path like "$src%" }) {
+                    it[path] = ReplaceFunction(path, src.toString(), dst.toString())
+                }
+                Warps.update({ Warps.path like "$src%" }) {
+                    it[path] = ReplaceFunction(path, src.toString(), dst.toString())
+                }
+            }
+        }
     }
 }
