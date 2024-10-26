@@ -66,7 +66,7 @@ class MySQLRepository(
                     val path = NodeParentPath.parse(it[Folders.path]).getOrThrow()
                     val state = FolderState(
                         miniMessage().deserialize(it[Folders.name]),
-                        it[Folders.description].split("\n").map { miniMessage().deserialize(it) },
+                        it[Folders.description].split("\n").filter { it.isNotBlank() }.map { miniMessage().deserialize(it) },
                         it[Folders.tags].split(",").filter { it.isNotBlank() }.toSet(),
                         it[Folders.properties].split(",").filter { it.contains("=") }.map {
                             val parts = it.split("=")
@@ -82,7 +82,7 @@ class MySQLRepository(
                     val state = WarpState(
                         MinecraftLocation(Key.key(it[Warps.world]), it[Warps.x], it[Warps.y], it[Warps.z], it[Warps.yaw], it[Warps.pitch]),
                         miniMessage().deserialize(it[Warps.name]),
-                        it[Warps.description].split("\n").map { miniMessage().deserialize(it) },
+                        it[Warps.description].split("\n").filter { it.isNotBlank() }.map { miniMessage().deserialize(it) },
                         it[Warps.tags].split(",").filter { it.isNotBlank() }.toSet(),
                         it[Warps.properties].split(",").filter { it.contains("=") }.map {
                             val parts = it.split("=")
