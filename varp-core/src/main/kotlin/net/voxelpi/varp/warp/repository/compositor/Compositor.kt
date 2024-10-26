@@ -77,6 +77,13 @@ public class Compositor internal constructor(
 
                 registryView[compositePath] = state
             }
+
+            for ((path, state) in mount.repository.registryView.warps) {
+                // Combine mount location and local path. Ignore duplicate slash in the middle
+                val compositePath = WarpPath(location.value + path.value.substring(1))
+
+                registryView[compositePath] = state
+            }
         }
     }
 

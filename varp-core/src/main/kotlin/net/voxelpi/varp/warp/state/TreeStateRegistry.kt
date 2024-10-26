@@ -34,7 +34,17 @@ public data class TreeStateRegistry(
     }
 
     public fun move(src: FolderPath, dst: FolderPath): FolderState? {
-        // TODO: Recursive move required.
+        // Move child warps.
+        val childWarps = warps.filter { src.isSubPathOf(it.key) }
+        warps.keys.removeAll(childWarps.keys)
+        warps.putAll(childWarps.map { (path, state) -> WarpPath("${dst}${path.relativeTo(src)!!.toString().substring(1)}") to state }.toMap())
+
+        // Move child folders.
+        val childFolders = folders.filter { src.isTrueSubPathOf(it.key) }
+        folders.keys.removeAll(childFolders.keys)
+        folders.putAll(childFolders.map { (path, state) -> FolderPath("${dst}${path.relativeTo(src)!!.toString().substring(1)}") to state }.toMap())
+
+        // Move folder.
         val state = folders[src] ?: return null
         folders[dst] = state
         folders.remove(src)
