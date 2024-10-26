@@ -129,7 +129,7 @@ public class Compositor internal constructor(
         }
         return Result.success(
             mounts.values
-                .filter { it.location.isTrueSubPathOf(path) }
+                .filter { it.location.isSubPathOf(path) }
                 .maxBy { it.location.value.length }
         )
     }
