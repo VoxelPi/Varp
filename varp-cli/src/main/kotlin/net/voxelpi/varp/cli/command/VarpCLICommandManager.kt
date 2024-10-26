@@ -12,6 +12,7 @@ import net.voxelpi.varp.cli.command.commands.MountsCommand
 import net.voxelpi.varp.cli.command.commands.MoveCommand
 import net.voxelpi.varp.cli.command.commands.RepositoriesCommand
 import net.voxelpi.varp.cli.command.commands.StopCommand
+import net.voxelpi.varp.cli.command.commands.TagsCommand
 import net.voxelpi.varp.cli.command.parser.KeyParser
 import net.voxelpi.varp.cli.command.parser.path.FolderPathParser
 import net.voxelpi.varp.cli.command.parser.path.NodeParentPathParser
@@ -75,6 +76,7 @@ class VarpCLICommandManager(
         registerCommand(MoveCommand)
         registerCommand(RepositoriesCommand)
         registerCommand(StopCommand)
+        registerCommand(TagsCommand)
     }
 
     private fun registerCommand(instance: Any) {
