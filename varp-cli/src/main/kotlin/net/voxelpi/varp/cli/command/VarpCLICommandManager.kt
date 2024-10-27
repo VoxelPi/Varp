@@ -10,6 +10,7 @@ import net.voxelpi.varp.cli.command.commands.CreateCommand
 import net.voxelpi.varp.cli.command.commands.ListCommand
 import net.voxelpi.varp.cli.command.commands.MountsCommand
 import net.voxelpi.varp.cli.command.commands.MoveCommand
+import net.voxelpi.varp.cli.command.commands.RemoveCommand
 import net.voxelpi.varp.cli.command.commands.RepositoriesCommand
 import net.voxelpi.varp.cli.command.commands.StopCommand
 import net.voxelpi.varp.cli.command.commands.TagsCommand
@@ -74,6 +75,7 @@ class VarpCLICommandManager(
         registerCommand(ListCommand)
         registerCommand(MountsCommand)
         registerCommand(MoveCommand)
+        registerCommand(RemoveCommand)
         registerCommand(RepositoriesCommand)
         registerCommand(StopCommand)
         registerCommand(TagsCommand)
