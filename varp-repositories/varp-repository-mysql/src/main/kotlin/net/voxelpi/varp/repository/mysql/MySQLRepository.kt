@@ -18,6 +18,7 @@ import net.voxelpi.varp.warp.state.WarpState
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.like
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
@@ -200,7 +201,8 @@ class MySQLRepository(
     override suspend fun handleDelete(path: FolderPath): Result<Unit> {
         return runCatching {
             transaction {
-                Folders.deleteWhere { Folders.path eq path.toString() }
+                Folders.deleteWhere { Folders.path like "$path%" }
+                Warps.deleteWhere { Warps.path like "$path%" }
             }
         }
     }
