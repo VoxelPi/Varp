@@ -20,8 +20,10 @@ import org.spongepowered.configurate.kotlin.objectMapperFactory
 import org.spongepowered.configurate.loader.AbstractConfigurationLoader
 import java.nio.file.Files
 import java.nio.file.Path
+import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.createDirectories
 import kotlin.io.path.deleteIfExists
+import kotlin.io.path.deleteRecursively
 import kotlin.io.path.isDirectory
 import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.name
@@ -136,10 +138,11 @@ class FileTreeRepository(
         }
     }
 
+    @OptIn(ExperimentalPathApi::class)
     override suspend fun handleDelete(path: FolderPath): Result<Unit> {
         return runCatching {
-            path.file().deleteIfExists()
-            path.directory().deleteIfExists()
+            path.file().deleteIfExists() // Delete folder config.
+            path.directory().deleteRecursively() // Delete folder recursive.
         }
     }
 
