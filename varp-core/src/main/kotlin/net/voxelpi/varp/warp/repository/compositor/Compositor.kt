@@ -5,6 +5,7 @@ import net.voxelpi.event.eventScope
 import net.voxelpi.event.post
 import net.voxelpi.varp.event.compositor.CompositorRepositoryMountEvent
 import net.voxelpi.varp.event.compositor.CompositorRepositoryUnmountEvent
+import net.voxelpi.varp.exception.tree.FolderMoveIntoChildException
 import net.voxelpi.varp.exception.tree.WarpNotFoundException
 import net.voxelpi.varp.warp.path.FolderPath
 import net.voxelpi.varp.warp.path.NodeParentPath
@@ -204,7 +205,6 @@ public class Compositor internal constructor(
         when (relativePath) {
             is RootPath -> {
                 // This is handled by removing the mount itself.
-                // TODO: Should this also clear the mounted repository?
             }
             is FolderPath -> mount.repository.delete(relativePath).getOrElse { return Result.failure(it) }
         }
@@ -253,15 +253,71 @@ public class Compositor internal constructor(
 
         if (srcMount.location == dstMount.location) {
             val mount = srcMount
-            if (dstRelativePath !is FolderPath || srcRelativePath !is FolderPath) {
-                // What happens if the folder is moved to the root of the mount?
-                TODO("NOT IMPLEMENTED")
-                return Result.success(Unit)
+            when (dstRelativePath) {
+                is FolderPath -> {
+                    if (srcRelativePath !is FolderPath) {
+                        return Result.failure(FolderMoveIntoChildException(src, dst))
+                    }
+                    mount.repository.move(srcRelativePath, dstRelativePath).getOrElse { return Result.failure(it) }
+                }
+                RootPath -> {
+                    mount.repository.save(registryView[src]!!)
+
+                    // Move all direct child folders
+                    val directChildFolders = mount.repository.registryView.folders.keys
+                        .filter { srcRelativePath.isTrueSubPathOf(it) && !it.value.substring(srcRelativePath.value.length, it.value.length - 1).contains("/") }
+                    for (folder in directChildFolders) {
+                        mount.repository.move(folder, folder.relativeTo(srcRelativePath)!! as FolderPath).getOrElse { return Result.failure(it) }
+                    }
+
+                    // Move all direct child warps.
+                    val directChildWarps = mount.repository.registryView.warps.keys
+                        .filter { srcRelativePath.isSubPathOf(it) && !it.value.substring(srcRelativePath.value.length).contains("/") }
+                    for (warp in directChildWarps) {
+                        mount.repository.move(warp, warp.relativeTo(srcRelativePath)!!).getOrElse { return Result.failure(it) }
+                    }
+                }
             }
-            mount.repository.move(srcRelativePath, dstRelativePath).getOrElse { return Result.failure(it) }
         } else {
-            TODO("MOVEMENT BETWEEN MOUNTS NOT YET IMPLEMENTED")
-            // This probably should just change the mount location.
+            // Create a list of all folders that are sub folders (or the folder itself) and sort it by the length of their paths.
+            // That way a parent folder is always created before its child folders, as it has a shorter path.
+            // Then use the list to create all folders at the new location.
+            val affectedFoldersRelativePaths = registryView.folders.keys.filter(src::isSubPathOf).sortedBy { it.value.length }
+            for (oldPath in affectedFoldersRelativePaths) {
+                val state = registryView[oldPath]!!
+                val newPath = FolderPath(dst.value + oldPath.relativeTo(src)!!.value.substring(1)).relativeTo(dstMount.location)!!
+                when (newPath) {
+                    is FolderPath -> dstMount.repository.create(newPath, state).getOrElse { return Result.failure(it) }
+                    RootPath -> dstMount.repository.save(state)
+                }
+            }
+
+            // Create a list of all warps that are children of the moved folder.
+            // Then use the list to create all warps at the new location.
+            val affectedWarpsRelativePaths = registryView.warps.keys.filter(src::isSubPathOf)
+            for (oldPath in affectedWarpsRelativePaths) {
+                val state = registryView[oldPath]!!
+                val newPath = WarpPath(dst.value + oldPath.relativeTo(src)!!.value.substring(1)).relativeTo(dstMount.location)!!
+                dstMount.repository.create(newPath, state).getOrElse { return Result.failure(it) }
+            }
+
+            when (srcRelativePath) {
+                is FolderPath -> {
+                    // Remove the old folder.
+                    srcMount.repository.delete(srcRelativePath).getOrElse { return Result.failure(it) }
+                }
+                RootPath -> {
+                    // This is handled by removing the mount itself.
+                }
+            }
+
+            // Unmount all mounts that are part of the folder.
+            val removedMounts = mounts.values.filter { src.isSubPathOf(it.location) }
+            mounts -= removedMounts.map(CompositorMount::location)
+
+            for (mount in mounts.values) {
+                eventScope.post(CompositorRepositoryUnmountEvent(this, mount.repository, mount.location))
+            }
         }
 
         registryView.move(src, dst)
