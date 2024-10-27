@@ -206,7 +206,7 @@ public class Compositor internal constructor(
                 // This is handled by removing the mount itself.
                 // TODO: Should this also clear the mounted repository?
             }
-            is FolderPath -> mount.repository.delete(path).getOrElse { return Result.failure(it) }
+            is FolderPath -> mount.repository.delete(relativePath).getOrElse { return Result.failure(it) }
         }
 
         // Unmount all mounts that are part of the folder.
