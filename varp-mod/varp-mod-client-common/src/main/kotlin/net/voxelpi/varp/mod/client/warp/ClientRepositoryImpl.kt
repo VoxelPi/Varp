@@ -33,8 +33,8 @@ import net.voxelpi.varp.warp.state.WarpState
 class ClientRepositoryImpl(
     private val client: VarpClientImpl,
     private val clientNetworkHandler: VarpClientNetworkHandler,
-    override val id: String,
-) : ClientRepository {
+    id: String,
+) : ClientRepository(id) {
 
     override val registryView: TreeStateRegistry = TreeStateRegistry()
 

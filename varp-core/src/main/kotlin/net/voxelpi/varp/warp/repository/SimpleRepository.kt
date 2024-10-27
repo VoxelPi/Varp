@@ -14,8 +14,8 @@ import net.voxelpi.varp.warp.state.WarpState
  * @property id The id of the repository.
  */
 public abstract class SimpleRepository(
-    public override val id: String,
-) : Repository {
+    id: String,
+) : Repository(id) {
 
     protected val registry: TreeStateRegistry = TreeStateRegistry()
 

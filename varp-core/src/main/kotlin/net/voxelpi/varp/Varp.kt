@@ -1,7 +1,5 @@
 package net.voxelpi.varp
 
-import net.voxelpi.varp.warp.Tree
-import net.voxelpi.varp.warp.repository.Repository
 import net.voxelpi.varp.warp.repository.RepositoryService
 
 /**
@@ -16,8 +14,4 @@ public object Varp {
         get() = "${VarpBuildParameters.VERSION}-${VarpBuildParameters.GIT_COMMIT}"
 
     public val repositoryService: RepositoryService = RepositoryService()
-
-    public fun createTree(repository: Repository): Tree {
-        return Tree(repository)
-    }
 }

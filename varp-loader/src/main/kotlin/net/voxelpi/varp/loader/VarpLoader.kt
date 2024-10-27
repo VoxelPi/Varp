@@ -9,7 +9,6 @@ import com.google.gson.JsonPrimitive
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import net.voxelpi.varp.Varp
 import net.voxelpi.varp.warp.Tree
 import net.voxelpi.varp.warp.path.NodeParentPath
 import net.voxelpi.varp.warp.repository.Repository
@@ -38,11 +37,10 @@ public class VarpLoader internal constructor(
 
     private val repositories: MutableMap<String, Repository> = mutableMapOf()
 
-    public var compositor: Compositor = Compositor.empty("main")
-        private set
+    public val compositor: Compositor = Compositor.empty("main")
 
-    public var tree: Tree = Varp.createTree(compositor)
-        private set
+    public val tree: Tree
+        get() = compositor.tree
 
     private val gson = GsonBuilder().apply {
         setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
@@ -109,7 +107,7 @@ public class VarpLoader internal constructor(
         repositories.clear()
 
         return runCatching {
-            val repositoriesConfig = JsonParser.parseReader(path.resolve("repositories.json").bufferedReader())
+            val repositoriesConfig = JsonParser.parseReader(path.resolve(REPOSITORIES_FILE).bufferedReader())
             if (repositoriesConfig !is JsonObject) {
                 return Result.failure(Exception("Repositories config must be a json object"))
             }

@@ -22,7 +22,8 @@ class FabricVarpClient : VarpClientImpl() {
 
     override val repository: ClientRepositoryImpl = ClientRepositoryImpl(this, clientNetworkHandler, "main")
 
-    override val tree: Tree = Varp.createTree(repository)
+    override val tree: Tree
+        get() = repository.tree
 
     override fun openExplorer(path: NodeParentPath) {
         TODO("Not yet implemented")

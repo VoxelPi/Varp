@@ -1,5 +1,6 @@
 package net.voxelpi.varp.warp.repository
 
+import net.voxelpi.varp.warp.Tree
 import net.voxelpi.varp.warp.path.FolderPath
 import net.voxelpi.varp.warp.path.WarpPath
 import net.voxelpi.varp.warp.state.FolderState
@@ -9,16 +10,21 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import kotlin.reflect.full.findAnnotation
 
-public interface Repository {
+public abstract class Repository(
+    public val id: String,
+) {
 
-    public val id: String
+    public abstract val registryView: TreeStateRegistryView
 
-    public val registryView: TreeStateRegistryView
+    /**
+     * The tree of this repository.
+     */
+    public val tree: Tree = Tree(this)
 
     /**
      * Function that is called when the repository is activated.
      */
-    public suspend fun activate(): Result<Unit> {
+    public open suspend fun activate(): Result<Unit> {
         logger.debug("Activating repository {} (type: {})", id, typeId())
         return Result.success(Unit)
     }
@@ -26,7 +32,7 @@ public interface Repository {
     /**
      * Function that is called when the repository is activated.
      */
-    public suspend fun deactivate(): Result<Unit> {
+    public open suspend fun deactivate(): Result<Unit> {
         logger.debug("Deactivating repository {} (type: {})", id, typeId())
         return Result.success(Unit)
     }
@@ -34,25 +40,25 @@ public interface Repository {
     /**
      * Reloads the content of the repository
      */
-    public suspend fun load(): Result<Unit>
+    public abstract suspend fun load(): Result<Unit>
 
-    public suspend fun create(path: WarpPath, state: WarpState): Result<Unit>
+    public abstract suspend fun create(path: WarpPath, state: WarpState): Result<Unit>
 
-    public suspend fun create(path: FolderPath, state: FolderState): Result<Unit>
+    public abstract suspend fun create(path: FolderPath, state: FolderState): Result<Unit>
 
-    public suspend fun save(path: WarpPath, state: WarpState): Result<Unit>
+    public abstract suspend fun save(path: WarpPath, state: WarpState): Result<Unit>
 
-    public suspend fun save(path: FolderPath, state: FolderState): Result<Unit>
+    public abstract suspend fun save(path: FolderPath, state: FolderState): Result<Unit>
 
-    public suspend fun save(state: FolderState): Result<Unit>
+    public abstract suspend fun save(state: FolderState): Result<Unit>
 
-    public suspend fun delete(path: WarpPath): Result<Unit>
+    public abstract suspend fun delete(path: WarpPath): Result<Unit>
 
-    public suspend fun delete(path: FolderPath): Result<Unit>
+    public abstract suspend fun delete(path: FolderPath): Result<Unit>
 
-    public suspend fun move(src: WarpPath, dst: WarpPath): Result<Unit>
+    public abstract suspend fun move(src: WarpPath, dst: WarpPath): Result<Unit>
 
-    public suspend fun move(src: FolderPath, dst: FolderPath): Result<Unit>
+    public abstract suspend fun move(src: FolderPath, dst: FolderPath): Result<Unit>
 
     /**
      * Gets the type id of this tree repository specified via the [RepositoryType] annotation.

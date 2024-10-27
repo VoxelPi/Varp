@@ -24,9 +24,9 @@ import kotlin.collections.iterator
 
 @RepositoryType("compositor")
 public class Compositor internal constructor(
-    override val id: String,
+    id: String,
     mounts: Collection<CompositorMount>,
-) : Repository {
+) : Repository(id) {
 
     private val mounts: MutableMap<NodeParentPath, CompositorMount> = mounts
         .sortedByDescending { it.location.value.length }
