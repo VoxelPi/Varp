@@ -38,7 +38,7 @@ public data class FolderState(
     public companion object {
 
         public fun defaultRootState(): FolderState {
-            return FolderState(Component.text("root"), emptyList(), emptySet(), emptyMap())
+            return FolderState(Component.text("root"), emptyList(), setOf("varp:root"), emptyMap())
         }
     }
 }
