@@ -127,7 +127,7 @@ public class Tree internal constructor(
         eventScope.post(WarpDeleteEvent(Warp(this, path)))
 
         // Delete the warp state.
-        repository.delete(path)
+        repository.delete(path).onFailure { return Result.failure(it) }
 
         // Post event.
         eventScope.post(WarpPostDeleteEvent(path, state))
@@ -145,7 +145,7 @@ public class Tree internal constructor(
         eventScope.post(FolderDeleteEvent(Folder(this, path)))
 
         // Delete the folder state.
-        repository.delete(path)
+        repository.delete(path).onFailure { return Result.failure(it) }
 
         // Post event.
         eventScope.post(FolderPostDeleteEvent(path, state))
