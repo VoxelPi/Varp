@@ -1,6 +1,7 @@
 package net.voxelpi.varp.warp
 
 import net.voxelpi.varp.DuplicatesStrategy
+import net.voxelpi.varp.MinecraftLocation
 import net.voxelpi.varp.exception.tree.WarpAlreadyExistsException
 import net.voxelpi.varp.warp.path.NodeParentPath
 import net.voxelpi.varp.warp.path.WarpPath
@@ -22,6 +23,12 @@ public class Warp internal constructor(
      */
     override val state: WarpState
         get() = tree.warpState(path)!!
+
+    /**
+     * the location of the warp.
+     */
+    public val location: MinecraftLocation
+        get() = state.location
 
     /**
      * Modifies the state of the folder.
