@@ -47,6 +47,7 @@ dependencies {
     modImplementationAndInclude(libs.cloud.fabric)
     implementationAndInclude(libs.bundles.configurate.core)
     implementationAndInclude(libs.bundles.configurate.formats)
+    implementationAndInclude(libs.bundles.moonshine)
     implementationAndInclude(libs.event)
 
     implementationAndInclude(libs.event)

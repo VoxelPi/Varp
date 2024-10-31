@@ -12,6 +12,7 @@ gson = "2.11.0"
 junit = "5.11.2"
 kotlin = "2.0.21"
 log4j = "2.23.1"
+moonshine = "2.0.4"
 mysql-connector = "8.4.0"
 slf4j = "1.7.36"
 
@@ -76,6 +77,9 @@ kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutine" }
 
+moonshine-standard = { module = "net.kyori.moonshine:moonshine-standard", version.ref = "moonshine" }
+moonshine-core = { module = "net.kyori.moonshine:moonshine-core", version.ref = "moonshine" }
+
 # Logging
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 log4j-core = { module = "org.apache.logging.log4j:log4j-core", version.ref = "log4j" }
@@ -110,6 +114,7 @@ configurate-core = ["configurate-core", "configurate-extra-kotlin"]
 configurate-formats = ["configurate-gson", "configurate-hocon", "configurate-yaml", "configurate-xml"]
 exposed = ["exposed-core", "exposed-jdbc", "exposed-json"]
 jline = ["jline-terminal-core", "jline-terminal-jni", "jline-terminal-reader"]
+moonshine = ["moonshine-standard", "moonshine-core"]
 build-plugins = [
     "blossom",
     "dokka-plugin",

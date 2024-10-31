@@ -20,6 +20,7 @@ public class PaperVarpPluginLoader implements PluginLoader {
     private static final String CLOUD_MINECRAFT_VERSION = "2.0.0-beta.10";
     private static final String CONFIGURATE_VERSION = "4.1.2";
     private static final String KOTLIN_VERSION = "2.0.21";
+    private static final String MOONSHINE_VERSION = "2.0.4";
 
     @Override
     public void classloader(@NotNull PluginClasspathBuilder classpathBuilder) {
@@ -43,6 +44,9 @@ public class PaperVarpPluginLoader implements PluginLoader {
         addDependency(resolver, "org.spongepowered:configurate-xml", CONFIGURATE_VERSION);
         addDependency(resolver, "org.spongepowered:configurate-yaml", CONFIGURATE_VERSION);
         addDependency(resolver, "net.kyori:adventure-serializer-configurate4", ADVENTURE_VERSION);
+
+        addDependency(resolver, "net.kyori.moonshine:moonshine-core", MOONSHINE_VERSION);
+        addDependency(resolver, "net.kyori.moonshine:moonshine-standard", MOONSHINE_VERSION);
 
         classpathBuilder.addLibrary(resolver);
     }

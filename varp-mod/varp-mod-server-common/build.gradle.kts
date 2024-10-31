@@ -12,4 +12,7 @@ dependencies {
 
     // Libraries
     compileOnlyApi(libs.bundles.cloud)
+    compileOnlyApi(libs.bundles.configurate.core)
+    compileOnlyApi(libs.bundles.configurate.formats)
+    compileOnlyApi(libs.bundles.moonshine)
 }

@@ -15,6 +15,7 @@ import net.voxelpi.varp.mod.fabric.server.player.FabricVarpServerPlayerService
 import net.voxelpi.varp.mod.server.VarpServerImpl
 import net.voxelpi.varp.mod.server.api.VarpServerAPI
 import net.voxelpi.varp.repository.filetree.FileTreeRepository
+import java.nio.file.Path
 
 class FabricVarpServer(
     val server: MinecraftServer,
@@ -26,9 +27,16 @@ class FabricVarpServer(
     override val logger: ComponentLogger
         get() = FabricVarpMod.logger
 
+    override val globalConfigDirectory: Path
+        get() = FabricVarpMod.configDirectory
+
     override val eventScope: EventScope = eventScope()
 
     override val platform: FabricServerPlatform = FabricServerPlatform()
+
+    init {
+        loadMessages()
+    }
 
     override val loader: VarpLoader = VarpLoader.loader(server.getSavePath(WorldSavePath.ROOT).resolve("data").resolve("varp")) {
         registerRepositoryType<FileTreeRepository>()
@@ -61,5 +69,9 @@ class FabricVarpServer(
 
         // Unregister api service.
         VarpServerAPI.unregister()
+    }
+
+    override fun copyResourceTemplate(resource: String, destination: Path) {
+        FabricVarpMod.copyResourceTemplate(resource, destination)
     }
 }
