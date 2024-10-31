@@ -28,6 +28,8 @@ class PaperVarpServer(
 
     override val eventScope: EventScope = eventScope()
 
+    override val platform: PaperServerPlatform = PaperServerPlatform()
+
     override val loader: VarpLoader = VarpLoader.loader(plugin.dataPath.resolve("data")) {
         registerRepositoryType<FileTreeRepository>()
     }

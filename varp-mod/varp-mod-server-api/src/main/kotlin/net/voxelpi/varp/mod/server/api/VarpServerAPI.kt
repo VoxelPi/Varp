@@ -23,6 +23,11 @@ public interface VarpServerAPI {
     public val eventScope: EventScope
 
     /**
+     * The platform on which the server implementation runs.
+     */
+    public val platform: ServerPlatform
+
+    /**
      * The varp loader used to load and store the varp tree.
      */
     public val loader: VarpLoader

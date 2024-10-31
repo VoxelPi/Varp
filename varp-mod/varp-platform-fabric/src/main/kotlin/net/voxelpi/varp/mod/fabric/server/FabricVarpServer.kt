@@ -28,6 +28,8 @@ class FabricVarpServer(
 
     override val eventScope: EventScope = eventScope()
 
+    override val platform: FabricServerPlatform = FabricServerPlatform()
+
     override val loader: VarpLoader = VarpLoader.loader(server.getSavePath(WorldSavePath.ROOT).resolve("data").resolve("varp")) {
         registerRepositoryType<FileTreeRepository>()
     }

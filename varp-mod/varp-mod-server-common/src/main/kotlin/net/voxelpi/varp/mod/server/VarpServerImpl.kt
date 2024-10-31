@@ -15,6 +15,8 @@ abstract class VarpServerImpl : VarpServerAPI {
 
     val coroutineScope = CoroutineScope(SupervisorJob() + CoroutineName("mc-server"))
 
+    abstract override val platform: ServerPlatformImpl
+
     abstract override val playerService: VarpServerPlayerServiceImpl<out VarpServerPlayerImpl>
 
     abstract val serverNetworkHandler: VarpServerNetworkHandler
