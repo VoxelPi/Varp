@@ -2,17 +2,29 @@ package net.voxelpi.varp.mod.server.message
 
 import io.leangen.geantyref.TypeToken
 import net.kyori.adventure.audience.Audience
+import net.kyori.adventure.key.Key
 import net.kyori.adventure.text.Component
 import net.kyori.moonshine.Moonshine
 import net.kyori.moonshine.annotation.Message
 import net.kyori.moonshine.annotation.Placeholder
 import net.kyori.moonshine.strategy.StandardPlaceholderResolverStrategy
 import net.kyori.moonshine.strategy.supertype.StandardSupertypeThenInterfaceSupertypeStrategy
+import net.voxelpi.varp.MinecraftLocation
 import net.voxelpi.varp.mod.api.VarpClientInformation
 import net.voxelpi.varp.mod.api.VarpServerInformation
+import net.voxelpi.varp.mod.server.api.player.VarpServerPlayer
 import net.voxelpi.varp.mod.server.message.placeholder.ComponentPlaceholderResolver
+import net.voxelpi.varp.mod.server.message.placeholder.FolderPlaceholderResolver
+import net.voxelpi.varp.mod.server.message.placeholder.KeyPlaceholderResolver
+import net.voxelpi.varp.mod.server.message.placeholder.MinecraftLocationPlaceholderResolver
+import net.voxelpi.varp.mod.server.message.placeholder.NodePathPlaceholderResolver
 import net.voxelpi.varp.mod.server.message.placeholder.NumberPlaceholderResolver
+import net.voxelpi.varp.mod.server.message.placeholder.RootPlaceholderResolver
 import net.voxelpi.varp.mod.server.message.placeholder.StringPlaceholderResolver
+import net.voxelpi.varp.mod.server.message.placeholder.VarpClientInformationPlaceholderResolver
+import net.voxelpi.varp.mod.server.message.placeholder.VarpServerInformationPlaceholderResolver
+import net.voxelpi.varp.mod.server.message.placeholder.VarpServerPlayerPlaceholderResolver
+import net.voxelpi.varp.mod.server.message.placeholder.WarpPlaceholderResolver
 import net.voxelpi.varp.warp.Folder
 import net.voxelpi.varp.warp.Root
 import net.voxelpi.varp.warp.Warp
@@ -213,6 +225,19 @@ interface VarpMessages {
                     weightedPlaceholderResolver(Component::class.java, ComponentPlaceholderResolver, 1)
                     weightedPlaceholderResolver(String::class.java, StringPlaceholderResolver, 1)
                     weightedPlaceholderResolver(Number::class.java, NumberPlaceholderResolver, 1)
+
+                    weightedPlaceholderResolver(Key::class.java, KeyPlaceholderResolver, 1)
+                    weightedPlaceholderResolver(MinecraftLocation::class.java, MinecraftLocationPlaceholderResolver, 1)
+                    weightedPlaceholderResolver(VarpServerPlayer::class.java, VarpServerPlayerPlaceholderResolver, 1)
+
+                    weightedPlaceholderResolver(VarpClientInformation::class.java, VarpClientInformationPlaceholderResolver, 1)
+                    weightedPlaceholderResolver(VarpServerInformation::class.java, VarpServerInformationPlaceholderResolver, 1)
+
+                    weightedPlaceholderResolver(NodePath::class.java, NodePathPlaceholderResolver, 1)
+
+                    weightedPlaceholderResolver(Warp::class.java, WarpPlaceholderResolver, 1)
+                    weightedPlaceholderResolver(Folder::class.java, FolderPlaceholderResolver, 1)
+                    weightedPlaceholderResolver(Root::class.java, RootPlaceholderResolver, 1)
                 }
                 .create(this::class.java.classLoader)
         }
