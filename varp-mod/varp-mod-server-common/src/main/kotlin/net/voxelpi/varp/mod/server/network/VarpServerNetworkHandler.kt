@@ -2,7 +2,6 @@ package net.voxelpi.varp.mod.server.network
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import net.voxelpi.varp.exception.tree.WarpAlreadyExistsException
 import net.voxelpi.varp.mod.network.VarpPacketRegistry
 import net.voxelpi.varp.mod.network.protocol.VarpPacket
 import net.voxelpi.varp.mod.network.protocol.clientbound.VarpClientboundPacket
@@ -19,7 +18,7 @@ import net.voxelpi.varp.mod.network.protocol.serverbound.VarpServerboundModifyWa
 import net.voxelpi.varp.mod.network.protocol.serverbound.VarpServerboundPacket
 import net.voxelpi.varp.mod.network.protocol.serverbound.VarpServerboundTeleportWarpPacket
 import net.voxelpi.varp.mod.server.VarpServerImpl
-import net.voxelpi.varp.mod.server.api.VarpPermissions
+import net.voxelpi.varp.mod.server.api.player.ServersideClientInformation
 import net.voxelpi.varp.mod.server.player.VarpServerPlayerImpl
 
 abstract class VarpServerNetworkHandler(
@@ -71,30 +70,17 @@ abstract class VarpServerNetworkHandler(
     private suspend fun handleServerboundPacket(player: VarpServerPlayerImpl, packet: VarpServerboundPacket): Result<Unit> {
         return runCatching {
             when (packet) {
-                is VarpServerboundCreateFolderPacket -> {
-                    player.requirePermissionOrElse(VarpPermissions.FOLDER_CREATE) {
-                        TODO("Messages")
-                        return@runCatching
-                    }
-
-                    val warp = server.tree.createFolder(packet.path, packet.state).getOrElse { exception ->
-                        when (exception) {
-                            is WarpAlreadyExistsException -> TODO("Messages")
-                            else -> exception.printStackTrace()
-                        }
-                        return@runCatching
-                    }
-                }
-                is VarpServerboundCreateWarpPacket -> TODO()
-                is VarpServerboundDeleteFolderPacket -> TODO()
-                is VarpServerboundDeleteWarpPacket -> TODO()
-                is VarpServerboundInitializationPacket -> TODO()
-                is VarpServerboundModifyFolderPathPacket -> TODO()
-                is VarpServerboundModifyFolderStatePacket -> TODO()
-                is VarpServerboundModifyRootStatePacket -> TODO()
-                is VarpServerboundModifyWarpPathPacket -> TODO()
-                is VarpServerboundModifyWarpStatePacket -> TODO()
-                is VarpServerboundTeleportWarpPacket -> TODO()
+                is VarpServerboundCreateFolderPacket -> player.createFolder(packet.path, packet.state)
+                is VarpServerboundCreateWarpPacket -> player.createWarp(packet.path, packet.state)
+                is VarpServerboundDeleteFolderPacket -> player.deleteFolder(packet.path)
+                is VarpServerboundDeleteWarpPacket -> player.deleteWarp(packet.path)
+                is VarpServerboundInitializationPacket -> player.enableClientSupport(ServersideClientInformation(packet.version, packet.protocolVersion))
+                is VarpServerboundModifyFolderPathPacket -> player.moveFolder(packet.from, packet.to)
+                is VarpServerboundModifyFolderStatePacket -> player.modifyFolder(packet.path, packet.state)
+                is VarpServerboundModifyRootStatePacket -> player.modifyRoot(packet.state)
+                is VarpServerboundModifyWarpPathPacket -> player.moveWarp(packet.from, packet.to)
+                is VarpServerboundModifyWarpStatePacket -> player.modifyWarp(packet.path, packet.state)
+                is VarpServerboundTeleportWarpPacket -> player.teleportToWarp(packet.path)
             }
         }
     }
