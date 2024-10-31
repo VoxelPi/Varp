@@ -13,6 +13,8 @@ import net.voxelpi.event.EventScope
 import net.voxelpi.event.eventScope
 import net.voxelpi.varp.Varp
 import net.voxelpi.varp.loader.VarpLoader
+import net.voxelpi.varp.mod.VarpModConstants
+import net.voxelpi.varp.mod.api.VarpServerInformation
 import net.voxelpi.varp.mod.fabric.FabricVarpMod
 import net.voxelpi.varp.mod.fabric.server.network.FabricVarpServerNetworkHandler
 import net.voxelpi.varp.mod.fabric.server.player.FabricVarpServerPlayerService
@@ -28,6 +30,8 @@ class FabricVarpServer(
 
     override val version: String
         get() = Varp.version
+
+    override val info: VarpServerInformation = VarpServerInformation(version, VarpModConstants.PROTOCOL_VERSION)
 
     override val logger: ComponentLogger
         get() = FabricVarpMod.logger

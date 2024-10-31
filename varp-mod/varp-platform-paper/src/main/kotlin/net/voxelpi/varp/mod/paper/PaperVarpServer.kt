@@ -7,6 +7,8 @@ import net.voxelpi.event.EventScope
 import net.voxelpi.event.eventScope
 import net.voxelpi.varp.Varp
 import net.voxelpi.varp.loader.VarpLoader
+import net.voxelpi.varp.mod.VarpModConstants
+import net.voxelpi.varp.mod.api.VarpServerInformation
 import net.voxelpi.varp.mod.paper.network.PaperVarpServerNetworkHandler
 import net.voxelpi.varp.mod.paper.player.PaperVarpServerPlayerService
 import net.voxelpi.varp.mod.server.VarpServerImpl
@@ -26,6 +28,8 @@ class PaperVarpServer(
 
     override val version: String
         get() = Varp.version
+
+    override val info: VarpServerInformation = VarpServerInformation(version, VarpModConstants.PROTOCOL_VERSION)
 
     override val logger: ComponentLogger
         get() = plugin.componentLogger

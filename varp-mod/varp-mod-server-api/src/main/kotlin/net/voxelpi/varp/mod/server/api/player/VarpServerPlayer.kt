@@ -4,6 +4,7 @@ import net.kyori.adventure.audience.Audience
 import net.kyori.adventure.identity.Identified
 import net.kyori.adventure.text.Component
 import net.voxelpi.varp.MinecraftLocation
+import net.voxelpi.varp.mod.api.VarpClientInformation
 import java.util.UUID
 
 /**
@@ -35,7 +36,7 @@ public interface VarpServerPlayer : Audience, Identified {
      * Information about the varp mod installed on the client,
      * or null if the varp mod is not installed on the client.
      */
-    public val clientInformation: ServersideClientInformation?
+    public val clientInformation: VarpClientInformation?
 
     /**
      * Returns if the player has the varp mod installed on their client.

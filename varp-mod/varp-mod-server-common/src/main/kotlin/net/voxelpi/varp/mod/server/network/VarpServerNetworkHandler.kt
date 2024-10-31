@@ -2,6 +2,7 @@ package net.voxelpi.varp.mod.server.network
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import net.voxelpi.varp.mod.api.VarpClientInformation
 import net.voxelpi.varp.mod.network.VarpPacketRegistry
 import net.voxelpi.varp.mod.network.protocol.VarpPacket
 import net.voxelpi.varp.mod.network.protocol.clientbound.VarpClientboundPacket
@@ -18,7 +19,6 @@ import net.voxelpi.varp.mod.network.protocol.serverbound.VarpServerboundModifyWa
 import net.voxelpi.varp.mod.network.protocol.serverbound.VarpServerboundPacket
 import net.voxelpi.varp.mod.network.protocol.serverbound.VarpServerboundTeleportWarpPacket
 import net.voxelpi.varp.mod.server.VarpServerImpl
-import net.voxelpi.varp.mod.server.api.player.ServersideClientInformation
 import net.voxelpi.varp.mod.server.player.VarpServerPlayerImpl
 
 abstract class VarpServerNetworkHandler(
@@ -74,7 +74,7 @@ abstract class VarpServerNetworkHandler(
                 is VarpServerboundCreateWarpPacket -> player.createWarp(packet.path, packet.state)
                 is VarpServerboundDeleteFolderPacket -> player.deleteFolder(packet.path)
                 is VarpServerboundDeleteWarpPacket -> player.deleteWarp(packet.path)
-                is VarpServerboundInitializationPacket -> player.enableClientSupport(ServersideClientInformation(packet.version, packet.protocolVersion))
+                is VarpServerboundInitializationPacket -> player.enableClientSupport(VarpClientInformation(packet.version, packet.protocolVersion))
                 is VarpServerboundModifyFolderPathPacket -> player.moveFolder(packet.from, packet.to)
                 is VarpServerboundModifyFolderStatePacket -> player.modifyFolder(packet.path, packet.state)
                 is VarpServerboundModifyRootStatePacket -> player.modifyRoot(packet.state)

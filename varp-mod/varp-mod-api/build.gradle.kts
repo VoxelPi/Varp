@@ -10,8 +10,7 @@ dependencies {
     compileOnly(kotlin("stdlib"))
 
     // Project
-    api(projects.varpMod.varpModApi)
-    api(projects.varpLoader)
+    api(projects.varpCore)
 }
 
 kotlin {

@@ -2,6 +2,7 @@ package net.voxelpi.varp.mod.server.api
 
 import net.voxelpi.event.EventScope
 import net.voxelpi.varp.loader.VarpLoader
+import net.voxelpi.varp.mod.api.VarpServerInformation
 import net.voxelpi.varp.mod.server.api.player.VarpServerPlayerService
 import net.voxelpi.varp.warp.Tree
 import net.voxelpi.varp.warp.repository.compositor.Compositor
@@ -16,6 +17,11 @@ public interface VarpServerAPI {
      * The version of the server varp mod.
      */
     public val version: String
+
+    /**
+     * Information about the varp server mod.
+     */
+    public val info: VarpServerInformation
 
     /**
      * The server event service.

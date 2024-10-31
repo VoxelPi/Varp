@@ -8,7 +8,8 @@ import net.kyori.moonshine.annotation.Message
 import net.kyori.moonshine.annotation.Placeholder
 import net.kyori.moonshine.strategy.StandardPlaceholderResolverStrategy
 import net.kyori.moonshine.strategy.supertype.StandardSupertypeThenInterfaceSupertypeStrategy
-import net.voxelpi.varp.mod.server.api.player.ServersideClientInformation
+import net.voxelpi.varp.mod.api.VarpClientInformation
+import net.voxelpi.varp.mod.api.VarpServerInformation
 import net.voxelpi.varp.mod.server.message.placeholder.ComponentPlaceholderResolver
 import net.voxelpi.varp.mod.server.message.placeholder.NumberPlaceholderResolver
 import net.voxelpi.varp.mod.server.message.placeholder.StringPlaceholderResolver
@@ -30,7 +31,7 @@ interface VarpMessages {
     @Message("client.support_enabled")
     fun sendClientSupportEnabled(
         @Receiver receiver: Audience,
-        @Placeholder("client") clientInformation: ServersideClientInformation,
+        @Placeholder("client") clientInformation: VarpClientInformation,
     )
 
     @Message("client.error.no_support")
@@ -41,9 +42,8 @@ interface VarpMessages {
     @Message("client.error.incompatible_protocol_version")
     fun sendClientErrorIncompatibleProtocolVersion(
         @Receiver receiver: Audience,
-        @Placeholder("server_version") serverVersion: String,
-        @Placeholder("server_protocol_version") serverProtocolVersion: Int,
-        @Placeholder("client") client: ServersideClientInformation,
+        @Placeholder("client") client: VarpClientInformation,
+        @Placeholder("server") server: VarpServerInformation,
     )
 
     // endregion

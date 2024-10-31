@@ -1,5 +1,6 @@
 package net.voxelpi.varp.mod.client.api
 
+import net.voxelpi.varp.mod.api.VarpClientInformation
 import net.voxelpi.varp.mod.client.api.warp.ClientRepository
 import net.voxelpi.varp.warp.Tree
 import net.voxelpi.varp.warp.path.NodeParentPath
@@ -14,6 +15,11 @@ public interface VarpClientAPI {
      * The version of the client varp mod.
      */
     public val version: String
+
+    /**
+     * Information about the varp client mod.
+     */
+    public val info: VarpClientInformation
 
     /**
      * The varp client repository.

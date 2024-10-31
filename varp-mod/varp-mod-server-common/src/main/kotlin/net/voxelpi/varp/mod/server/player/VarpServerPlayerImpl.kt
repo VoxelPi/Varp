@@ -7,10 +7,10 @@ import net.voxelpi.varp.exception.tree.FolderNotFoundException
 import net.voxelpi.varp.exception.tree.WarpAlreadyExistsException
 import net.voxelpi.varp.exception.tree.WarpNotFoundException
 import net.voxelpi.varp.mod.VarpModConstants
+import net.voxelpi.varp.mod.api.VarpClientInformation
 import net.voxelpi.varp.mod.network.protocol.clientbound.VarpClientboundSyncTreePacket
 import net.voxelpi.varp.mod.server.VarpServerImpl
 import net.voxelpi.varp.mod.server.api.VarpPermissions
-import net.voxelpi.varp.mod.server.api.player.ServersideClientInformation
 import net.voxelpi.varp.mod.server.api.player.VarpServerPlayer
 import net.voxelpi.varp.warp.path.FolderPath
 import net.voxelpi.varp.warp.path.WarpPath
@@ -24,13 +24,13 @@ abstract class VarpServerPlayerImpl(
     open val server: VarpServerImpl,
 ) : VarpServerPlayer {
 
-    override var clientInformation: ServersideClientInformation? = null
+    override var clientInformation: VarpClientInformation? = null
         protected set
 
-    fun enableClientSupport(clientInformation: ServersideClientInformation) {
+    fun enableClientSupport(clientInformation: VarpClientInformation) {
         // Check if protocol versions are compatible.
         if (VarpModConstants.PROTOCOL_VERSION != clientInformation.protocolVersion) {
-            server.messages.sendClientErrorIncompatibleProtocolVersion(this, server.version, VarpModConstants.PROTOCOL_VERSION, clientInformation)
+            server.messages.sendClientErrorIncompatibleProtocolVersion(this, clientInformation, server.info)
             return
         }
 
