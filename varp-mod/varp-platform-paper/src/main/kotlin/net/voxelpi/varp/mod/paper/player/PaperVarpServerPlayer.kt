@@ -6,6 +6,7 @@ import net.kyori.adventure.identity.Identity
 import net.kyori.adventure.text.Component
 import net.voxelpi.varp.MinecraftLocation
 import net.voxelpi.varp.mod.paper.PaperVarpServer
+import net.voxelpi.varp.mod.paper.util.paperLocation
 import net.voxelpi.varp.mod.paper.util.varpLocation
 import net.voxelpi.varp.mod.server.player.VarpServerPlayerImpl
 import org.bukkit.entity.Player
@@ -38,5 +39,11 @@ class PaperVarpServerPlayer(
 
     override fun hasPermission(permission: String?): Boolean {
         return permission == null || player.hasPermission(permission)
+    }
+
+    override fun teleport(location: MinecraftLocation): Result<Unit> {
+        val paperLocation = location.paperLocation().getOrElse { return Result.failure(it) }
+        player.teleportAsync(paperLocation)
+        return Result.success(Unit)
     }
 }

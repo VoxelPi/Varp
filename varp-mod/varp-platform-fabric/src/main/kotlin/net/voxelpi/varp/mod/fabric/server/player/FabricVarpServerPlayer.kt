@@ -8,6 +8,7 @@ import net.kyori.adventure.platform.fabric.FabricAudiences
 import net.kyori.adventure.text.Component
 import net.minecraft.server.network.ServerPlayerEntity
 import net.voxelpi.varp.MinecraftLocation
+import net.voxelpi.varp.exception.tree.WorldNotFoundException
 import net.voxelpi.varp.mod.fabric.server.FabricVarpServer
 import net.voxelpi.varp.mod.fabric.util.toKey
 import net.voxelpi.varp.mod.server.player.VarpServerPlayerImpl
@@ -40,5 +41,11 @@ class FabricVarpServerPlayer(
 
     override fun hasPermission(permission: String?): Boolean {
         return permission == null || Permissions.check(player, permission, 2)
+    }
+
+    override fun teleport(location: MinecraftLocation): Result<Unit> {
+        val world = server.world(location.world) ?: return Result.failure(WorldNotFoundException(location.world))
+        player.teleport(world, location.x, location.y, location.z, location.yaw, location.pitch)
+        return Result.success(Unit)
     }
 }

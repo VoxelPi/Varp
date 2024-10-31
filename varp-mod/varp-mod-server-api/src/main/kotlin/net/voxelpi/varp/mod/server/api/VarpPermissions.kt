@@ -4,13 +4,14 @@ public object VarpPermissions {
 
     public const val WARP_CREATE: String = "varp.warp.create"
     public const val WARP_DELETE: String = "varp.warp.delete"
-    public const val WARP_EDIT_PATH: String = "varp.warp.edit.path"
-    public const val WARP_EDIT_STATE: String = "varp.warp.edit.state"
+    public const val WARP_MOVE: String = "varp.warp.move"
+    public const val WARP_EDIT: String = "varp.warp.edit"
+    public const val WARP_TELEPORT_SELF: String = "varp.warp.teleport.self"
 
     public const val FOLDER_CREATE: String = "varp.folder.create"
     public const val FOLDER_DELETE: String = "varp.folder.delete"
-    public const val FOLDER_EDIT_PATH: String = "varp.folder.edit.path"
-    public const val FOLDER_EDIT_STATE: String = "varp.folder.edit.state"
+    public const val FOLDER_MOVE: String = "varp.folder.move"
+    public const val FOLDER_EDIT: String = "varp.folder.edit"
 
-    public const val ROOT_EDIT_STATE: String = "varp.root.edit.state"
+    public const val ROOT_EDIT: String = "varp.root.edit"
 }

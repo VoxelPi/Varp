@@ -2,8 +2,12 @@ package net.voxelpi.varp.mod.fabric.server
 
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.runBlocking
+import net.kyori.adventure.key.Key
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger
+import net.minecraft.registry.RegistryKey
+import net.minecraft.registry.RegistryKeys
 import net.minecraft.server.MinecraftServer
+import net.minecraft.server.world.ServerWorld
 import net.minecraft.util.WorldSavePath
 import net.voxelpi.event.EventScope
 import net.voxelpi.event.eventScope
@@ -12,6 +16,7 @@ import net.voxelpi.varp.loader.VarpLoader
 import net.voxelpi.varp.mod.fabric.FabricVarpMod
 import net.voxelpi.varp.mod.fabric.server.network.FabricVarpServerNetworkHandler
 import net.voxelpi.varp.mod.fabric.server.player.FabricVarpServerPlayerService
+import net.voxelpi.varp.mod.fabric.util.toIdentifier
 import net.voxelpi.varp.mod.server.VarpServerImpl
 import net.voxelpi.varp.mod.server.api.VarpServerAPI
 import net.voxelpi.varp.repository.filetree.FileTreeRepository
@@ -73,5 +78,9 @@ class FabricVarpServer(
 
     override fun copyResourceTemplate(resource: String, destination: Path) {
         FabricVarpMod.copyResourceTemplate(resource, destination)
+    }
+
+    fun world(key: Key): ServerWorld? {
+        return server.getWorld(RegistryKey.of(RegistryKeys.WORLD, key.toIdentifier()))
     }
 }
