@@ -1,5 +1,6 @@
 plugins {
     id("varp.build")
+    alias(libs.plugins.shadow)
     alias(libs.plugins.fabric.loom)
 }
 
@@ -13,23 +14,23 @@ fun DependencyHandlerScope.modImplementationAndInclude(dep: Any) {
     include(dep)
 }
 
-fun DependencyHandlerScope.apiAndInclude(dep: Any) {
-    api(dep)
-    include(dep)
-}
-
 fun DependencyHandlerScope.implementationAndInclude(dep: Any) {
     implementation(dep)
     include(dep)
+}
+
+fun DependencyHandlerScope.apiAndShadow(dep: Any) {
+    api(dep)
+    shadow(dep)
 }
 
 dependencies {
     compileOnly(kotlin("stdlib"))
 
     // Project
-    apiAndInclude(projects.varpMod.varpModClientCommon)
-    apiAndInclude(projects.varpMod.varpModServerCommon)
-    apiAndInclude(projects.varpRepositories.varpRepositoryFileTree)
+    apiAndShadow(projects.varpMod.varpModClientCommon)
+    apiAndShadow(projects.varpMod.varpModServerCommon)
+    apiAndShadow(projects.varpRepositories.varpRepositoryFileTree)
 
     // Fabric
     minecraft(libs.minecraft)
@@ -63,10 +64,23 @@ loom {
 }
 
 tasks {
+    remapJar {
+        dependsOn(shadowJar)
+        mustRunAfter(shadowJar)
+
+        // Set the input jar for the task. Here use the shadow Jar that include the .class of the transitive dependency
+        inputFile = file(shadowJar.get().archiveFile)
+    }
+
     processResources {
         inputs.property("version", project.version)
         filesMatching("fabric.mod.json") {
             expand(mutableMapOf("version" to project.version))
         }
+    }
+
+    shadowJar {
+        configurations = listOf(project.configurations.shadow.get())
+        exclude("META-INF")
     }
 }
