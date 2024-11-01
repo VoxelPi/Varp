@@ -1,6 +1,7 @@
 package net.voxelpi.varp.mod.client.warp
 
 import net.voxelpi.varp.mod.VarpModConstants
+import net.voxelpi.varp.mod.api.VarpServerInformation
 import net.voxelpi.varp.mod.client.VarpClientImpl
 import net.voxelpi.varp.mod.client.api.warp.ClientRepository
 import net.voxelpi.varp.mod.client.network.VarpClientNetworkHandler
@@ -8,17 +9,18 @@ import net.voxelpi.varp.mod.network.protocol.clientbound.VarpClientboundCreateFo
 import net.voxelpi.varp.mod.network.protocol.clientbound.VarpClientboundCreateWarpPacket
 import net.voxelpi.varp.mod.network.protocol.clientbound.VarpClientboundDeleteFolderPacket
 import net.voxelpi.varp.mod.network.protocol.clientbound.VarpClientboundDeleteWarpPacket
+import net.voxelpi.varp.mod.network.protocol.clientbound.VarpClientboundServerInfoPacket
 import net.voxelpi.varp.mod.network.protocol.clientbound.VarpClientboundSyncTreePacket
 import net.voxelpi.varp.mod.network.protocol.clientbound.VarpClientboundUpdateFolderPathPacket
 import net.voxelpi.varp.mod.network.protocol.clientbound.VarpClientboundUpdateFolderStatePacket
 import net.voxelpi.varp.mod.network.protocol.clientbound.VarpClientboundUpdateRootStatePacket
 import net.voxelpi.varp.mod.network.protocol.clientbound.VarpClientboundUpdateWarpPathPacket
 import net.voxelpi.varp.mod.network.protocol.clientbound.VarpClientboundUpdateWarpStatePacket
+import net.voxelpi.varp.mod.network.protocol.serverbound.VarpServerboundClientInfoPacket
 import net.voxelpi.varp.mod.network.protocol.serverbound.VarpServerboundCreateFolderPacket
 import net.voxelpi.varp.mod.network.protocol.serverbound.VarpServerboundCreateWarpPacket
 import net.voxelpi.varp.mod.network.protocol.serverbound.VarpServerboundDeleteFolderPacket
 import net.voxelpi.varp.mod.network.protocol.serverbound.VarpServerboundDeleteWarpPacket
-import net.voxelpi.varp.mod.network.protocol.serverbound.VarpServerboundInitializationPacket
 import net.voxelpi.varp.mod.network.protocol.serverbound.VarpServerboundModifyFolderPathPacket
 import net.voxelpi.varp.mod.network.protocol.serverbound.VarpServerboundModifyFolderStatePacket
 import net.voxelpi.varp.mod.network.protocol.serverbound.VarpServerboundModifyRootStatePacket
@@ -41,8 +43,11 @@ class ClientRepositoryImpl(
     override var active: Boolean = false
         private set
 
+    override var serverInfo: VarpServerInformation? = null
+        private set
+
     override suspend fun load(): Result<Unit> {
-        clientNetworkHandler.sendServerboundPacket(VarpServerboundInitializationPacket(client.version, VarpModConstants.PROTOCOL_VERSION))
+        clientNetworkHandler.sendServerboundPacket(VarpServerboundClientInfoPacket(client.version, VarpModConstants.PROTOCOL_VERSION))
         return Result.success(Unit)
     }
 
@@ -107,6 +112,12 @@ class ClientRepositoryImpl(
 
     fun handlePacket(packet: VarpClientboundDeleteWarpPacket) {
         registryView.delete(packet.path)
+    }
+
+    fun handlePacket(packet: VarpClientboundServerInfoPacket) {
+        // Enable client support.
+        client.logger.info("Received server info packet: version: ${packet.version}, protocol version: ${packet.protocolVersion}.")
+        serverInfo = packet.serverInformation()
     }
 
     fun handlePacket(packet: VarpClientboundSyncTreePacket) {

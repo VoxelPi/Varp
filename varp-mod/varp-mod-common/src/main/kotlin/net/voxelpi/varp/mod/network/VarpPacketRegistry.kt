@@ -12,17 +12,18 @@ import net.voxelpi.varp.mod.network.protocol.clientbound.VarpClientboundDeleteFo
 import net.voxelpi.varp.mod.network.protocol.clientbound.VarpClientboundDeleteWarpPacket
 import net.voxelpi.varp.mod.network.protocol.clientbound.VarpClientboundOpenExplorerPacket
 import net.voxelpi.varp.mod.network.protocol.clientbound.VarpClientboundPacket
+import net.voxelpi.varp.mod.network.protocol.clientbound.VarpClientboundServerInfoPacket
 import net.voxelpi.varp.mod.network.protocol.clientbound.VarpClientboundSyncTreePacket
 import net.voxelpi.varp.mod.network.protocol.clientbound.VarpClientboundUpdateFolderPathPacket
 import net.voxelpi.varp.mod.network.protocol.clientbound.VarpClientboundUpdateFolderStatePacket
 import net.voxelpi.varp.mod.network.protocol.clientbound.VarpClientboundUpdateRootStatePacket
 import net.voxelpi.varp.mod.network.protocol.clientbound.VarpClientboundUpdateWarpPathPacket
 import net.voxelpi.varp.mod.network.protocol.clientbound.VarpClientboundUpdateWarpStatePacket
+import net.voxelpi.varp.mod.network.protocol.serverbound.VarpServerboundClientInfoPacket
 import net.voxelpi.varp.mod.network.protocol.serverbound.VarpServerboundCreateFolderPacket
 import net.voxelpi.varp.mod.network.protocol.serverbound.VarpServerboundCreateWarpPacket
 import net.voxelpi.varp.mod.network.protocol.serverbound.VarpServerboundDeleteFolderPacket
 import net.voxelpi.varp.mod.network.protocol.serverbound.VarpServerboundDeleteWarpPacket
-import net.voxelpi.varp.mod.network.protocol.serverbound.VarpServerboundInitializationPacket
 import net.voxelpi.varp.mod.network.protocol.serverbound.VarpServerboundModifyFolderPathPacket
 import net.voxelpi.varp.mod.network.protocol.serverbound.VarpServerboundModifyFolderStatePacket
 import net.voxelpi.varp.mod.network.protocol.serverbound.VarpServerboundModifyRootStatePacket
@@ -44,7 +45,7 @@ sealed class VarpPacketRegistry<T : VarpPacket> {
      * Registers the given packet in the registry.
      */
     protected inline fun <reified S : T> registerInboundPacket() {
-        inboundPacketTypes[VarpPacket.packetId<VarpPacket>()]
+        inboundPacketTypes[VarpPacket.packetId<S>()] = S::class
     }
 
     /**
@@ -54,7 +55,6 @@ sealed class VarpPacketRegistry<T : VarpPacket> {
         return runCatching {
             // Get the id from the packet.
             val id = VarpPacket.packetId(packet::class)
-            check(id in inboundPacketTypes.keys && inboundPacketTypes[id] == packet::class) { "Unknown packet $id ${packet::class}" }
 
             // Build the json packet.
             val payload = serializer.toJsonTree(packet)
@@ -95,6 +95,7 @@ sealed class VarpPacketRegistry<T : VarpPacket> {
             registerInboundPacket<VarpClientboundDeleteFolderPacket>()
             registerInboundPacket<VarpClientboundDeleteWarpPacket>()
             registerInboundPacket<VarpClientboundOpenExplorerPacket>()
+            registerInboundPacket<VarpClientboundServerInfoPacket>()
             registerInboundPacket<VarpClientboundSyncTreePacket>()
             registerInboundPacket<VarpClientboundUpdateFolderPathPacket>()
             registerInboundPacket<VarpClientboundUpdateFolderStatePacket>()
@@ -109,11 +110,11 @@ sealed class VarpPacketRegistry<T : VarpPacket> {
      */
     object Serverbound : VarpPacketRegistry<VarpServerboundPacket>() {
         init {
+            registerInboundPacket<VarpServerboundClientInfoPacket>()
             registerInboundPacket<VarpServerboundCreateFolderPacket>()
             registerInboundPacket<VarpServerboundCreateWarpPacket>()
             registerInboundPacket<VarpServerboundDeleteFolderPacket>()
             registerInboundPacket<VarpServerboundDeleteWarpPacket>()
-            registerInboundPacket<VarpServerboundInitializationPacket>()
             registerInboundPacket<VarpServerboundModifyFolderPathPacket>()
             registerInboundPacket<VarpServerboundModifyFolderStatePacket>()
             registerInboundPacket<VarpServerboundModifyRootStatePacket>()

@@ -8,6 +8,7 @@ import net.voxelpi.varp.exception.tree.WarpAlreadyExistsException
 import net.voxelpi.varp.exception.tree.WarpNotFoundException
 import net.voxelpi.varp.mod.VarpModConstants
 import net.voxelpi.varp.mod.api.VarpClientInformation
+import net.voxelpi.varp.mod.network.protocol.clientbound.VarpClientboundServerInfoPacket
 import net.voxelpi.varp.mod.network.protocol.clientbound.VarpClientboundSyncTreePacket
 import net.voxelpi.varp.mod.server.VarpServerImpl
 import net.voxelpi.varp.mod.server.api.VarpPermissions
@@ -42,6 +43,7 @@ abstract class VarpServerPlayerImpl(
 
         // Send sync packet.
         // TODO: Maybe delay by 2 ticks?
+        server.serverNetworkHandler.sendClientboundPacket(VarpClientboundServerInfoPacket(server.info), this)
         server.serverNetworkHandler.sendClientboundPacket(VarpClientboundSyncTreePacket(server.tree), this)
     }
 

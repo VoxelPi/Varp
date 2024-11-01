@@ -15,7 +15,7 @@ interface VarpPacket {
          */
         fun packetId(packetClass: KClass<out VarpPacket>): String {
             val annotation = packetClass.findAnnotation<PacketId>()
-            require(annotation != null) { "The given packet class is missing the PacketId annotation" }
+            require(annotation != null) { "The given packet class is missing the PacketId annotation (${packetClass}).)" }
             return annotation.id
         }
 

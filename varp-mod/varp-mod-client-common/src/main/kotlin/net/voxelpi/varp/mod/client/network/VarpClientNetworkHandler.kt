@@ -9,6 +9,7 @@ import net.voxelpi.varp.mod.network.protocol.clientbound.VarpClientboundDeleteFo
 import net.voxelpi.varp.mod.network.protocol.clientbound.VarpClientboundDeleteWarpPacket
 import net.voxelpi.varp.mod.network.protocol.clientbound.VarpClientboundOpenExplorerPacket
 import net.voxelpi.varp.mod.network.protocol.clientbound.VarpClientboundPacket
+import net.voxelpi.varp.mod.network.protocol.clientbound.VarpClientboundServerInfoPacket
 import net.voxelpi.varp.mod.network.protocol.clientbound.VarpClientboundSyncTreePacket
 import net.voxelpi.varp.mod.network.protocol.clientbound.VarpClientboundUpdateFolderPathPacket
 import net.voxelpi.varp.mod.network.protocol.clientbound.VarpClientboundUpdateFolderStatePacket
@@ -56,6 +57,7 @@ abstract class VarpClientNetworkHandler(
                 is VarpClientboundDeleteFolderPacket -> client.repository.handlePacket(packet)
                 is VarpClientboundDeleteWarpPacket -> client.repository.handlePacket(packet)
                 is VarpClientboundOpenExplorerPacket -> client.openExplorer(packet.path)
+                is VarpClientboundServerInfoPacket -> client.repository.handlePacket(packet)
                 is VarpClientboundSyncTreePacket -> client.repository.handlePacket(packet)
                 is VarpClientboundUpdateFolderPathPacket -> client.repository.handlePacket(packet)
                 is VarpClientboundUpdateFolderStatePacket -> client.repository.handlePacket(packet)

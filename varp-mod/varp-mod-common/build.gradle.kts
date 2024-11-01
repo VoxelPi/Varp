@@ -9,6 +9,7 @@ dependencies {
 
     // Project
     api(projects.varpCore)
+    api(projects.varpMod.varpModApi)
     api(projects.varpSerializers.varpSerializerGson)
 
     // Libraries
