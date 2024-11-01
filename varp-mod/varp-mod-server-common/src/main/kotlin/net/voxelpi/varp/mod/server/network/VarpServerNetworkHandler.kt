@@ -73,7 +73,7 @@ abstract class VarpServerNetworkHandler(
                 is VarpServerboundCreateWarpPacket -> player.createWarp(packet.path, packet.state)
                 is VarpServerboundDeleteFolderPacket -> player.deleteFolder(packet.path)
                 is VarpServerboundDeleteWarpPacket -> player.deleteWarp(packet.path)
-                is VarpServerboundClientInfoPacket -> player.enableClientSupport(packet.clientInformation())
+                is VarpServerboundClientInfoPacket -> player.enableBridge(packet.clientInformation())
                 is VarpServerboundModifyFolderPathPacket -> player.moveFolder(packet.from, packet.to)
                 is VarpServerboundModifyFolderStatePacket -> player.modifyFolder(packet.path, packet.state)
                 is VarpServerboundModifyRootStatePacket -> player.modifyRoot(packet.state)

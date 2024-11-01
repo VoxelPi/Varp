@@ -57,7 +57,7 @@ abstract class VarpClientNetworkHandler(
                 is VarpClientboundDeleteFolderPacket -> client.repository.handlePacket(packet)
                 is VarpClientboundDeleteWarpPacket -> client.repository.handlePacket(packet)
                 is VarpClientboundOpenExplorerPacket -> client.openExplorer(packet.path)
-                is VarpClientboundServerInfoPacket -> client.repository.handlePacket(packet)
+                is VarpClientboundServerInfoPacket -> client.enableBridge(packet.serverInformation())
                 is VarpClientboundSyncTreePacket -> client.repository.handlePacket(packet)
                 is VarpClientboundUpdateFolderPathPacket -> client.repository.handlePacket(packet)
                 is VarpClientboundUpdateFolderStatePacket -> client.repository.handlePacket(packet)

@@ -19,6 +19,7 @@ import org.bukkit.plugin.ServicePriority
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
+import java.util.UUID
 import kotlin.io.path.createDirectories
 
 class PaperVarpServer(
@@ -29,7 +30,7 @@ class PaperVarpServer(
     override val version: String
         get() = Varp.version
 
-    override val info: VarpServerInformation = VarpServerInformation(version, VarpModConstants.PROTOCOL_VERSION)
+    override val info: VarpServerInformation = VarpServerInformation(version, VarpModConstants.PROTOCOL_VERSION, UUID.randomUUID())
 
     override val logger: ComponentLogger
         get() = plugin.componentLogger

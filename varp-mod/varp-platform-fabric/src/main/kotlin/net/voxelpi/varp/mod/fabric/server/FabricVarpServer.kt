@@ -23,6 +23,7 @@ import net.voxelpi.varp.mod.server.VarpServerImpl
 import net.voxelpi.varp.mod.server.api.VarpServerAPI
 import net.voxelpi.varp.repository.filetree.FileTreeRepository
 import java.nio.file.Path
+import java.util.UUID
 
 class FabricVarpServer(
     val server: MinecraftServer,
@@ -31,7 +32,7 @@ class FabricVarpServer(
     override val version: String
         get() = Varp.version
 
-    override val info: VarpServerInformation = VarpServerInformation(version, VarpModConstants.PROTOCOL_VERSION)
+    override val info: VarpServerInformation = VarpServerInformation(version, VarpModConstants.PROTOCOL_VERSION, UUID.randomUUID())
 
     override val logger: ComponentLogger
         get() = FabricVarpMod.logger

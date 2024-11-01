@@ -28,22 +28,26 @@ abstract class VarpServerPlayerImpl(
     override var clientInformation: VarpClientInformation? = null
         protected set
 
-    fun enableClientSupport(clientInformation: VarpClientInformation) {
+    fun enableBridge(clientInformation: VarpClientInformation) {
         // Check if protocol versions are compatible.
         if (VarpModConstants.PROTOCOL_VERSION != clientInformation.protocolVersion) {
             server.messages.sendClientErrorIncompatibleProtocolVersion(this, clientInformation, server.info)
             return
         }
 
-        // Enable support.
-        this.clientInformation = clientInformation
-        if (server.platform.isDedicated) {
-            server.messages.sendClientSupportEnabled(this, clientInformation)
+        // Enable bridge if it is not already enabled.
+        if (this.clientInformation != clientInformation) {
+            this.clientInformation = clientInformation
+            if (server.platform.isDedicated) {
+                server.messages.sendClientSupportEnabled(this, clientInformation)
+            }
         }
 
-        // Send sync packet.
         // TODO: Maybe delay by 2 ticks?
+        // Send server info packet.
         server.serverNetworkHandler.sendClientboundPacket(VarpClientboundServerInfoPacket(server.info), this)
+
+        // Send sync packet.
         server.serverNetworkHandler.sendClientboundPacket(VarpClientboundSyncTreePacket(server.tree), this)
     }
 

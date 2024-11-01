@@ -1,7 +1,6 @@
 package net.voxelpi.varp.mod.client.warp
 
 import net.voxelpi.varp.mod.VarpModConstants
-import net.voxelpi.varp.mod.api.VarpServerInformation
 import net.voxelpi.varp.mod.client.VarpClientImpl
 import net.voxelpi.varp.mod.client.api.warp.ClientRepository
 import net.voxelpi.varp.mod.client.network.VarpClientNetworkHandler
@@ -9,7 +8,6 @@ import net.voxelpi.varp.mod.network.protocol.clientbound.VarpClientboundCreateFo
 import net.voxelpi.varp.mod.network.protocol.clientbound.VarpClientboundCreateWarpPacket
 import net.voxelpi.varp.mod.network.protocol.clientbound.VarpClientboundDeleteFolderPacket
 import net.voxelpi.varp.mod.network.protocol.clientbound.VarpClientboundDeleteWarpPacket
-import net.voxelpi.varp.mod.network.protocol.clientbound.VarpClientboundServerInfoPacket
 import net.voxelpi.varp.mod.network.protocol.clientbound.VarpClientboundSyncTreePacket
 import net.voxelpi.varp.mod.network.protocol.clientbound.VarpClientboundUpdateFolderPathPacket
 import net.voxelpi.varp.mod.network.protocol.clientbound.VarpClientboundUpdateFolderStatePacket
@@ -40,11 +38,8 @@ class ClientRepositoryImpl(
 
     override val registryView: TreeStateRegistry = TreeStateRegistry()
 
-    override var active: Boolean = false
-        private set
-
-    override var serverInfo: VarpServerInformation? = null
-        private set
+    override val active: Boolean
+        get() = client.serverInfo != null
 
     override suspend fun load(): Result<Unit> {
         clientNetworkHandler.sendServerboundPacket(VarpServerboundClientInfoPacket(client.version, VarpModConstants.PROTOCOL_VERSION))
@@ -114,16 +109,9 @@ class ClientRepositoryImpl(
         registryView.delete(packet.path)
     }
 
-    fun handlePacket(packet: VarpClientboundServerInfoPacket) {
-        // Enable client support.
-        client.logger.info("Received server info packet: version: ${packet.version}, protocol version: ${packet.protocolVersion}.")
-        serverInfo = packet.serverInformation()
-    }
-
     fun handlePacket(packet: VarpClientboundSyncTreePacket) {
         // Enable client support.
         client.logger.debug("Received state sync packet: ${packet.folders.size} folders, ${packet.warps.size} warps.")
-        active = true
 
         // Update registry.
         registryView.clear()
@@ -153,4 +141,8 @@ class ClientRepositoryImpl(
     }
 
     // endregion
+
+    fun reset() {
+        registryView.clear()
+    }
 }
