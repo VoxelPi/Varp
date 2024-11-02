@@ -9,6 +9,8 @@ import net.voxelpi.varp.mod.client.api.VarpClientAPI
 import net.voxelpi.varp.mod.client.network.VarpClientNetworkHandler
 import net.voxelpi.varp.mod.client.warp.ClientRepositoryImpl
 import net.voxelpi.varp.mod.network.protocol.serverbound.VarpServerboundClientInfoPacket
+import net.voxelpi.varp.mod.network.protocol.serverbound.VarpServerboundTeleportWarpPacket
+import net.voxelpi.varp.warp.Warp
 
 abstract class VarpClientImpl() : VarpClientAPI {
 
@@ -42,5 +44,9 @@ abstract class VarpClientImpl() : VarpClientAPI {
         serverInfo = null
         repository.reset()
         logger.info("Deactivated varp client-server bridge")
+    }
+
+    override fun teleportToWarp(warp: Warp) {
+        clientNetworkHandler.sendServerboundPacket(VarpServerboundTeleportWarpPacket(warp.path))
     }
 }

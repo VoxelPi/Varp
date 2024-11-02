@@ -4,6 +4,7 @@ import net.voxelpi.varp.mod.api.VarpClientInformation
 import net.voxelpi.varp.mod.api.VarpServerInformation
 import net.voxelpi.varp.mod.client.api.warp.ClientRepository
 import net.voxelpi.varp.warp.Tree
+import net.voxelpi.varp.warp.Warp
 import net.voxelpi.varp.warp.path.NodeParentPath
 import net.voxelpi.varp.warp.path.RootPath
 import org.jetbrains.annotations.ApiStatus.Internal
@@ -50,6 +51,11 @@ public interface VarpClientAPI {
     public fun isBridgeEnabled(): Boolean {
         return serverInfo != null
     }
+
+    /**
+     * Teleport to the given [warp].
+     */
+    public fun teleportToWarp(warp: Warp)
 
     public companion object {
         private var provider: VarpClientAPI? = null
