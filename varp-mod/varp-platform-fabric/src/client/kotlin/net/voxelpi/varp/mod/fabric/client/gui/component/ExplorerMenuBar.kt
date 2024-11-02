@@ -13,6 +13,7 @@ import io.wispforest.owo.ui.core.Surface
 import net.kyori.adventure.text.Component
 import net.minecraft.text.Text
 import net.minecraft.util.Identifier
+import net.voxelpi.varp.mod.fabric.client.FabricVarpClientMod
 import net.voxelpi.varp.mod.fabric.client.util.clientNative
 import net.voxelpi.varp.warp.path.FolderPath
 import net.voxelpi.varp.warp.path.NodeParentPath
@@ -22,17 +23,17 @@ import net.voxelpi.varp.warp.path.RootPath
  * Menu bar of the explorer screen
  */
 class ExplorerMenuBar(
-    path: NodeParentPath,
+    initialPath: NodeParentPath,
     horizontalSizing: Sizing,
     verticalSizing: Sizing,
 ) : FlowLayout(horizontalSizing, verticalSizing, Algorithm.HORIZONTAL) {
 
-    var path: NodeParentPath = path
+    var path: NodeParentPath = initialPath
         set(value) {
             field = value
 
             // Update components.
-            pathComponent.text(Component.text(path.toString()).clientNative())
+            pathComponent.text(Component.text(value.toString()).clientNative())
         }
 
     var selectPathAction: ((path: NodeParentPath) -> Unit) = {}
@@ -44,14 +45,16 @@ class ExplorerMenuBar(
     val rootButton =
         Components.button(Text.literal("")) {
             selectPathAction(RootPath)
+        }.apply {
+            renderer(ButtonComponent.Renderer.texture(Identifier.of("varp:textures/gui/home_button.png"), 0, 0, 16, 32))
+            sizing(Sizing.fixed(16), Sizing.fixed(16))
+            margins(Insets.of(1))
         }
-            .renderer(ButtonComponent.Renderer.texture(Identifier.of("varp:textures/gui/home_button.png"), 0, 0, 16, 32))
-            .sizing(Sizing.fixed(16), Sizing.fixed(16))
-            .margins(Insets.of(1))
 
     val parentButton = Components.button(Text.literal("")) {
-        if (path is FolderPath) {
-            selectPathAction(path.parent)
+        val tempPath = path
+        if (tempPath is FolderPath) {
+            selectPathAction(tempPath.parent)
         }
     }.apply {
         renderer(ButtonComponent.Renderer.texture(Identifier.of("varp:textures/gui/up_button.png"), 0, 0, 16, 32))

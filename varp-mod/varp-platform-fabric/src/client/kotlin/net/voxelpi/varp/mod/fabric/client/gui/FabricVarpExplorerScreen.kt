@@ -27,6 +27,7 @@ class FabricVarpExplorerScreen(
         private set
 
     private val menuBar: ExplorerMenuBar = ExplorerMenuBar(viewPath, Sizing.fill(100), Sizing.content()).apply {
+        selectPathAction = this@FabricVarpExplorerScreen::changeViewPath
         createWarpAction = {
             MinecraftClient.getInstance().setScreen(FabricVarpCreateWarpScreen(tree, it))
         }
