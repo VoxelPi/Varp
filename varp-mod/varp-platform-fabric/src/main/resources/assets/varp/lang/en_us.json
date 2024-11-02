@@ -13,5 +13,19 @@
   "gui.varp.create_folder.parent": "Parent:",
   "gui.varp.create_folder.select_parent": "Select",
   "gui.varp.create_folder.confirm": "Confirm",
-  "gui.varp.create_folder.cancel": "Cancel"
+  "gui.varp.create_folder.cancel": "Cancel",
+
+  "gui.varp.create_warp.message": "Create Warp",
+  "gui.varp.create_warp.id": "Id:",
+  "gui.varp.create_warp.name": "Name:",
+  "gui.varp.create_warp.parent": "Parent:",
+  "gui.varp.create_warp.select_parent": "Select",
+  "gui.varp.create_warp.world": "World",
+  "gui.varp.create_warp.x": "§cX§r:",
+  "gui.varp.create_warp.y": "§aY§r:",
+  "gui.varp.create_warp.z": "§9Z§r:",
+  "gui.varp.create_warp.yaw": "Yaw:",
+  "gui.varp.create_warp.pitch": "Pitch:",
+  "gui.varp.create_warp.confirm": "Confirm",
+  "gui.varp.create_warp.cancel": "Cancel"
 }
