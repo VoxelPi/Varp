@@ -8,6 +8,8 @@ import io.wispforest.owo.ui.core.OwoUIAdapter
 import io.wispforest.owo.ui.core.Size
 import io.wispforest.owo.ui.core.Sizing
 import io.wispforest.owo.ui.core.Surface
+import net.voxelpi.varp.mod.fabric.client.FabricVarpClient
+import net.voxelpi.varp.mod.fabric.client.gui.component.ExplorerContentList
 import net.voxelpi.varp.mod.fabric.client.gui.component.ExplorerMenuBar
 import net.voxelpi.varp.mod.fabric.client.gui.component.ExplorerTreeView
 import net.voxelpi.varp.warp.NodeParent
@@ -15,6 +17,7 @@ import net.voxelpi.varp.warp.Tree
 import net.voxelpi.varp.warp.path.NodeParentPath
 
 class FabricVarpExplorerScreen(
+    val varpClient: FabricVarpClient,
     val tree: Tree,
     viewPath: NodeParentPath,
 ) : BaseOwoScreen<FlowLayout>() {
@@ -30,6 +33,16 @@ class FabricVarpExplorerScreen(
 
     private val treeView = ExplorerTreeView(tree, Sizing.content(), Sizing.content(), this::changeViewContainer)
 
+    private val contentList = ExplorerContentList(tree, viewPath, Sizing.fill(100), Sizing.content()).apply {
+        selectWarpAction = varpClient::teleportToWarp
+        selectFolderAction = this@FabricVarpExplorerScreen::changeViewContainer
+
+        editWarpAction = {}
+        editFolderAction = {}
+        deleteWarpAction = {}
+        deleteFolderAction = {}
+    }
+
     private val body = object : FlowLayout(Sizing.fill(100), Sizing.fill(100), Algorithm.HORIZONTAL) {
 
         init {
@@ -39,6 +52,9 @@ class FabricVarpExplorerScreen(
                     padding(Insets.of(4, 4, 8, 4))
                     margins(Insets.of(0, 4, 4, 4))
                 }
+            )
+            child(
+                Containers.verticalScroll(Sizing.content(), Sizing.fill(100), contentList).apply {}
             )
         }
 
@@ -81,5 +97,6 @@ class FabricVarpExplorerScreen(
         this.viewPath = parent.path
 
         menuBar.path = parent.path
+        contentList.path = parent.path
     }
 }
