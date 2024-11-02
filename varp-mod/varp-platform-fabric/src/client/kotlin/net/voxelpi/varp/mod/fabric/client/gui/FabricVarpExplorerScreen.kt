@@ -8,6 +8,7 @@ import io.wispforest.owo.ui.core.OwoUIAdapter
 import io.wispforest.owo.ui.core.Size
 import io.wispforest.owo.ui.core.Sizing
 import io.wispforest.owo.ui.core.Surface
+import net.minecraft.client.MinecraftClient
 import net.voxelpi.varp.mod.fabric.client.FabricVarpClient
 import net.voxelpi.varp.mod.fabric.client.gui.component.ExplorerContentList
 import net.voxelpi.varp.mod.fabric.client.gui.component.ExplorerMenuBar
@@ -28,6 +29,9 @@ class FabricVarpExplorerScreen(
     private val menuBar: ExplorerMenuBar = ExplorerMenuBar(viewPath, Sizing.fill(100), Sizing.content()).apply {
         createWarpAction = {
             uiAdapter.toggleInspector()
+        }
+        createFolderAction = {
+            MinecraftClient.getInstance().setScreen(FabricVarpCreateFolderScreen(tree, it))
         }
     }
 

@@ -5,5 +5,13 @@
   "key.varp.create_warp": "Create Warp",
   "key.varp.open_explorer": "Open Explorer",
 
-  "varp.bridge_not_active": "Bridge not active"
+  "varp.bridge_not_active": "Bridge not active",
+
+  "gui.varp.create_folder.message": "Create Folder",
+  "gui.varp.create_folder.id": "Id:",
+  "gui.varp.create_folder.name": "Name:",
+  "gui.varp.create_folder.parent": "Parent:",
+  "gui.varp.create_folder.select_parent": "Select",
+  "gui.varp.create_folder.confirm": "Confirm",
+  "gui.varp.create_folder.cancel": "Cancel"
 }
