@@ -5,6 +5,7 @@ import net.voxelpi.varp.mod.api.VarpServerInformation
 import net.voxelpi.varp.mod.client.api.warp.ClientRepository
 import net.voxelpi.varp.warp.Tree
 import net.voxelpi.varp.warp.path.NodeParentPath
+import net.voxelpi.varp.warp.path.RootPath
 import org.jetbrains.annotations.ApiStatus.Internal
 
 /**
@@ -41,7 +42,14 @@ public interface VarpClientAPI {
     /**
      * Opens the varp explorer gui, displaying the content of the container specified by the given [path].
      */
-    public fun openExplorer(path: NodeParentPath)
+    public fun openExplorer(path: NodeParentPath = RootPath)
+
+    /**
+     * Returns if the client-server varp bridge is currently active.
+     */
+    public fun isBridgeEnabled(): Boolean {
+        return serverInfo != null
+    }
 
     public companion object {
         private var provider: VarpClientAPI? = null
