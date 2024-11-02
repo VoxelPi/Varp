@@ -27,5 +27,9 @@
   "gui.varp.create_warp.yaw": "Yaw:",
   "gui.varp.create_warp.pitch": "Pitch:",
   "gui.varp.create_warp.confirm": "Confirm",
-  "gui.varp.create_warp.cancel": "Cancel"
+  "gui.varp.create_warp.cancel": "Cancel",
+
+  "gui.varp.delete_node.message": "Are you sure you want to delete the %s",
+  "gui.varp.delete_node.confirm": "Confirm",
+  "gui.varp.delete_node.cancel": "Cancel"
 }

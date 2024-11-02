@@ -13,7 +13,6 @@ import io.wispforest.owo.ui.core.Surface
 import net.kyori.adventure.text.Component
 import net.minecraft.text.Text
 import net.minecraft.util.Identifier
-import net.voxelpi.varp.mod.fabric.client.FabricVarpClientMod
 import net.voxelpi.varp.mod.fabric.client.util.clientNative
 import net.voxelpi.varp.warp.path.FolderPath
 import net.voxelpi.varp.warp.path.NodeParentPath

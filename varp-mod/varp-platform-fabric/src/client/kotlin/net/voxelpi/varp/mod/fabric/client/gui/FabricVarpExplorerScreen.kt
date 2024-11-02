@@ -44,8 +44,12 @@ class FabricVarpExplorerScreen(
 
         editWarpAction = {}
         editFolderAction = {}
-        deleteWarpAction = {}
-        deleteFolderAction = {}
+        deleteWarpAction = {
+            MinecraftClient.getInstance().setScreen(FabricVarpDeleteNodeScreen(it))
+        }
+        deleteFolderAction = {
+            MinecraftClient.getInstance().setScreen(FabricVarpDeleteNodeScreen(it))
+        }
     }
 
     private val body = object : FlowLayout(Sizing.fill(100), Sizing.fill(100), Algorithm.HORIZONTAL) {
