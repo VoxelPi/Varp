@@ -42,8 +42,12 @@ class FabricVarpExplorerScreen(
         selectWarpAction = varpClient::teleportToWarp
         selectFolderAction = this@FabricVarpExplorerScreen::changeViewContainer
 
-        editWarpAction = {}
-        editFolderAction = {}
+        editWarpAction = {
+            MinecraftClient.getInstance().setScreen(FabricVarpEditWarpScreen(it))
+        }
+        editFolderAction = {
+            MinecraftClient.getInstance().setScreen(FabricVarpEditFolderScreen(it))
+        }
         deleteWarpAction = {
             MinecraftClient.getInstance().setScreen(FabricVarpDeleteNodeScreen(it))
         }

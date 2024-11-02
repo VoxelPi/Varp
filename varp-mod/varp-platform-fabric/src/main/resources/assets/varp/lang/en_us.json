@@ -31,5 +31,29 @@
 
   "gui.varp.delete_node.message": "Are you sure you want to delete the %s",
   "gui.varp.delete_node.confirm": "Confirm",
-  "gui.varp.delete_node.cancel": "Cancel"
+  "gui.varp.delete_node.cancel": "Cancel",
+
+  "gui.varp.edit_folder.message": "Edit Folder",
+  "gui.varp.edit_folder.id": "Id:",
+  "gui.varp.edit_folder.name": "Name:",
+  "gui.varp.edit_folder.parent": "Parent:",
+  "gui.varp.edit_folder.select_parent": "Select",
+  "gui.varp.edit_folder.permission": "Permission:",
+  "gui.varp.edit_folder.confirm": "Confirm",
+  "gui.varp.edit_folder.cancel": "Cancel",
+
+  "gui.varp.edit_warp.message": "Edit Warp",
+  "gui.varp.edit_warp.id": "Id:",
+  "gui.varp.edit_warp.name": "Name:",
+  "gui.varp.edit_warp.parent": "Parent:",
+  "gui.varp.edit_warp.select_parent": "Select",
+  "gui.varp.edit_warp.world": "World",
+  "gui.varp.edit_warp.x": "§cX§r:",
+  "gui.varp.edit_warp.y": "§aY§r:",
+  "gui.varp.edit_warp.z": "§9Z§r:",
+  "gui.varp.edit_warp.yaw": "Yaw:",
+  "gui.varp.edit_warp.pitch": "Pitch:",
+  "gui.varp.edit_warp.permission": "Permission:",
+  "gui.varp.edit_warp.confirm": "Confirm",
+  "gui.varp.edit_warp.cancel": "Cancel"
 }
