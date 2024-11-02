@@ -1,0 +1,9 @@
+{
+  "key.categories.varp": "Varp",
+
+  "key.varp.create_folder": "Create Folder",
+  "key.varp.create_warp": "Create Warp",
+  "key.varp.open_explorer": "Open Explorer",
+
+  "varp.bridge_not_active": "Bridge not active"
+}

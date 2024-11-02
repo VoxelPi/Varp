@@ -26,6 +26,8 @@ class FabricVarpClient : VarpClientImpl() {
 
     override val repository: ClientRepositoryImpl = ClientRepositoryImpl(this, clientNetworkHandler, "main")
 
+    val keyBindingService = VarpKeyBindingService(this)
+
     override val tree: Tree
         get() = repository.tree
 
