@@ -58,28 +58,29 @@ class FabricVarpExplorerScreen(
 
     private val body = object : FlowLayout(Sizing.fill(100), Sizing.fill(100), Algorithm.HORIZONTAL) {
 
+        val treeSide = Containers.verticalScroll(Sizing.fixed(120), Sizing.fill(100), treeView).apply {
+            surface(Surface.DARK_PANEL)
+            padding(Insets.of(4, 4, 8, 4))
+            margins(Insets.of(0, 4, 4, 4))
+        }
+
+        val contentSide = Containers.verticalScroll(Sizing.fill(), Sizing.fill(), contentList).apply {}
+
         init {
-            child(
-                Containers.verticalScroll(Sizing.fixed(120), Sizing.fill(100), treeView).apply {
-                    surface(Surface.DARK_PANEL)
-                    padding(Insets.of(4, 4, 8, 4))
-                    margins(Insets.of(0, 4, 4, 4))
-                }
-            )
-            child(
-                Containers.verticalScroll(Sizing.content(), Sizing.fill(100), contentList).apply {}
-            )
+            child(treeSide)
+            child(contentSide)
         }
 
         override fun layout(space: Size?) {
             sizing(Sizing.fill(), Sizing.fill())
             super.layout(space)
 
-            val maxHeight = fullSize().height() - menuBar.fullSize().height
+            val maxHeight = fullSize().height() - menuBar.fullSize().height - 4
             sizing(Sizing.fill(), Sizing.fixed(maxHeight))
             for (child in children()) {
                 child.verticalSizing(Sizing.fixed(maxHeight))
             }
+            contentSide.horizontalSizing(Sizing.fixed(fullSize().width - treeSide.fullSize().width))
 
             super.layout(space)
         }
