@@ -21,6 +21,7 @@ import net.voxelpi.varp.mod.fabric.server.player.FabricVarpServerPlayerService
 import net.voxelpi.varp.mod.fabric.util.toIdentifier
 import net.voxelpi.varp.mod.server.VarpServerImpl
 import net.voxelpi.varp.mod.server.api.VarpServerAPI
+import net.voxelpi.varp.mod.server.warp.VarpServerNetworkBridge
 import net.voxelpi.varp.repository.filetree.FileTreeRepository
 import java.nio.file.Path
 import java.util.UUID
@@ -54,6 +55,8 @@ class FabricVarpServer(
 
     override val serverNetworkHandler: FabricVarpServerNetworkHandler = FabricVarpServerNetworkHandler(this)
 
+    override val serverNetworkBridge: VarpServerNetworkBridge = VarpServerNetworkBridge(tree, serverNetworkHandler)
+
     init {
         runBlocking {
             loader.load()
@@ -70,6 +73,7 @@ class FabricVarpServer(
     }
 
     fun cleanup() {
+        serverNetworkBridge.cleanup()
         serverNetworkHandler.cleanup()
         playerService.handleShutdown()
         runBlocking {

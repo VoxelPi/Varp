@@ -38,7 +38,8 @@ public abstract class Repository(
     }
 
     /**
-     * Reloads the content of the repository
+     * Reloads the content of the repository.
+     * The implementation should also post a [net.voxelpi.varp.event.repository.RepositoryLoadEvent] to the tree event bus.
      */
     public abstract suspend fun load(): Result<Unit>
 

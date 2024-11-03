@@ -5,6 +5,7 @@ import net.voxelpi.event.eventScope
 import net.voxelpi.event.post
 import net.voxelpi.varp.event.compositor.CompositorRepositoryMountEvent
 import net.voxelpi.varp.event.compositor.CompositorRepositoryUnmountEvent
+import net.voxelpi.varp.event.repository.RepositoryLoadEvent
 import net.voxelpi.varp.exception.tree.FolderMoveIntoChildException
 import net.voxelpi.varp.exception.tree.WarpNotFoundException
 import net.voxelpi.varp.warp.path.FolderPath
@@ -87,6 +88,8 @@ public class Compositor internal constructor(
                 registryView[compositePath] = state
             }
         }
+
+        tree.eventScope.post(RepositoryLoadEvent(this))
     }
 
     public fun mounts(): Collection<CompositorMount> {

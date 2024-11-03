@@ -9,6 +9,7 @@ import net.voxelpi.varp.mod.server.message.VarpMessages
 import net.voxelpi.varp.mod.server.network.VarpServerNetworkHandler
 import net.voxelpi.varp.mod.server.player.VarpServerPlayerImpl
 import net.voxelpi.varp.mod.server.player.VarpServerPlayerServiceImpl
+import net.voxelpi.varp.mod.server.warp.VarpServerNetworkBridge
 import org.spongepowered.configurate.gson.GsonConfigurationLoader
 import java.nio.file.Path
 import kotlin.io.path.exists
@@ -29,6 +30,8 @@ abstract class VarpServerImpl : VarpServerAPI {
     abstract override val playerService: VarpServerPlayerServiceImpl<out VarpServerPlayerImpl>
 
     abstract val serverNetworkHandler: VarpServerNetworkHandler
+
+    abstract val serverNetworkBridge: VarpServerNetworkBridge
 
     fun loadMessages(): VarpMessages {
         val localeFile = globalConfigDirectory.resolve("locale").resolve("en_us.json")

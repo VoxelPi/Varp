@@ -13,6 +13,7 @@ import net.voxelpi.varp.mod.paper.network.PaperVarpServerNetworkHandler
 import net.voxelpi.varp.mod.paper.player.PaperVarpServerPlayerService
 import net.voxelpi.varp.mod.server.VarpServerImpl
 import net.voxelpi.varp.mod.server.api.VarpServerAPI
+import net.voxelpi.varp.mod.server.warp.VarpServerNetworkBridge
 import net.voxelpi.varp.repository.filetree.FileTreeRepository
 import org.bukkit.Server
 import org.bukkit.plugin.ServicePriority
@@ -52,6 +53,8 @@ class PaperVarpServer(
 
     override val serverNetworkHandler: PaperVarpServerNetworkHandler = PaperVarpServerNetworkHandler(this)
 
+    override val serverNetworkBridge: VarpServerNetworkBridge = VarpServerNetworkBridge(tree, serverNetworkHandler)
+
     init {
         runBlocking {
             loader.load()
@@ -69,6 +72,7 @@ class PaperVarpServer(
     }
 
     fun cleanup() {
+        serverNetworkBridge.cleanup()
         runBlocking {
             loader.save()
             loader.cleanup()

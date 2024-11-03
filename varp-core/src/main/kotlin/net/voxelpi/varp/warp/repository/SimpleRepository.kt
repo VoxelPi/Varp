@@ -1,5 +1,7 @@
 package net.voxelpi.varp.warp.repository
 
+import net.voxelpi.event.post
+import net.voxelpi.varp.event.repository.RepositoryLoadEvent
 import net.voxelpi.varp.exception.tree.FolderNotFoundException
 import net.voxelpi.varp.exception.tree.WarpNotFoundException
 import net.voxelpi.varp.warp.path.FolderPath
@@ -51,7 +53,12 @@ public abstract class SimpleRepository(
         registry.clear()
 
         // Run implementation logic.
-        return handleLoad()
+        handleLoad().onFailure { return Result.failure(it) }
+
+        // Post the repository load event.
+        tree.eventScope.post(RepositoryLoadEvent(this))
+
+        return Result.success(Unit)
     }
 
     public override suspend fun create(path: WarpPath, state: WarpState): Result<Unit> {
