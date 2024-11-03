@@ -70,6 +70,7 @@ class FabricVarpServer(
     }
 
     fun cleanup() {
+        serverNetworkHandler.cleanup()
         playerService.handleShutdown()
         runBlocking {
             loader.save()
