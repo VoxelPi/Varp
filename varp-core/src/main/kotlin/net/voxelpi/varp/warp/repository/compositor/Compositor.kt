@@ -5,8 +5,20 @@ import net.voxelpi.event.eventScope
 import net.voxelpi.event.post
 import net.voxelpi.varp.event.compositor.CompositorRepositoryMountEvent
 import net.voxelpi.varp.event.compositor.CompositorRepositoryUnmountEvent
+import net.voxelpi.varp.event.folder.FolderCreateEvent
+import net.voxelpi.varp.event.folder.FolderDeleteEvent
+import net.voxelpi.varp.event.folder.FolderPathChangeEvent
+import net.voxelpi.varp.event.folder.FolderPostDeleteEvent
+import net.voxelpi.varp.event.folder.FolderStateChangeEvent
 import net.voxelpi.varp.event.repository.RepositoryLoadEvent
+import net.voxelpi.varp.event.root.RootStateChangeEvent
+import net.voxelpi.varp.event.warp.WarpCreateEvent
+import net.voxelpi.varp.event.warp.WarpDeleteEvent
+import net.voxelpi.varp.event.warp.WarpPathChangeEvent
+import net.voxelpi.varp.event.warp.WarpPostDeleteEvent
+import net.voxelpi.varp.event.warp.WarpStateChangeEvent
 import net.voxelpi.varp.exception.tree.FolderMoveIntoChildException
+import net.voxelpi.varp.exception.tree.FolderNotFoundException
 import net.voxelpi.varp.exception.tree.WarpNotFoundException
 import net.voxelpi.varp.warp.path.FolderPath
 import net.voxelpi.varp.warp.path.NodeParentPath
@@ -18,6 +30,7 @@ import net.voxelpi.varp.warp.repository.RepositoryLoader
 import net.voxelpi.varp.warp.repository.RepositoryType
 import net.voxelpi.varp.warp.state.FolderState
 import net.voxelpi.varp.warp.state.TreeStateRegistry
+import net.voxelpi.varp.warp.state.TreeStateRegistryView
 import net.voxelpi.varp.warp.state.WarpState
 import kotlin.collections.component1
 import kotlin.collections.component2
@@ -36,7 +49,10 @@ public class Compositor internal constructor(
 
     public val eventScope: EventScope = eventScope()
 
-    override val registryView: TreeStateRegistry = TreeStateRegistry()
+    private val registry: TreeStateRegistry = TreeStateRegistry()
+
+    override val registryView: TreeStateRegistryView
+        get() = registry
 
     init {
         buildTree()
@@ -57,7 +73,7 @@ public class Compositor internal constructor(
     }
 
     private fun buildTree() {
-        registryView.clear()
+        registry.clear()
 
         // Check if all locations are unique
         require(mounts.size == mounts.values.map(CompositorMount::location).size) { "Duplicate mounts detected." }
@@ -67,10 +83,10 @@ public class Compositor internal constructor(
             val location = mount.location
             when (location) {
                 is RootPath -> {
-                    registryView.root = mount.repository.registryView.root
+                    registry.root = mount.repository.registryView.root
                 }
                 is FolderPath -> {
-                    registryView[location] = mount.repository.registryView.root
+                    registry[location] = mount.repository.registryView.root
                 }
             }
 
@@ -78,14 +94,14 @@ public class Compositor internal constructor(
                 // Combine mount location and local path. Ignore duplicate slash in the middle
                 val compositePath = FolderPath(location.value + path.value.substring(1))
 
-                registryView[compositePath] = state
+                registry[compositePath] = state
             }
 
             for ((path, state) in mount.repository.registryView.warps) {
                 // Combine mount location and local path. Ignore duplicate slash in the middle
                 val compositePath = WarpPath(location.value + path.value.substring(1))
 
-                registryView[compositePath] = state
+                registry[compositePath] = state
             }
         }
 
@@ -143,7 +159,10 @@ public class Compositor internal constructor(
         val relativePath = path.relativeTo(mount.location)!!
         mount.repository.create(relativePath, state).getOrElse { return Result.failure(it) }
 
-        registryView[path] = state
+        registry[path] = state
+
+        // Post event.
+        tree.eventScope.post(WarpCreateEvent(tree.resolve(path)!!))
 
         return Result.success(Unit)
     }
@@ -154,7 +173,10 @@ public class Compositor internal constructor(
         require(relativePath is FolderPath)
         mount.repository.create(relativePath, state).getOrElse { return Result.failure(it) }
 
-        registryView[path] = state
+        registry[path] = state
+
+        // Post event.
+        tree.eventScope.post(FolderCreateEvent(tree.resolve(path)!!))
 
         return Result.success(Unit)
     }
@@ -162,9 +184,20 @@ public class Compositor internal constructor(
     override suspend fun save(path: WarpPath, state: WarpState): Result<Unit> {
         val mount = mountAt(path).getOrElse { return Result.failure(it) }
         val relativePath = path.relativeTo(mount.location)!!
+
+        // Temporary save previous state.
+        val previousState = mount.repository.registryView[relativePath] ?: run {
+            return Result.failure(WarpNotFoundException(path))
+        }
+
+        // Update mounted repository.
         mount.repository.save(relativePath, state).getOrElse { return Result.failure(it) }
 
-        registryView[path] = state
+        // Update registry.
+        registry[path] = state
+
+        // Post event.
+        tree.eventScope.post(WarpStateChangeEvent(tree.resolve(path)!!, state, previousState))
 
         return Result.success(Unit)
     }
@@ -172,36 +205,69 @@ public class Compositor internal constructor(
     override suspend fun save(path: FolderPath, state: FolderState): Result<Unit> {
         val mount = mountAt(path).getOrElse { return Result.failure(it) }
         val relativePath = path.relativeTo(mount.location)!!
+
+        // Temporary save previous state.
+        val previousState = mount.repository.registryView[relativePath] ?: run {
+            return Result.failure(FolderNotFoundException(path))
+        }
+
+        // Update mounted repository.
         when (relativePath) {
             is RootPath -> mount.repository.save(state).getOrElse { return Result.failure(it) }
             is FolderPath -> mount.repository.save(path, state).getOrElse { return Result.failure(it) }
         }
 
-        registryView[path] = state
+        // Update registry.
+        registry[path] = state
+
+        // Post event.
+        tree.eventScope.post(FolderStateChangeEvent(tree.resolve(path)!!, state, previousState))
 
         return Result.success(Unit)
     }
 
     override suspend fun save(state: FolderState): Result<Unit> {
+        // Temporary save previous state.
+        val previousState = registry.root
+
         val mount = mountAt(RootPath).getOrElse { return Result.failure(it) }
         mount.repository.save(state).getOrElse { return Result.failure(it) }
 
-        registryView.root = state
+        registry.root = state
+
+        // Post event.
+        tree.eventScope.post(RootStateChangeEvent(tree.root, state, previousState))
 
         return Result.success(Unit)
     }
 
     override suspend fun delete(path: WarpPath): Result<Unit> {
+        val warp = tree.resolve(path) ?: return Result.failure(WarpNotFoundException(path))
+
+        // Post event.
+        tree.eventScope.post(WarpDeleteEvent(warp))
+
         val mount = mountAt(path).getOrElse { return Result.failure(it) }
         val relativePath = path.relativeTo(mount.location)!!
+
         mount.repository.delete(relativePath).getOrElse { return Result.failure(it) }
 
-        registryView.delete(path)
+        val state = registry.delete(path)
+
+        // Post event.
+        if (state != null) {
+            tree.eventScope.post(WarpPostDeleteEvent(path, state))
+        }
 
         return Result.success(Unit)
     }
 
     override suspend fun delete(path: FolderPath): Result<Unit> {
+        val folder = tree.resolve(path) ?: return Result.failure(FolderNotFoundException(path))
+
+        // Post event.
+        tree.eventScope.post(FolderDeleteEvent(folder))
+
         val mount = mountAt(path).getOrElse { return Result.failure(it) }
         val relativePath = path.relativeTo(mount.location)!!
 
@@ -217,7 +283,12 @@ public class Compositor internal constructor(
         mounts -= removedMounts.map(CompositorMount::location)
 
         // Remove folder from registry.
-        registryView.delete(path)
+        val state = registry.delete(path)
+
+        // Post event.
+        if (state != null) {
+            tree.eventScope.post(FolderPostDeleteEvent(path, state))
+        }
 
         for (mount in mounts.values) {
             eventScope.post(CompositorRepositoryUnmountEvent(this, mount.repository, mount.location))
@@ -238,12 +309,16 @@ public class Compositor internal constructor(
             mount.repository.move(srcRelativePath, dstRelativePath).getOrElse { return Result.failure(it) }
         } else {
             // The warp is moved into a different mount.
-            val state = registryView[src] ?: return Result.failure(WarpNotFoundException(src))
+            val state = registry[src] ?: return Result.failure(WarpNotFoundException(src))
             srcMount.repository.delete(srcRelativePath).getOrElse { return Result.failure(it) }
             dstMount.repository.create(dstRelativePath, state).getOrElse { return Result.failure(it) }
         }
 
-        registryView.move(src, dst)
+        // Update registry.
+        registry.move(src, dst)
+
+        // Post event.
+        tree.eventScope.post(WarpPathChangeEvent(tree.resolve(dst)!!, dst, src))
 
         return Result.success(Unit)
     }
@@ -264,7 +339,7 @@ public class Compositor internal constructor(
                     mount.repository.move(srcRelativePath, dstRelativePath).getOrElse { return Result.failure(it) }
                 }
                 RootPath -> {
-                    mount.repository.save(registryView[src]!!)
+                    mount.repository.save(registry[src]!!)
 
                     // Move all direct child folders
                     val directChildFolders = mount.repository.registryView.folders.keys
@@ -285,9 +360,9 @@ public class Compositor internal constructor(
             // Create a list of all folders that are sub folders (or the folder itself) and sort it by the length of their paths.
             // That way a parent folder is always created before its child folders, as it has a shorter path.
             // Then use the list to create all folders at the new location.
-            val affectedFoldersRelativePaths = registryView.folders.keys.filter(src::isSubPathOf).sortedBy { it.value.length }
+            val affectedFoldersRelativePaths = registry.folders.keys.filter(src::isSubPathOf).sortedBy { it.value.length }
             for (oldPath in affectedFoldersRelativePaths) {
-                val state = registryView[oldPath]!!
+                val state = registry[oldPath]!!
                 val newPath = FolderPath(dst.value + oldPath.relativeTo(src)!!.value.substring(1)).relativeTo(dstMount.location)!!
                 when (newPath) {
                     is FolderPath -> dstMount.repository.create(newPath, state).getOrElse { return Result.failure(it) }
@@ -297,9 +372,9 @@ public class Compositor internal constructor(
 
             // Create a list of all warps that are children of the moved folder.
             // Then use the list to create all warps at the new location.
-            val affectedWarpsRelativePaths = registryView.warps.keys.filter(src::isSubPathOf)
+            val affectedWarpsRelativePaths = registry.warps.keys.filter(src::isSubPathOf)
             for (oldPath in affectedWarpsRelativePaths) {
-                val state = registryView[oldPath]!!
+                val state = registry[oldPath]!!
                 val newPath = WarpPath(dst.value + oldPath.relativeTo(src)!!.value.substring(1)).relativeTo(dstMount.location)!!
                 dstMount.repository.create(newPath, state).getOrElse { return Result.failure(it) }
             }
@@ -323,7 +398,11 @@ public class Compositor internal constructor(
             }
         }
 
-        registryView.move(src, dst)
+        // Update registry.
+        registry.move(src, dst)
+
+        // Post event.
+        tree.eventScope.post(FolderPathChangeEvent(tree.resolve(dst)!!, dst, src))
 
         return Result.success(Unit)
     }

@@ -2,19 +2,7 @@ package net.voxelpi.varp.warp
 
 import net.voxelpi.event.EventScope
 import net.voxelpi.event.eventScope
-import net.voxelpi.event.post
 import net.voxelpi.varp.DuplicatesStrategy
-import net.voxelpi.varp.event.folder.FolderCreateEvent
-import net.voxelpi.varp.event.folder.FolderDeleteEvent
-import net.voxelpi.varp.event.folder.FolderPathChangeEvent
-import net.voxelpi.varp.event.folder.FolderPostDeleteEvent
-import net.voxelpi.varp.event.folder.FolderStateChangeEvent
-import net.voxelpi.varp.event.root.RootStateChangeEvent
-import net.voxelpi.varp.event.warp.WarpCreateEvent
-import net.voxelpi.varp.event.warp.WarpDeleteEvent
-import net.voxelpi.varp.event.warp.WarpPathChangeEvent
-import net.voxelpi.varp.event.warp.WarpPostDeleteEvent
-import net.voxelpi.varp.event.warp.WarpStateChangeEvent
 import net.voxelpi.varp.exception.tree.FolderAlreadyExistsException
 import net.voxelpi.varp.exception.tree.FolderMoveIntoChildException
 import net.voxelpi.varp.exception.tree.FolderNotFoundException
@@ -84,11 +72,8 @@ public class Tree internal constructor(
 
         // Create the warp state.
         repository.create(path, state).onFailure { return Result.failure(it) }
+
         val warp = Warp(this, path)
-
-        // Post event.
-        eventScope.post(WarpCreateEvent(warp))
-
         return Result.success(warp)
     }
 
@@ -108,11 +93,8 @@ public class Tree internal constructor(
 
         // Save the folder state.
         repository.create(path, state).onFailure { return Result.failure(it) }
+
         val folder = Folder(this, path)
-
-        // Post event.
-        eventScope.post(FolderCreateEvent(folder))
-
         return Result.success(folder)
     }
 
@@ -121,16 +103,13 @@ public class Tree internal constructor(
      */
     public suspend fun deleteWarp(path: WarpPath): Result<Unit> {
         // Check if the warp exists.
-        val state = warpState(path) ?: return Result.failure(WarpNotFoundException(path))
-
-        // Post event.
-        eventScope.post(WarpDeleteEvent(Warp(this, path)))
+        if (!exists(path)) {
+            return Result.failure(WarpNotFoundException(path))
+        }
 
         // Delete the warp state.
         repository.delete(path).onFailure { return Result.failure(it) }
 
-        // Post event.
-        eventScope.post(WarpPostDeleteEvent(path, state))
         return Result.success(Unit)
     }
 
@@ -139,16 +118,13 @@ public class Tree internal constructor(
      */
     public suspend fun deleteFolder(path: FolderPath): Result<Unit> {
         // Check if the folder exists.
-        val state = folderState(path) ?: return Result.failure(FolderNotFoundException(path))
-
-        // Post event.
-        eventScope.post(FolderDeleteEvent(Folder(this, path)))
+        if (!exists(path)) {
+            return Result.failure(FolderNotFoundException(path))
+        }
 
         // Delete the folder state.
         repository.delete(path).onFailure { return Result.failure(it) }
 
-        // Post event.
-        eventScope.post(FolderPostDeleteEvent(path, state))
         return Result.success(Unit)
     }
 
@@ -223,15 +199,12 @@ public class Tree internal constructor(
      */
     public suspend fun warpState(path: WarpPath, state: WarpState): Result<Unit> {
         // Check if a warp exists at the given path.
-        val previousState = warpState(path) ?: run {
+        if (!exists(path)) {
             return Result.failure(WarpNotFoundException(path))
         }
 
         // Save the warp state at the given path.
         repository.save(path, state).onFailure { return Result.failure(it) }
-
-        // Post event.
-        eventScope.post(WarpStateChangeEvent(Warp(this, path), state, previousState))
 
         return Result.success(Unit)
     }
@@ -248,15 +221,12 @@ public class Tree internal constructor(
      */
     public suspend fun folderState(path: FolderPath, state: FolderState): Result<Unit> {
         // Check if a folder exists at the given path.
-        val previousState = folderState(path) ?: run {
+        if (!exists(path)) {
             return Result.failure(FolderNotFoundException(path))
         }
 
         // Save the folder state at the given path.
         repository.save(path, state).onFailure { return Result.failure(it) }
-
-        // Post event.
-        eventScope.post(FolderStateChangeEvent(Folder(this, path), state, previousState))
 
         return Result.success(Unit)
     }
@@ -272,14 +242,8 @@ public class Tree internal constructor(
      * Sets the state of the root.
      */
     public suspend fun rootState(state: FolderState): Result<Unit> {
-        // Check if a module exists at the given path.
-        val previousState = rootState()
-
         // Save the module state at the given path.
         repository.save(state).onFailure { return Result.failure(it) }
-
-        // Post event.
-        eventScope.post(RootStateChangeEvent(root, state, previousState))
 
         return Result.success(Unit)
     }
@@ -419,9 +383,6 @@ public class Tree internal constructor(
         // Move the state.
         repository.move(src, dst).onFailure { return Result.failure(it) }
 
-        // Post event.
-        eventScope.post(WarpPathChangeEvent(Warp(this, dst), dst, src))
-
         return Result.success(Unit)
     }
 
@@ -450,9 +411,6 @@ public class Tree internal constructor(
 
         // Move the state.
         repository.move(src, dst).onFailure { return Result.failure(it) }
-
-        // Post event.
-        eventScope.post(FolderPathChangeEvent(Folder(this, dst), dst, src))
 
         return Result.success(Unit)
     }

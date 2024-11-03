@@ -1,5 +1,18 @@
 package net.voxelpi.varp.mod.client.warp
 
+import net.voxelpi.event.post
+import net.voxelpi.varp.event.folder.FolderCreateEvent
+import net.voxelpi.varp.event.folder.FolderDeleteEvent
+import net.voxelpi.varp.event.folder.FolderPathChangeEvent
+import net.voxelpi.varp.event.folder.FolderPostDeleteEvent
+import net.voxelpi.varp.event.folder.FolderStateChangeEvent
+import net.voxelpi.varp.event.repository.RepositoryLoadEvent
+import net.voxelpi.varp.event.root.RootStateChangeEvent
+import net.voxelpi.varp.event.warp.WarpCreateEvent
+import net.voxelpi.varp.event.warp.WarpDeleteEvent
+import net.voxelpi.varp.event.warp.WarpPathChangeEvent
+import net.voxelpi.varp.event.warp.WarpPostDeleteEvent
+import net.voxelpi.varp.event.warp.WarpStateChangeEvent
 import net.voxelpi.varp.mod.VarpModConstants
 import net.voxelpi.varp.mod.client.VarpClientImpl
 import net.voxelpi.varp.mod.client.api.warp.ClientRepository
@@ -28,6 +41,7 @@ import net.voxelpi.varp.warp.path.FolderPath
 import net.voxelpi.varp.warp.path.WarpPath
 import net.voxelpi.varp.warp.state.FolderState
 import net.voxelpi.varp.warp.state.TreeStateRegistry
+import net.voxelpi.varp.warp.state.TreeStateRegistryView
 import net.voxelpi.varp.warp.state.WarpState
 
 class ClientRepositoryImpl(
@@ -36,7 +50,10 @@ class ClientRepositoryImpl(
     id: String,
 ) : ClientRepository(id) {
 
-    override val registryView: TreeStateRegistry = TreeStateRegistry()
+    private val registry: TreeStateRegistry = TreeStateRegistry()
+
+    override val registryView: TreeStateRegistryView
+        get() = registry
 
     override val active: Boolean
         get() = client.serverInfo != null
@@ -94,19 +111,49 @@ class ClientRepositoryImpl(
     // region packet handlers
 
     fun handlePacket(packet: VarpClientboundCreateFolderPacket) {
-        registryView[packet.path] = packet.state
+        // Update registry.
+        registry[packet.path] = packet.state
+
+        // Post event.
+        tree.eventScope.post(FolderCreateEvent(tree.resolve(packet.path)!!))
     }
 
     fun handlePacket(packet: VarpClientboundCreateWarpPacket) {
-        registryView[packet.path] = packet.state
+        // Update registry.
+        registry[packet.path] = packet.state
+
+        // Post event.
+        tree.eventScope.post(WarpCreateEvent(tree.resolve(packet.path)!!))
     }
 
     fun handlePacket(packet: VarpClientboundDeleteFolderPacket) {
-        registryView.delete(packet.path)
+        // Post event.
+        tree.resolve(packet.path)?.let { folder ->
+            tree.eventScope.post(FolderDeleteEvent(folder))
+        }
+
+        // Update registry.
+        val state = registry.delete(packet.path)
+
+        // Post event.
+        if (state != null) {
+            tree.eventScope.post(FolderPostDeleteEvent(packet.path, state))
+        }
     }
 
     fun handlePacket(packet: VarpClientboundDeleteWarpPacket) {
-        registryView.delete(packet.path)
+        // Post event.
+        tree.resolve(packet.path)?.let { warp ->
+            tree.eventScope.post(WarpDeleteEvent(warp))
+        }
+
+        // Update registry.
+        val state = registry.delete(packet.path)
+
+        // Post event.
+        if (state != null) {
+            tree.eventScope.post(WarpPostDeleteEvent(packet.path, state))
+        }
     }
 
     fun handlePacket(packet: VarpClientboundSyncTreePacket) {
@@ -114,35 +161,71 @@ class ClientRepositoryImpl(
         client.logger.debug("Received state sync packet: ${packet.folders.size} folders, ${packet.warps.size} warps.")
 
         // Update registry.
-        registryView.clear()
-        registryView.root = packet.root
-        registryView.folders.putAll(packet.folders)
-        registryView.warps.putAll(packet.warps)
+        registry.clear()
+        registry.root = packet.root
+        registry.folders.putAll(packet.folders)
+        registry.warps.putAll(packet.warps)
+
+        // Post load event
+        tree.eventScope.post(RepositoryLoadEvent(this))
     }
 
     fun handlePacket(packet: VarpClientboundUpdateFolderPathPacket) {
-        registryView.move(packet.from, packet.to)
+        // Update registry.
+        registry.move(packet.from, packet.to)
+
+        // Post event.
+        tree.eventScope.post(FolderPathChangeEvent(tree.resolve(packet.to)!!, packet.to, packet.from))
     }
 
     fun handlePacket(packet: VarpClientboundUpdateFolderStatePacket) {
-        registryView[packet.path] = packet.state
+        // Temporary save previous state.
+        val previousState = registry[packet.path]
+
+        // Update registry.
+        registry[packet.path] = packet.state
+
+        // Post event.
+        if (previousState != null) {
+            tree.eventScope.post(FolderStateChangeEvent(tree.resolve(packet.path)!!, packet.state, previousState))
+        }
     }
 
     fun handlePacket(packet: VarpClientboundUpdateRootStatePacket) {
-        registryView.root = packet.state
+        // Temporary save previous state.
+        val previousState = registryView.root
+
+        // Update registry.
+        registry.root = packet.state
+
+        // Post event.
+        tree.eventScope.post(RootStateChangeEvent(tree.root, packet.state, previousState))
     }
 
     fun handlePacket(packet: VarpClientboundUpdateWarpPathPacket) {
-        registryView.move(packet.from, packet.to)
+        // Update registry.
+        registry.move(packet.from, packet.to)
+
+        // Post event.
+        tree.eventScope.post(WarpPathChangeEvent(tree.resolve(packet.to)!!, packet.to, packet.from))
     }
 
     fun handlePacket(packet: VarpClientboundUpdateWarpStatePacket) {
-        registryView[packet.path] = packet.state
+        // Temporary save previous state.
+        val previousState = registry[packet.path]
+
+        // Update registry.
+        registry[packet.path] = packet.state
+
+        // Post event.
+        if (previousState != null) {
+            tree.eventScope.post(WarpStateChangeEvent(tree.resolve(packet.path)!!, packet.state, previousState))
+        }
     }
 
     // endregion
 
     fun reset() {
-        registryView.clear()
+        registry.clear()
     }
 }
