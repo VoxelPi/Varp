@@ -11,6 +11,7 @@ import net.voxelpi.varp.mod.api.VarpClientInformation
 import net.voxelpi.varp.mod.client.VarpClientImpl
 import net.voxelpi.varp.mod.client.warp.ClientRepositoryImpl
 import net.voxelpi.varp.mod.fabric.FabricVarpMod
+import net.voxelpi.varp.mod.fabric.client.gui.FabricVarpGUIListener
 import net.voxelpi.varp.mod.fabric.client.gui.screen.FabricVarpExplorerScreen
 import net.voxelpi.varp.mod.fabric.client.network.FabricVarpClientNetworkHandler
 import net.voxelpi.varp.warp.Tree
@@ -30,6 +31,8 @@ class FabricVarpClient : VarpClientImpl() {
 
     override val repository: ClientRepositoryImpl = ClientRepositoryImpl(this, clientNetworkHandler, "main")
 
+    private val guiRepositoryListener = FabricVarpGUIListener(repository.tree)
+
     val keyBindingService = VarpKeyBindingService(this)
 
     override val tree: Tree
@@ -45,6 +48,7 @@ class FabricVarpClient : VarpClientImpl() {
     }
 
     fun cleanup() {
+        guiRepositoryListener.cleanup()
         coroutineScope.cancel()
     }
 }
