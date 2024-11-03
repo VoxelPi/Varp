@@ -243,6 +243,13 @@ class ExplorerContentList(
                 Positioning.absolute(fullSize().width - padding().get().horizontal() - margins().get().horizontal() - rightSide.fullSize().width, 0)
             )
 
+            // Hide info if there is no room for it.
+            if (width() - padding().get().horizontal() - rightSide.fullSize().width() - iconTexture.fullSize().width() - nameLabel.fullSize().width() < infoLabel.fullSize().width()) {
+                infoLabel.verticalSizing(Sizing.fixed(0))
+            } else {
+                infoLabel.verticalSizing(Sizing.content())
+            }
+
             super.layout(space)
         }
 
