@@ -24,6 +24,11 @@ fun DependencyHandlerScope.apiAndShadow(dep: Any) {
     shadow(dep)
 }
 
+repositories {
+    maven { url = uri("https://maven.terraformersmc.com/") }
+    maven { url = uri("https://maven.wispforest.io/releases/") }
+}
+
 dependencies {
     compileOnly(kotlin("stdlib"))
 
@@ -51,6 +56,10 @@ dependencies {
     implementationAndInclude(libs.event)
 
     implementationAndInclude(libs.event)
+    modImplementation(libs.owo.lib)
+
+    // Runtime mods
+    modRuntimeOnly(libs.modmenu)
 }
 
 loom {

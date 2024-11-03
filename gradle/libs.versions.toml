@@ -32,6 +32,10 @@ loom = "1.8-SNAPSHOT"
 fabric-kotlin = "1.12.3+kotlin.2.0.21"
 fabric-permissions-api = "0.3.1"
 
+# Fabric mods
+modmenu = "11.0.3"
+owo-lib = "0.12.15+1.21"
+
 # Plugins
 blossom = "2.1.0"
 dokka = "2.0.0-Beta"
@@ -98,6 +102,10 @@ fabric-api = { module = "net.fabricmc.fabric-api:fabric-api", version.ref = "fab
 fabric-language-kotlin = { module = "net.fabricmc:fabric-language-kotlin", version.ref = "fabric-kotlin"}
 fabric-loader = { module = "net.fabricmc:fabric-loader", version.ref = "fabric-loader"}
 fabric-permission-api = { module = "me.lucko:fabric-permissions-api", version.ref = "fabric-permissions-api"}
+
+# Fabric mods
+modmenu = { module = "com.terraformersmc:modmenu", version.ref = "modmenu"}
+owo-lib = { module = "io.wispforest:owo-lib", version.ref = "owo-lib"}
 
 # Plugins used in build logic
 blossom = { module = "net.kyori:blossom", version.ref = "blossom" }
