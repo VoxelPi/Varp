@@ -13,7 +13,6 @@ import net.voxelpi.varp.warp.repository.RepositoryLoader
 import net.voxelpi.varp.warp.repository.RepositoryType
 import net.voxelpi.varp.warp.repository.SimpleRepository
 import net.voxelpi.varp.warp.state.FolderState
-import net.voxelpi.varp.warp.state.TreeStateRegistry
 import net.voxelpi.varp.warp.state.WarpState
 import org.spongepowered.configurate.kotlin.extensions.get
 import org.spongepowered.configurate.kotlin.objectMapperFactory
@@ -36,8 +35,6 @@ class FileTreeRepository(
     val format: RepositoryFileFormat,
     val componentSerializer: ComponentSerializer<Component, *, String>? = null,
 ) : SimpleRepository(id) {
-
-    override val registryView: TreeStateRegistry = TreeStateRegistry()
 
     @RepositoryLoader
     public constructor(id: String, path: Path, config: FileTreeRepositoryConfig) : this(
@@ -72,9 +69,9 @@ class FileTreeRepository(
             // Load content.
             val rootState = loadRoot(path).getOrThrow()
             val (warps, folders) = loadContainerContent(RootPath, path).getOrThrow()
-            registryView.root = rootState
-            registryView.warps += warps
-            registryView.folders += folders
+            registry.root = rootState
+            registry.warps += warps
+            registry.folders += folders
         }
     }
 
