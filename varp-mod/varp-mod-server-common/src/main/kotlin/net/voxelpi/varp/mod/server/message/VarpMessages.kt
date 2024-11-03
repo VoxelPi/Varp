@@ -15,6 +15,7 @@ import net.voxelpi.varp.mod.api.VarpServerInformation
 import net.voxelpi.varp.mod.server.api.player.VarpServerPlayer
 import net.voxelpi.varp.mod.server.message.placeholder.ComponentPlaceholderResolver
 import net.voxelpi.varp.mod.server.message.placeholder.FolderPlaceholderResolver
+import net.voxelpi.varp.mod.server.message.placeholder.FolderStatePlaceholderResolver
 import net.voxelpi.varp.mod.server.message.placeholder.KeyPlaceholderResolver
 import net.voxelpi.varp.mod.server.message.placeholder.MinecraftLocationPlaceholderResolver
 import net.voxelpi.varp.mod.server.message.placeholder.NodePathPlaceholderResolver
@@ -25,12 +26,15 @@ import net.voxelpi.varp.mod.server.message.placeholder.VarpClientInformationPlac
 import net.voxelpi.varp.mod.server.message.placeholder.VarpServerInformationPlaceholderResolver
 import net.voxelpi.varp.mod.server.message.placeholder.VarpServerPlayerPlaceholderResolver
 import net.voxelpi.varp.mod.server.message.placeholder.WarpPlaceholderResolver
+import net.voxelpi.varp.mod.server.message.placeholder.WarpStatePlaceholderResolver
 import net.voxelpi.varp.warp.Folder
 import net.voxelpi.varp.warp.Root
 import net.voxelpi.varp.warp.Warp
 import net.voxelpi.varp.warp.path.FolderPath
 import net.voxelpi.varp.warp.path.NodePath
 import net.voxelpi.varp.warp.path.WarpPath
+import net.voxelpi.varp.warp.state.FolderState
+import net.voxelpi.varp.warp.state.WarpState
 import org.spongepowered.configurate.ConfigurationNode
 
 interface VarpMessages {
@@ -71,7 +75,8 @@ interface VarpMessages {
     @Message("warp.delete")
     fun sendWarpDelete(
         @Receiver receiver: Audience,
-        @Placeholder("warp") warp: Warp,
+        @Placeholder("warp_path") warpPath: WarpPath,
+        @Placeholder("warp") warpState: WarpState,
     )
 
     @Message("warp.copy")
@@ -115,7 +120,8 @@ interface VarpMessages {
     @Message("folder.delete")
     fun sendFolderDelete(
         @Receiver receiver: Audience,
-        @Placeholder("folder") folder: Folder,
+        @Placeholder("folder_path") folderPath: FolderPath,
+        @Placeholder("folder") folderState: FolderState,
     )
 
     @Message("folder.copy")
@@ -234,6 +240,9 @@ interface VarpMessages {
                     weightedPlaceholderResolver(VarpServerInformation::class.java, VarpServerInformationPlaceholderResolver, 1)
 
                     weightedPlaceholderResolver(NodePath::class.java, NodePathPlaceholderResolver, 1)
+
+                    weightedPlaceholderResolver(WarpState::class.java, WarpStatePlaceholderResolver, 1)
+                    weightedPlaceholderResolver(FolderState::class.java, FolderStatePlaceholderResolver, 1)
 
                     weightedPlaceholderResolver(Warp::class.java, WarpPlaceholderResolver, 1)
                     weightedPlaceholderResolver(Folder::class.java, FolderPlaceholderResolver, 1)

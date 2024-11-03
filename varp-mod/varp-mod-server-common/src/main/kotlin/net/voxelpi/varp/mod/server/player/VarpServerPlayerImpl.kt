@@ -125,6 +125,10 @@ abstract class VarpServerPlayerImpl(
             return
         }
 
+        // Temporary save folder data for message.
+        val folderPath = folder.path
+        val folderState = folder.state
+
         // Delete the folder.
         folder.delete().onFailure { exception ->
             when (exception) {
@@ -136,7 +140,7 @@ abstract class VarpServerPlayerImpl(
         }
 
         // Send confirmation message.
-        server.messages.sendFolderDelete(this, folder)
+        server.messages.sendFolderDelete(this, folderPath, folderState)
     }
 
     suspend fun deleteWarp(path: WarpPath) {
@@ -153,6 +157,10 @@ abstract class VarpServerPlayerImpl(
             return
         }
 
+        // Temporary save warp data for message.
+        val warpPath = warp.path
+        val warpState = warp.state
+
         // Delete the warp.
         warp.delete().onFailure { exception ->
             when (exception) {
@@ -164,7 +172,7 @@ abstract class VarpServerPlayerImpl(
         }
 
         // Send confirmation message.
-        server.messages.sendWarpDelete(this, warp)
+        server.messages.sendWarpDelete(this, warpPath, warpState)
     }
 
     suspend fun moveFolder(src: FolderPath, dst: FolderPath) {
