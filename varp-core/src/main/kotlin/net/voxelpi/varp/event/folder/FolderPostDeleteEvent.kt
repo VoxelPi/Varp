@@ -11,6 +11,6 @@ import net.voxelpi.varp.warp.state.FolderState
  */
 @JvmRecord
 public data class FolderPostDeleteEvent(
-    val path: FolderPath,
-    val state: FolderState,
+    override val path: FolderPath,
+    override val state: FolderState,
 ) : NodePostDeleteEvent

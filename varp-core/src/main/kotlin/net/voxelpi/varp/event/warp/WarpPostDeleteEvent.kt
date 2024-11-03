@@ -11,6 +11,6 @@ import net.voxelpi.varp.warp.state.WarpState
  */
 @JvmRecord
 public data class WarpPostDeleteEvent(
-    val path: WarpPath,
-    val state: WarpState,
+    override val path: WarpPath,
+    override val state: WarpState,
 ) : NodePostDeleteEvent
