@@ -1,4 +1,4 @@
-package net.voxelpi.varp.mod.fabric.client.gui
+package net.voxelpi.varp.mod.fabric.client.gui.screen
 
 import io.wispforest.owo.ui.base.BaseOwoScreen
 import io.wispforest.owo.ui.component.Components
@@ -13,16 +13,20 @@ import io.wispforest.owo.ui.core.VerticalAlignment
 import kotlinx.coroutines.runBlocking
 import net.kyori.adventure.key.Key
 import net.kyori.adventure.text.minimessage.MiniMessage
+import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.DrawContext
 import net.minecraft.text.Text
 import net.minecraft.util.Identifier
 import net.voxelpi.varp.MinecraftLocation
 import net.voxelpi.varp.mod.fabric.client.FabricVarpClientMod
-import net.voxelpi.varp.warp.Warp
+import net.voxelpi.varp.warp.Tree
+import net.voxelpi.varp.warp.path.NodeParentPath
+import net.voxelpi.varp.warp.state.WarpState
 import java.util.Locale
 
-class FabricVarpEditWarpScreen(
-    private var warp: Warp,
+class FabricVarpCreateWarpScreen(
+    private val tree: Tree,
+    private var parentPath: NodeParentPath,
 ) : BaseOwoScreen<FlowLayout>() {
 
     override fun shouldPause(): Boolean = false
@@ -48,43 +52,42 @@ class FabricVarpEditWarpScreen(
         rootComponent.surface(Surface.VANILLA_TRANSLUCENT)
         rootComponent.alignment(HorizontalAlignment.CENTER, VerticalAlignment.CENTER)
 
-        val idInput = Components.textBox(Sizing.fill(60), warp.id).apply {
+        val idInput = Components.textBox(Sizing.fill(60), "warp").apply {
             setMaxLength(256)
-            setEditable(false)
             margins(Insets.vertical(2))
         }
 
-        val nameInput = Components.textBox(Sizing.fill(60), MiniMessage.miniMessage().serialize(warp.name)).apply {
+        val nameInput = Components.textBox(Sizing.fill(60), "Warp").apply {
             setMaxLength(1024)
             margins(Insets.vertical(2))
         }
 
-        val worldInput = Components.textBox(Sizing.fill(60), warp.location.world.asString()).apply {
+        val worldInput = Components.textBox(Sizing.fill(60), MinecraftClient.getInstance().world?.registryKey?.value?.asString()).apply {
             setMaxLength(256)
             margins(Insets.vertical(2))
         }
 
-        val xInput = Components.textBox(Sizing.fill(60), "%.3f".format(Locale.ENGLISH, warp.location.x)).apply {
+        val xInput = Components.textBox(Sizing.fill(60), "%.3f".format(Locale.ENGLISH, MinecraftClient.getInstance().player?.x ?: 0.0)).apply {
             setMaxLength(256)
             margins(Insets.vertical(2))
         }
 
-        val yInput = Components.textBox(Sizing.fill(60), "%.3f".format(Locale.ENGLISH, warp.location.y)).apply {
+        val yInput = Components.textBox(Sizing.fill(60), "%.3f".format(Locale.ENGLISH, MinecraftClient.getInstance().player?.y ?: 0.0)).apply {
             setMaxLength(256)
             margins(Insets.vertical(2))
         }
 
-        val zInput = Components.textBox(Sizing.fill(60), "%.3f".format(Locale.ENGLISH, warp.location.z)).apply {
+        val zInput = Components.textBox(Sizing.fill(60), "%.3f".format(Locale.ENGLISH, MinecraftClient.getInstance().player?.z ?: 0.0)).apply {
             setMaxLength(256)
             margins(Insets.vertical(2))
         }
 
-        val yawInput = Components.textBox(Sizing.fill(60), "%.3f".format(Locale.ENGLISH, warp.location.yaw)).apply {
+        val yawInput = Components.textBox(Sizing.fill(60), "%.3f".format(Locale.ENGLISH, MinecraftClient.getInstance().player?.yaw ?: 0f)).apply {
             setMaxLength(256)
             margins(Insets.vertical(2))
         }
 
-        val pitchInput = Components.textBox(Sizing.fill(60), "%.3f".format(Locale.ENGLISH, warp.location.pitch)).apply {
+        val pitchInput = Components.textBox(Sizing.fill(60), "%.3f".format(Locale.ENGLISH, MinecraftClient.getInstance().player?.pitch ?: 0f)).apply {
             setMaxLength(256)
             margins(Insets.vertical(2))
         }
@@ -93,12 +96,12 @@ class FabricVarpEditWarpScreen(
         menuPlane.child(
             Containers.horizontalFlow(Sizing.fill(95), Sizing.fixed(20)).apply {
                 child(
-                    Components.texture(Identifier.of("varp:textures/gui/edit_warp.png"), 0, 0, 16, 16, 16, 16).apply {
+                    Components.texture(Identifier.of("varp:textures/gui/create_warp.png"), 0, 0, 16, 16, 16, 16).apply {
                         margins(Insets.of(0, 0, 0, 8))
                     }
                 )
                 child(
-                    Components.label(Text.translatable("gui.varp.edit_warp.message")).apply {
+                    Components.label(Text.translatable("gui.varp.create_warp.message")).apply {
                         horizontalTextAlignment(HorizontalAlignment.CENTER)
                         margins(Insets.of(0, 0, 0, 0))
                     }
@@ -116,7 +119,7 @@ class FabricVarpEditWarpScreen(
                     child(
                         Containers.horizontalFlow(Sizing.content(), Sizing.content()).apply {
                             child(
-                                Components.label(Text.translatable("gui.varp.edit_warp.id")).apply {
+                                Components.label(Text.translatable("gui.varp.create_warp.id")).apply {
                                     horizontalTextAlignment(HorizontalAlignment.RIGHT)
                                     verticalTextAlignment(VerticalAlignment.CENTER)
                                     sizing(Sizing.fill(25), Sizing.fixed(24))
@@ -129,7 +132,7 @@ class FabricVarpEditWarpScreen(
                     child(
                         Containers.horizontalFlow(Sizing.content(), Sizing.content()).apply {
                             child(
-                                Components.label(Text.translatable("gui.varp.edit_warp.name")).apply {
+                                Components.label(Text.translatable("gui.varp.create_warp.name")).apply {
                                     horizontalTextAlignment(HorizontalAlignment.RIGHT)
                                     verticalTextAlignment(VerticalAlignment.CENTER)
                                     sizing(Sizing.fill(25), Sizing.fixed(24))
@@ -142,7 +145,7 @@ class FabricVarpEditWarpScreen(
                     child(
                         Containers.horizontalFlow(Sizing.content(), Sizing.content()).apply {
                             child(
-                                Components.label(Text.translatable("gui.varp.edit_warp.parent")).apply {
+                                Components.label(Text.translatable("gui.varp.create_warp.parent")).apply {
                                     horizontalTextAlignment(HorizontalAlignment.RIGHT)
                                     verticalTextAlignment(VerticalAlignment.CENTER)
                                     sizing(Sizing.fill(25), Sizing.fixed(24))
@@ -150,7 +153,7 @@ class FabricVarpEditWarpScreen(
                                 }
                             )
                             child(
-                                Components.button(Text.translatable("gui.varp.edit_warp.select_parent")) {}.apply {
+                                Components.button(Text.translatable("gui.varp.create_warp.select_parent")) {}.apply {
                                     horizontalSizing(Sizing.fill(60))
                                     margins(Insets.vertical(2))
                                 }
@@ -160,7 +163,7 @@ class FabricVarpEditWarpScreen(
                     child(
                         Containers.horizontalFlow(Sizing.content(), Sizing.content()).apply {
                             child(
-                                Components.label(Text.translatable("gui.varp.edit_warp.world")).apply {
+                                Components.label(Text.translatable("gui.varp.create_warp.world")).apply {
                                     horizontalTextAlignment(HorizontalAlignment.RIGHT)
                                     verticalTextAlignment(VerticalAlignment.CENTER)
                                     sizing(Sizing.fill(25), Sizing.fixed(24))
@@ -173,7 +176,7 @@ class FabricVarpEditWarpScreen(
                     child(
                         Containers.horizontalFlow(Sizing.content(), Sizing.content()).apply {
                             child(
-                                Components.label(Text.translatable("gui.varp.edit_warp.x")).apply {
+                                Components.label(Text.translatable("gui.varp.create_warp.x")).apply {
                                     horizontalTextAlignment(HorizontalAlignment.RIGHT)
                                     verticalTextAlignment(VerticalAlignment.CENTER)
                                     sizing(Sizing.fill(25), Sizing.fixed(24))
@@ -186,7 +189,7 @@ class FabricVarpEditWarpScreen(
                     child(
                         Containers.horizontalFlow(Sizing.content(), Sizing.content()).apply {
                             child(
-                                Components.label(Text.translatable("gui.varp.edit_warp.y")).apply {
+                                Components.label(Text.translatable("gui.varp.create_warp.y")).apply {
                                     horizontalTextAlignment(HorizontalAlignment.RIGHT)
                                     verticalTextAlignment(VerticalAlignment.CENTER)
                                     sizing(Sizing.fill(25), Sizing.fixed(24))
@@ -199,7 +202,7 @@ class FabricVarpEditWarpScreen(
                     child(
                         Containers.horizontalFlow(Sizing.content(), Sizing.content()).apply {
                             child(
-                                Components.label(Text.translatable("gui.varp.edit_warp.z")).apply {
+                                Components.label(Text.translatable("gui.varp.create_warp.z")).apply {
                                     horizontalTextAlignment(HorizontalAlignment.RIGHT)
                                     verticalTextAlignment(VerticalAlignment.CENTER)
                                     sizing(Sizing.fill(25), Sizing.fixed(24))
@@ -212,7 +215,7 @@ class FabricVarpEditWarpScreen(
                     child(
                         Containers.horizontalFlow(Sizing.content(), Sizing.content()).apply {
                             child(
-                                Components.label(Text.translatable("gui.varp.edit_warp.yaw")).apply {
+                                Components.label(Text.translatable("gui.varp.create_warp.yaw")).apply {
                                     horizontalTextAlignment(HorizontalAlignment.RIGHT)
                                     verticalTextAlignment(VerticalAlignment.CENTER)
                                     sizing(Sizing.fill(25), Sizing.fixed(24))
@@ -225,7 +228,7 @@ class FabricVarpEditWarpScreen(
                     child(
                         Containers.horizontalFlow(Sizing.content(), Sizing.content()).apply {
                             child(
-                                Components.label(Text.translatable("gui.varp.edit_warp.pitch")).apply {
+                                Components.label(Text.translatable("gui.varp.create_warp.pitch")).apply {
                                     horizontalTextAlignment(HorizontalAlignment.RIGHT)
                                     verticalTextAlignment(VerticalAlignment.CENTER)
                                     sizing(Sizing.fill(25), Sizing.fixed(24))
@@ -239,17 +242,19 @@ class FabricVarpEditWarpScreen(
             )
         )
         menuPlane.child(
-            Containers.horizontalFlow(Sizing.fill(100), Sizing.content())
-                .child(
-                    Components.button(Text.translatable("gui.varp.edit_warp.cancel")) {
-                        FabricVarpClientMod.client.openExplorer(warp.parent.path)
+            Containers.horizontalFlow(Sizing.fill(100), Sizing.content()).apply {
+                child(
+                    Components.button(Text.translatable("gui.varp.create_warp.cancel")) {
+                        FabricVarpClientMod.client.openExplorer(parentPath)
+                    }.apply {
+                        margins(Insets.horizontal(4))
+                        horizontalSizing(Sizing.fill(45))
                     }
-                        .margins(Insets.horizontal(4))
-                        .horizontalSizing(Sizing.fill(45))
                 )
-                .child(
-                    Components.button(Text.translatable("gui.varp.edit_warp.confirm")) {
+                child(
+                    Components.button(Text.translatable("gui.varp.create_warp.confirm")) {
                         val id = idInput.text
+                        val path = parentPath.warp(id)
                         val name = MiniMessage.miniMessage().deserialize(nameInput.text)
                         val location = MinecraftLocation(
                             Key.key(worldInput.text),
@@ -259,22 +264,18 @@ class FabricVarpEditWarpScreen(
                             yawInput.text.toFloat(),
                             pitchInput.text.toFloat(),
                         )
-
-                        runBlocking {
-                            warp.modify {
-                                this.location = location
-                                this.name = name
-                            }
-                        }
+                        runBlocking { tree.createWarp(path, WarpState(location, name)) } // Only sends packet.
 
                         // Open parent in explorer gui.
-                        FabricVarpClientMod.client.openExplorer(warp.parent.path)
+                        FabricVarpClientMod.client.openExplorer(parentPath)
+                    }.apply {
+                        margins(Insets.horizontal(4))
+                        horizontalSizing(Sizing.fill(45))
                     }
-                        .margins(Insets.horizontal(4))
-                        .horizontalSizing(Sizing.fill(45))
                 )
-                .alignment(HorizontalAlignment.CENTER, VerticalAlignment.CENTER)
-                .margins(Insets.top(8))
+                alignment(HorizontalAlignment.CENTER, VerticalAlignment.CENTER)
+                margins(Insets.top(8))
+            }
         )
         menuPlane.surface(Surface.DARK_PANEL)
         menuPlane.padding(Insets.of(6, 8, 8, 8))

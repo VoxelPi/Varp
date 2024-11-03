@@ -11,7 +11,7 @@ import net.voxelpi.varp.mod.api.VarpClientInformation
 import net.voxelpi.varp.mod.client.VarpClientImpl
 import net.voxelpi.varp.mod.client.warp.ClientRepositoryImpl
 import net.voxelpi.varp.mod.fabric.FabricVarpMod
-import net.voxelpi.varp.mod.fabric.client.gui.FabricVarpExplorerScreen
+import net.voxelpi.varp.mod.fabric.client.gui.screen.FabricVarpExplorerScreen
 import net.voxelpi.varp.mod.fabric.client.network.FabricVarpClientNetworkHandler
 import net.voxelpi.varp.warp.Tree
 import net.voxelpi.varp.warp.path.NodeParentPath

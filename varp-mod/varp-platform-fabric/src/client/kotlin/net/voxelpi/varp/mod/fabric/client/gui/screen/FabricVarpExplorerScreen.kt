@@ -1,4 +1,4 @@
-package net.voxelpi.varp.mod.fabric.client.gui
+package net.voxelpi.varp.mod.fabric.client.gui.screen
 
 import io.wispforest.owo.ui.base.BaseOwoScreen
 import io.wispforest.owo.ui.container.Containers
