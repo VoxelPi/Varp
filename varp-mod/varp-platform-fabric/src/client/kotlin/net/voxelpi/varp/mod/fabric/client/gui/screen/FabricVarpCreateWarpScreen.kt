@@ -19,13 +19,11 @@ import net.minecraft.text.Text
 import net.minecraft.util.Identifier
 import net.voxelpi.varp.MinecraftLocation
 import net.voxelpi.varp.mod.fabric.client.FabricVarpClientMod
-import net.voxelpi.varp.warp.Tree
 import net.voxelpi.varp.warp.path.NodeParentPath
 import net.voxelpi.varp.warp.state.WarpState
 import java.util.Locale
 
 class FabricVarpCreateWarpScreen(
-    private val tree: Tree,
     private var parentPath: NodeParentPath,
 ) : BaseOwoScreen<FlowLayout>() {
 
@@ -264,7 +262,7 @@ class FabricVarpCreateWarpScreen(
                             yawInput.text.toFloat(),
                             pitchInput.text.toFloat(),
                         )
-                        runBlocking { tree.createWarp(path, WarpState(location, name)) } // Only sends packet.
+                        runBlocking { FabricVarpClientMod.client.tree.createWarp(path, WarpState(location, name)) } // Only sends packet.
 
                         // Open parent in explorer gui.
                         FabricVarpClientMod.client.openExplorer(parentPath)

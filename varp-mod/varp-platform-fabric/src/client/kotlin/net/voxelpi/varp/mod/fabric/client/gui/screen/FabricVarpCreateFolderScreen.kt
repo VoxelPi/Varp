@@ -16,12 +16,10 @@ import net.minecraft.client.gui.DrawContext
 import net.minecraft.text.Text
 import net.minecraft.util.Identifier
 import net.voxelpi.varp.mod.fabric.client.FabricVarpClientMod
-import net.voxelpi.varp.warp.Tree
 import net.voxelpi.varp.warp.path.NodeParentPath
 import net.voxelpi.varp.warp.state.FolderState
 
 class FabricVarpCreateFolderScreen(
-    private val tree: Tree,
     private var parentPath: NodeParentPath,
 ) : BaseOwoScreen<FlowLayout>() {
 
@@ -140,7 +138,7 @@ class FabricVarpCreateFolderScreen(
                         val id = idInput.text
                         val path = parentPath.folder(id)
                         val name = MiniMessage.miniMessage().deserialize(nameInput.text)
-                        runBlocking { tree.createFolder(path, FolderState(name)) } // Only sends packet.
+                        runBlocking { FabricVarpClientMod.client.tree.createFolder(path, FolderState(name)) } // Only sends packet.
 
                         // Open parent in explorer gui.
                         FabricVarpClientMod.client.openExplorer(parentPath)

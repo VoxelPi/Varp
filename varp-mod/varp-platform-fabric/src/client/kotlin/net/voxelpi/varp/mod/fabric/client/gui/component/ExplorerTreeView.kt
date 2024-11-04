@@ -16,15 +16,14 @@ import io.wispforest.owo.ui.util.Delta
 import io.wispforest.owo.ui.util.UISounds
 import net.minecraft.text.Text
 import net.minecraft.util.math.RotationAxis
+import net.voxelpi.varp.mod.fabric.client.FabricVarpClientMod
 import net.voxelpi.varp.mod.fabric.client.util.clientNative
 import net.voxelpi.varp.warp.Folder
 import net.voxelpi.varp.warp.NodeParent
-import net.voxelpi.varp.warp.Tree
 import org.lwjgl.glfw.GLFW
 import kotlin.collections.sortedBy
 
 class ExplorerTreeView(
-    val tree: Tree,
     horizontalSizing: Sizing,
     verticalSizing: Sizing,
     val selectionCallback: (node: NodeParent) -> Unit,
@@ -36,7 +35,7 @@ class ExplorerTreeView(
 
     fun updateContent() {
         clearChildren()
-        child(Entry(tree.root, selectionCallback))
+        child(Entry(FabricVarpClientMod.client.tree.root, selectionCallback))
     }
 
     class Entry(

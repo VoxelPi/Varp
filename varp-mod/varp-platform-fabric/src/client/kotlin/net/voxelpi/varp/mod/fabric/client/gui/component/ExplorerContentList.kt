@@ -16,15 +16,14 @@ import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextDecoration
 import net.minecraft.text.Text
 import net.minecraft.util.Identifier
+import net.voxelpi.varp.mod.fabric.client.FabricVarpClientMod
 import net.voxelpi.varp.mod.fabric.client.util.clientNative
 import net.voxelpi.varp.warp.Folder
 import net.voxelpi.varp.warp.NodeChild
-import net.voxelpi.varp.warp.Tree
 import net.voxelpi.varp.warp.Warp
 import net.voxelpi.varp.warp.path.NodeParentPath
 
 class ExplorerContentList(
-    val tree: Tree,
     path: NodeParentPath,
     horizontalSizing: Sizing,
     verticalSizing: Sizing,
@@ -49,6 +48,8 @@ class ExplorerContentList(
 
     private fun updateContent() {
         clearChildren()
+
+        val tree = FabricVarpClientMod.client.tree
 
         val container = tree.resolve(path) ?: return
 

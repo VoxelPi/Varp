@@ -10,6 +10,7 @@ import io.wispforest.owo.ui.core.Sizing
 import io.wispforest.owo.ui.core.Surface
 import net.minecraft.client.MinecraftClient
 import net.voxelpi.varp.mod.fabric.client.FabricVarpClient
+import net.voxelpi.varp.mod.fabric.client.FabricVarpClientMod
 import net.voxelpi.varp.mod.fabric.client.gui.component.ExplorerContentList
 import net.voxelpi.varp.mod.fabric.client.gui.component.ExplorerMenuBar
 import net.voxelpi.varp.mod.fabric.client.gui.component.ExplorerTreeView
@@ -18,27 +19,31 @@ import net.voxelpi.varp.warp.Tree
 import net.voxelpi.varp.warp.path.NodeParentPath
 
 class FabricVarpExplorerScreen(
-    val varpClient: FabricVarpClient,
-    val tree: Tree,
     viewPath: NodeParentPath,
 ) : BaseOwoScreen<FlowLayout>() {
 
     var viewPath: NodeParentPath = viewPath
         private set
 
+    private val tree: Tree
+        get() = FabricVarpClientMod.client.tree
+
+    private val varpClient: FabricVarpClient
+        get() = FabricVarpClientMod.client
+
     private val menuBar: ExplorerMenuBar = ExplorerMenuBar(viewPath, Sizing.fill(100), Sizing.content()).apply {
         selectPathAction = this@FabricVarpExplorerScreen::changeViewPath
         createWarpAction = {
-            MinecraftClient.getInstance().setScreen(FabricVarpCreateWarpScreen(tree, it))
+            MinecraftClient.getInstance().setScreen(FabricVarpCreateWarpScreen(it))
         }
         createFolderAction = {
-            MinecraftClient.getInstance().setScreen(FabricVarpCreateFolderScreen(tree, it))
+            MinecraftClient.getInstance().setScreen(FabricVarpCreateFolderScreen(it))
         }
     }
 
-    private val treeView = ExplorerTreeView(tree, Sizing.content(), Sizing.content(), this::changeViewContainer)
+    private val treeView = ExplorerTreeView(Sizing.content(), Sizing.content(), this::changeViewContainer)
 
-    private val contentList = ExplorerContentList(tree, viewPath, Sizing.fill(100), Sizing.content()).apply {
+    private val contentList = ExplorerContentList(viewPath, Sizing.fill(100), Sizing.content()).apply {
         selectWarpAction = varpClient::teleportToWarp
         selectFolderAction = this@FabricVarpExplorerScreen::changeViewContainer
 

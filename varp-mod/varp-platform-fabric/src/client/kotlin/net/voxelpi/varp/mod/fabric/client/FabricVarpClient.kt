@@ -44,7 +44,7 @@ class FabricVarpClient : VarpClientImpl() {
         if (!isBridgeEnabled()) {
             audience.sendMessage(Component.translatable("varp.bridge_not_active"))
         }
-        MinecraftClient.getInstance().setScreen(FabricVarpExplorerScreen(this, tree, path))
+        MinecraftClient.getInstance().setScreen(FabricVarpExplorerScreen(path))
     }
 
     fun cleanup() {
