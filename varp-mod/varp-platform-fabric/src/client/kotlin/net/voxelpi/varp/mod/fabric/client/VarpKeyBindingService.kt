@@ -6,6 +6,9 @@ import net.minecraft.client.MinecraftClient
 import net.minecraft.client.option.KeyBinding
 import net.minecraft.client.util.InputUtil
 import net.voxelpi.varp.mod.fabric.FabricVarpMod
+import net.voxelpi.varp.mod.fabric.client.gui.screen.FabricVarpCreateFolderScreen
+import net.voxelpi.varp.mod.fabric.client.gui.screen.FabricVarpCreateWarpScreen
+import net.voxelpi.varp.mod.fabric.client.gui.screen.FabricVarpExplorerScreen
 import net.voxelpi.varp.warp.path.RootPath
 import org.lwjgl.glfw.GLFW
 
@@ -20,6 +23,24 @@ class VarpKeyBindingService(val client: FabricVarpClient) {
         )
     )
 
+    val keyBindingCreateWarp = KeyBindingHelper.registerKeyBinding(
+        KeyBinding(
+            "key.${FabricVarpMod.MOD_ID}.create_warp",
+            InputUtil.Type.KEYSYM,
+            GLFW.GLFW_KEY_UNKNOWN,
+            VARP_KEY_BINDING_CATEGORY
+        )
+    )
+
+    val keyBindingCreateFolder = KeyBindingHelper.registerKeyBinding(
+        KeyBinding(
+            "key.${FabricVarpMod.MOD_ID}.create_folder",
+            InputUtil.Type.KEYSYM,
+            GLFW.GLFW_KEY_UNKNOWN,
+            VARP_KEY_BINDING_CATEGORY
+        )
+    )
+
     init {
         ClientTickEvents.END_CLIENT_TICK.register(this::onTick)
     }
@@ -27,6 +48,16 @@ class VarpKeyBindingService(val client: FabricVarpClient) {
     private fun onTick(client: MinecraftClient) {
         while (keyBindingOpenExplorer.wasPressed()) {
             this.client.openExplorer(RootPath)
+        }
+        while (keyBindingCreateWarp.wasPressed()) {
+            val screen = client.currentScreen
+            val parentPath = if (screen is FabricVarpExplorerScreen) screen.viewPath else RootPath
+            client.setScreen(FabricVarpCreateWarpScreen(parentPath))
+        }
+        while (keyBindingCreateFolder.wasPressed()) {
+            val screen = client.currentScreen
+            val parentPath = if (screen is FabricVarpExplorerScreen) screen.viewPath else RootPath
+            client.setScreen(FabricVarpCreateFolderScreen(parentPath))
         }
     }
 
