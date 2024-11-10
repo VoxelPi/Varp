@@ -71,6 +71,17 @@ loom {
             sourceSet(sourceSets.named("client").get())
         }
     }
+
+    runs {
+        named("client") {
+            setIdeConfigGenerated(true)
+            setRunDir("run/client")
+        }
+        named("server") {
+            setIdeConfigGenerated(true)
+            setRunDir("run/server")
+        }
+    }
 }
 
 tasks {
