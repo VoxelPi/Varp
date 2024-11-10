@@ -1,7 +1,7 @@
 package net.voxelpi.varp.mod.fabric.client
 
 import kotlinx.coroutines.cancel
-import net.kyori.adventure.platform.fabric.FabricClientAudiences
+import net.kyori.adventure.platform.modcommon.MinecraftClientAudiences
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger
 import net.minecraft.client.MinecraftClient
@@ -38,7 +38,7 @@ class FabricVarpClient : VarpClientImpl() {
     override val tree: Tree
         get() = repository.tree
 
-    val audience = FabricClientAudiences.of().audience()
+    val audience = MinecraftClientAudiences.of().audience()
 
     override fun openExplorer(path: NodeParentPath) {
         if (!isBridgeEnabled()) {

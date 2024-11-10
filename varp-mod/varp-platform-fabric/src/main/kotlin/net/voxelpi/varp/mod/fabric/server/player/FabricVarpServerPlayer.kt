@@ -4,8 +4,9 @@ import me.lucko.fabric.api.permissions.v0.Permissions
 import net.kyori.adventure.audience.Audience
 import net.kyori.adventure.audience.ForwardingAudience
 import net.kyori.adventure.identity.Identity
-import net.kyori.adventure.platform.fabric.FabricAudiences
+import net.kyori.adventure.platform.modcommon.MinecraftAudiences
 import net.kyori.adventure.text.Component
+import net.minecraft.network.packet.s2c.play.PositionFlag
 import net.minecraft.server.network.ServerPlayerEntity
 import net.voxelpi.varp.MinecraftLocation
 import net.voxelpi.varp.exception.tree.WorldNotFoundException
@@ -26,7 +27,7 @@ class FabricVarpServerPlayer(
         get() = player.gameProfile.name
 
     override val displayName: Component
-        get() = FabricAudiences.nonWrappingSerializer().deserialize(player.displayName ?: player.name)
+        get() = MinecraftAudiences.nonWrappingSerializer { server.server.registryManager }.deserialize(player.displayName ?: player.name)
 
     override val location: MinecraftLocation
         get() = MinecraftLocation(player.world.registryKey.value.toKey(), player.x, player.y, player.z, player.yaw, player.pitch)
@@ -45,7 +46,7 @@ class FabricVarpServerPlayer(
 
     override fun teleport(location: MinecraftLocation): Result<Unit> {
         val world = server.world(location.world) ?: return Result.failure(WorldNotFoundException(location.world))
-        player.teleport(world, location.x, location.y, location.z, location.yaw, location.pitch)
+        player.teleport(world, location.x, location.y, location.z, mutableSetOf<PositionFlag>(), location.yaw, location.pitch, true)
         return Result.success(Unit)
     }
 }
