@@ -90,6 +90,8 @@ public class VarpLoader internal constructor(
     }
 
     public suspend fun save(): Result<Unit> {
+        saveRepositories().onFailure { return Result.failure(it) }
+        saveTree().onFailure { return Result.failure(it) }
         return Result.success(Unit)
     }
 
@@ -225,6 +227,25 @@ public class VarpLoader internal constructor(
             }
 
             compositor.updateMounts(mounts)
+        }
+    }
+
+    private fun saveTree(): Result<Unit> {
+        return runCatching {
+            val treeJson = JsonObject()
+
+            // Store mounts.
+            val mountsJson = JsonArray()
+            for (mount in compositor.mounts()) {
+                val mountJson = JsonObject()
+                mountJson.addProperty("location", mount.location.toString())
+                mountJson.addProperty("repository", mount.repository.id)
+                mountsJson.add(mountJson)
+            }
+            treeJson.add("mounts", mountsJson)
+
+            // Save the tree file.
+            path.resolve(TREE_FILE).writeText(treeJson.toString())
         }
     }
 
