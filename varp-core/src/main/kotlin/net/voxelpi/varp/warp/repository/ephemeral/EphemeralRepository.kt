@@ -8,7 +8,7 @@ import net.voxelpi.varp.warp.state.WarpState
 
 public class EphemeralRepository(
     id: String,
-    override val config: EphemeralRepositoryConfig,
+    override val config: EphemeralRepositoryConfig = EphemeralRepositoryConfig,
 ) : SimpleRepository(id) {
 
     override val type: EphemeralRepositoryType
