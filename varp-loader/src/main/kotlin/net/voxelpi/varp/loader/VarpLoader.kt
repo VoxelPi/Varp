@@ -165,6 +165,27 @@ public class VarpLoader internal constructor(
         }
     }
 
+    private fun saveRepositories(): Result<Unit> {
+        return runCatching {
+            val repositoriesJson = JsonObject()
+            for (repository in repositories.values.sortedBy(Repository::id)) {
+                val repositoryJson = JsonObject()
+
+                // Add the repository type.
+                repositoryJson.addProperty("type", repository.type.id)
+
+                // Add the repository config.
+                repositoryJson.add("config", serializeRepositoryConfig(repository.config))
+
+                // Add to serialized repositories.
+                repositoriesJson.add(repository.id, repositoryJson)
+            }
+
+            // Save the repositories file.
+            path.resolve(REPOSITORIES_FILE).writeText(repositoriesJson.toString())
+        }
+    }
+
     private fun loadTree(): Result<Unit> {
         return runCatching {
             val mounts = mutableListOf<CompositorMount>()
@@ -205,6 +226,16 @@ public class VarpLoader internal constructor(
 
             compositor.updateMounts(mounts)
         }
+    }
+
+    private fun serializeRepositoryConfig(config: RepositoryConfig): JsonElement {
+        // If the config is a kotlin object, return an empty json object.
+        if (config::class.objectInstance != null || config::class.isCompanion) {
+            return JsonObject()
+        }
+
+        // Serialize the config using gson.
+        return gson.toJsonTree(config)
     }
 
     private fun deserializeRepositoryConfig(json: JsonElement, type: KClass<RepositoryConfig>): RepositoryConfig {
