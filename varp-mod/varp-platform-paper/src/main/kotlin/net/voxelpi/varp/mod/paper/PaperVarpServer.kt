@@ -14,7 +14,7 @@ import net.voxelpi.varp.mod.paper.player.PaperVarpServerPlayerService
 import net.voxelpi.varp.mod.server.VarpServerImpl
 import net.voxelpi.varp.mod.server.api.VarpServerAPI
 import net.voxelpi.varp.mod.server.warp.VarpServerNetworkBridge
-import net.voxelpi.varp.repository.filetree.FileTreeRepository
+import net.voxelpi.varp.repository.filetree.FileTreeRepositoryType
 import org.bukkit.Server
 import org.bukkit.plugin.ServicePriority
 import java.nio.file.Files
@@ -48,7 +48,7 @@ class PaperVarpServer(
     }
 
     override val loader: VarpLoader = VarpLoader.loader(plugin.dataPath.resolve("data")) {
-        registerRepositoryType<FileTreeRepository>()
+        registerRepositoryType(FileTreeRepositoryType)
     }
 
     override val serverNetworkHandler: PaperVarpServerNetworkHandler = PaperVarpServerNetworkHandler(this)

@@ -23,8 +23,7 @@ import net.voxelpi.varp.warp.state.TreeStateRegistryView
 import net.voxelpi.varp.warp.state.WarpState
 
 /**
- * The data source for a varp tree.
- * @property id The id of the repository.
+ * Common base implementation for simple repository implementations.
  */
 public abstract class SimpleRepository(
     id: String,

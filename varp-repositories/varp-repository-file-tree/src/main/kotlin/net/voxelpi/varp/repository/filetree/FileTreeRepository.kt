@@ -2,15 +2,12 @@ package net.voxelpi.varp.repository.filetree
 
 import net.kyori.adventure.serializer.configurate4.ConfigurateComponentSerializer
 import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.minimessage.MiniMessage
 import net.kyori.adventure.text.serializer.ComponentSerializer
 import net.voxelpi.varp.serializer.configurate.VarpConfigurateSerializers
 import net.voxelpi.varp.warp.path.FolderPath
 import net.voxelpi.varp.warp.path.NodeParentPath
 import net.voxelpi.varp.warp.path.RootPath
 import net.voxelpi.varp.warp.path.WarpPath
-import net.voxelpi.varp.warp.repository.RepositoryLoader
-import net.voxelpi.varp.warp.repository.RepositoryType
 import net.voxelpi.varp.warp.repository.SimpleRepository
 import net.voxelpi.varp.warp.state.FolderState
 import net.voxelpi.varp.warp.state.WarpState
@@ -28,21 +25,17 @@ import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.name
 import kotlin.io.path.notExists
 
-@RepositoryType("file-tree")
 class FileTreeRepository(
     id: String,
-    val path: Path,
-    val format: RepositoryFileFormat,
-    val componentSerializer: ComponentSerializer<Component, *, String>? = null,
+    override val config: FileTreeRepositoryConfig,
 ) : SimpleRepository(id) {
 
-    @RepositoryLoader
-    public constructor(id: String, path: Path, config: FileTreeRepositoryConfig) : this(
-        id,
-        path,
-        RepositoryFileFormat.format(config.format)!!,
-        if (!config.componentsAsObjects) MiniMessage.miniMessage() else null,
-    )
+    override val type: FileTreeRepositoryType
+        get() = FileTreeRepositoryType
+
+    val format = RepositoryFileFormat.format(config.format)!!
+
+    val componentSerializer: ComponentSerializer<Component, *, String>? = null
 
     override suspend fun activate(): Result<Unit> {
         return super.activate()
@@ -57,8 +50,8 @@ class FileTreeRepository(
     override suspend fun handleLoad(): Result<Unit> {
         return runCatching {
             // Create main directory if it does not already exist.
-            if (!path.isDirectory()) {
-                path.createDirectories()
+            if (!config.path.isDirectory()) {
+                config.path.createDirectories()
             }
 
             // Create root file if it does not already exist.
@@ -67,8 +60,8 @@ class FileTreeRepository(
             }
 
             // Load content.
-            val rootState = loadRoot(path).getOrThrow()
-            val (warps, folders) = loadContainerContent(RootPath, path).getOrThrow()
+            val rootState = loadRoot(config.path).getOrThrow()
+            val (warps, folders) = loadContainerContent(RootPath, config.path).getOrThrow()
             registry.root = rootState
             registry.warps += warps
             registry.folders += folders
@@ -191,11 +184,11 @@ class FileTreeRepository(
     private fun NodeParentPath.directory(): Path {
         // Handle root path.
         if (this is RootPath) {
-            return path
+            return config.path
         }
 
         // Skip the first slash.
-        return path.resolve(this.toString().substring(1))
+        return config.path.resolve(this.toString().substring(1))
     }
 
     private fun loadContainerContent(

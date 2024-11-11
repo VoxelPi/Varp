@@ -10,8 +10,8 @@ import net.voxelpi.varp.cli.command.VarpCLICommandManager
 import net.voxelpi.varp.cli.console.VarpCLIConsole
 import net.voxelpi.varp.cli.coroutine.VarpCLIDispatcher
 import net.voxelpi.varp.loader.VarpLoader
-import net.voxelpi.varp.repository.filetree.FileTreeRepository
-import net.voxelpi.varp.repository.mysql.MySQLRepository
+import net.voxelpi.varp.repository.filetree.FileTreeRepositoryType
+import net.voxelpi.varp.repository.mysql.MySQLRepositoryType
 import net.voxelpi.varp.warp.Tree
 import org.slf4j.LoggerFactory
 import kotlin.io.path.Path
@@ -31,8 +31,8 @@ object VarpCLI {
     val console = VarpCLIConsole(this, commandManager)
 
     val loader = VarpLoader.loader(Path(".")) {
-        registerRepositoryType<FileTreeRepository>()
-        registerRepositoryType<MySQLRepository>()
+        registerRepositoryType(FileTreeRepositoryType)
+        registerRepositoryType(MySQLRepositoryType)
     }
 
     var tree: Tree = loader.tree

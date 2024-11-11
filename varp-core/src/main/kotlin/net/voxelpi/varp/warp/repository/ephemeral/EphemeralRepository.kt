@@ -2,16 +2,17 @@ package net.voxelpi.varp.warp.repository.ephemeral
 
 import net.voxelpi.varp.warp.path.FolderPath
 import net.voxelpi.varp.warp.path.WarpPath
-import net.voxelpi.varp.warp.repository.RepositoryLoader
-import net.voxelpi.varp.warp.repository.RepositoryType
 import net.voxelpi.varp.warp.repository.SimpleRepository
 import net.voxelpi.varp.warp.state.FolderState
 import net.voxelpi.varp.warp.state.WarpState
 
-@RepositoryType("ephemeral")
-public class EphemeralRepository @RepositoryLoader constructor(
+public class EphemeralRepository(
     id: String,
+    override val config: EphemeralRepositoryConfig,
 ) : SimpleRepository(id) {
+
+    override val type: EphemeralRepositoryType
+        get() = EphemeralRepositoryType
 
     override suspend fun handleLoad(): Result<Unit> {
         return Result.success(Unit)

@@ -22,7 +22,7 @@ import net.voxelpi.varp.mod.fabric.util.toIdentifier
 import net.voxelpi.varp.mod.server.VarpServerImpl
 import net.voxelpi.varp.mod.server.api.VarpServerAPI
 import net.voxelpi.varp.mod.server.warp.VarpServerNetworkBridge
-import net.voxelpi.varp.repository.filetree.FileTreeRepository
+import net.voxelpi.varp.repository.filetree.FileTreeRepositoryType
 import java.nio.file.Path
 import java.util.UUID
 
@@ -50,7 +50,7 @@ class FabricVarpServer(
     }
 
     override val loader: VarpLoader = VarpLoader.loader(server.getSavePath(WorldSavePath.ROOT).resolve("data").resolve("varp")) {
-        registerRepositoryType<FileTreeRepository>()
+        registerRepositoryType(FileTreeRepositoryType)
     }
 
     override val serverNetworkHandler: FabricVarpServerNetworkHandler = FabricVarpServerNetworkHandler(this)

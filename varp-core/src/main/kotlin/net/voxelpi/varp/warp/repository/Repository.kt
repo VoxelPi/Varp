@@ -8,11 +8,25 @@ import net.voxelpi.varp.warp.state.TreeStateRegistryView
 import net.voxelpi.varp.warp.state.WarpState
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import kotlin.reflect.full.findAnnotation
 
+/**
+ * A varp repository. This is the datasource for a varp tree.
+ *
+ * @property id The id of the repository.
+ */
 public abstract class Repository(
     public val id: String,
 ) {
+
+    /**
+     * The type of the repository.
+     */
+    public abstract val type: RepositoryType<*, *>
+
+    /**
+     * The config of the repository.
+     */
+    public abstract val config: RepositoryConfig
 
     public abstract val registryView: TreeStateRegistryView
 
@@ -25,7 +39,7 @@ public abstract class Repository(
      * Function that is called when the repository is activated.
      */
     public open suspend fun activate(): Result<Unit> {
-        logger.debug("Activating repository {} (type: {})", id, typeId())
+        logger.debug("Activating repository {} (type: {})", id, type.id)
         return Result.success(Unit)
     }
 
@@ -33,7 +47,7 @@ public abstract class Repository(
      * Function that is called when the repository is activated.
      */
     public open suspend fun deactivate(): Result<Unit> {
-        logger.debug("Deactivating repository {} (type: {})", id, typeId())
+        logger.debug("Deactivating repository {} (type: {})", id, type.id)
         return Result.success(Unit)
     }
 
@@ -60,14 +74,6 @@ public abstract class Repository(
     public abstract suspend fun move(src: WarpPath, dst: WarpPath): Result<Unit>
 
     public abstract suspend fun move(src: FolderPath, dst: FolderPath): Result<Unit>
-
-    /**
-     * Gets the type id of this tree repository specified via the [RepositoryType] annotation.
-     * If this repository is not annotated with that annotation, null is returned.
-     */
-    public fun typeId(): String? {
-        return this::class.findAnnotation<RepositoryType>()?.id
-    }
 
     public companion object {
         private val logger: Logger = LoggerFactory.getLogger(this::class.java)

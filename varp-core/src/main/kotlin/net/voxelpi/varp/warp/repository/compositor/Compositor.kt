@@ -26,8 +26,7 @@ import net.voxelpi.varp.warp.path.NodePath
 import net.voxelpi.varp.warp.path.RootPath
 import net.voxelpi.varp.warp.path.WarpPath
 import net.voxelpi.varp.warp.repository.Repository
-import net.voxelpi.varp.warp.repository.RepositoryLoader
-import net.voxelpi.varp.warp.repository.RepositoryType
+import net.voxelpi.varp.warp.repository.RepositoryConfig
 import net.voxelpi.varp.warp.state.FolderState
 import net.voxelpi.varp.warp.state.TreeStateRegistry
 import net.voxelpi.varp.warp.state.TreeStateRegistryView
@@ -36,14 +35,18 @@ import kotlin.collections.component1
 import kotlin.collections.component2
 import kotlin.collections.iterator
 
-@RepositoryType("compositor")
-public class Compositor internal constructor(
+public class Compositor(
     id: String,
-    mounts: Collection<CompositorMount>,
+    config: CompositorConfig,
 ) : Repository(id) {
 
-    private val mounts: MutableMap<NodeParentPath, CompositorMount> = mounts
-        .sortedByDescending { it.location.value.length }
+    override val type: CompositorType
+        get() = CompositorType
+
+    override val config: RepositoryConfig
+        get() = CompositorConfig(mounts.values.sortedByDescending { it.location.value.length })
+
+    private val mounts: MutableMap<NodeParentPath, CompositorMount> = config.mounts
         .associateBy { it.location }
         .toMutableMap()
 
@@ -60,9 +63,6 @@ public class Compositor internal constructor(
             eventScope.post(CompositorRepositoryMountEvent(this, mount.repository, mount.location))
         }
     }
-
-    @RepositoryLoader
-    public constructor(id: String, config: CompositorConfig) : this(id, config.mounts) {}
 
     override suspend fun load(): Result<Unit> {
         for (mount in this.mounts.values) {
@@ -410,7 +410,7 @@ public class Compositor internal constructor(
     public companion object {
 
         public fun empty(id: String): Compositor {
-            return Compositor(id, emptyList())
+            return Compositor(id, CompositorConfig.EMPTY)
         }
     }
 }

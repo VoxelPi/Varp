@@ -10,8 +10,6 @@ import net.voxelpi.varp.warp.path.FolderPath
 import net.voxelpi.varp.warp.path.NodeParentPath
 import net.voxelpi.varp.warp.path.RootPath
 import net.voxelpi.varp.warp.path.WarpPath
-import net.voxelpi.varp.warp.repository.RepositoryLoader
-import net.voxelpi.varp.warp.repository.RepositoryType
 import net.voxelpi.varp.warp.repository.SimpleRepository
 import net.voxelpi.varp.warp.state.FolderState
 import net.voxelpi.varp.warp.state.WarpState
@@ -25,26 +23,21 @@ import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 
-@RepositoryType("mysql")
 class MySQLRepository(
     id: String,
-    val hostname: String,
-    val port: Int,
-    val database: String,
-    val username: String,
-    val password: String,
+    override val config: MySQLRepositoryConfig,
 ) : SimpleRepository(id) {
 
-    @RepositoryLoader
-    public constructor(id: String, config: MySQLRepositoryConfig) : this(id, config.hostname, config.port, config.database, config.username, config.password)
+    override val type: MySQLRepositoryType
+        get() = MySQLRepositoryType
 
     override suspend fun activate(): Result<Unit> {
         runCatching {
             Database.connect(
-                "jdbc:mysql://$hostname:$port/$database",
+                "jdbc:mysql://${config.hostname}:${config.port}/${config.database}",
                 driver = "com.mysql.cj.jdbc.Driver",
-                user = username,
-                password = password,
+                user = config.username,
+                password = config.password,
             )
 
             transaction {
@@ -52,7 +45,7 @@ class MySQLRepository(
                 SchemaUtils.create(Warps)
                 SchemaUtils.create(Folders)
 
-                // Create root folder data if doesn't already exist.
+                // Create root folder data if it doesn't already exist.
                 val rootExists = Folders.selectAll().where { Folders.path eq RootPath.toString() }.count() > 0
                 if (!rootExists) {
                     Folders.insert {
