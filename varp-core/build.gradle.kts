@@ -18,6 +18,12 @@ dependencies {
     compileOnlyApi(libs.adventure.text.logger.slf4j)
 
     compileOnlyApi(libs.event)
+
+    // Test implementation
+    testImplementation(libs.kotlinx.coroutines.core)
+    testImplementation(libs.adventure.api)
+    testImplementation(libs.adventure.text.logger.slf4j)
+    testImplementation(libs.event)
 }
 
 sourceSets {
