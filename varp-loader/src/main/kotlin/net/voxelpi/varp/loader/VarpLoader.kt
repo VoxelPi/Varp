@@ -3,16 +3,17 @@ package net.voxelpi.varp.loader
 import com.google.gson.FieldNamingPolicy
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonArray
-import com.google.gson.JsonElement
-import com.google.gson.JsonObject
 import com.google.gson.JsonParser
-import com.google.gson.JsonPrimitive
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import net.voxelpi.varp.loader.model.MountDefinition
+import net.voxelpi.varp.loader.model.RepositoryDefinition
+import net.voxelpi.varp.loader.model.TreeConfiguration
 import net.voxelpi.varp.loader.serializer.PathSerializer
+import net.voxelpi.varp.loader.serializer.RepositoryDefinitionSerializer
+import net.voxelpi.varp.serializer.gson.varpSerializers
 import net.voxelpi.varp.warp.Tree
-import net.voxelpi.varp.warp.path.NodeParentPath
 import net.voxelpi.varp.warp.repository.Repository
 import net.voxelpi.varp.warp.repository.RepositoryConfig
 import net.voxelpi.varp.warp.repository.RepositoryType
@@ -26,7 +27,6 @@ import java.nio.file.Path
 import kotlin.io.path.bufferedReader
 import kotlin.io.path.createDirectories
 import kotlin.io.path.writeText
-import kotlin.reflect.KClass
 
 public class VarpLoader internal constructor(
     public val path: Path,
@@ -47,8 +47,11 @@ public class VarpLoader internal constructor(
         get() = compositor.tree
 
     private val gson = GsonBuilder().apply {
+        setPrettyPrinting()
         setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+        varpSerializers()
         registerTypeAdapter(Path::class.java, PathSerializer(path))
+        registerTypeAdapter(RepositoryDefinition::class.java, RepositoryDefinitionSerializer { this@VarpLoader.repositoryTypes })
     }.create()
 
     init {
@@ -110,55 +113,42 @@ public class VarpLoader internal constructor(
         return Result.success(Unit)
     }
 
+    public fun repositoryPath(id: String): Path {
+        return repositoriesPath.resolve(id)
+    }
+
     private fun loadRepositories(): Result<Unit> {
         repositories.clear()
 
         return runCatching {
-            val repositoriesConfig = JsonParser.parseReader(path.resolve(REPOSITORIES_FILE).bufferedReader())
-            if (repositoriesConfig !is JsonObject) {
-                return Result.failure(Exception("Repositories config must be a json object"))
+            val repositoriesList = JsonParser.parseReader(path.resolve(REPOSITORIES_FILE).bufferedReader())
+            if (repositoriesList !is JsonArray) {
+                return Result.failure(Exception("Repositories list must be a json array"))
             }
 
-            for ((id, repositoryConfig) in repositoriesConfig.entrySet()) {
-                // Check that the repository id is valid.
-                if (id.isEmpty()) {
-                    logger.warn("Unable to load repository \"$id\": Invalid id")
-                    continue
-                }
-
-                // Check that the repository config is valid.
-                if (repositoryConfig !is JsonObject) {
-                    logger.warn("Unable to load repository \"$id\": Repository config must be a json object")
-                    continue
-                }
-
-                // Get the type id of the repository.
-                val typeId = repositoryConfig["type"]
-                if (typeId == null || typeId !is JsonPrimitive) {
-                    logger.warn("Unable to load repository \"$id\": Missing valid type property")
-                    continue
-                }
-
-                // Get the repository type.
-                @Suppress("UNCHECKED_CAST")
-                val type = repositoryTypes[typeId.asString] as RepositoryType<Repository, RepositoryConfig>?
-                if (type == null) {
-                    logger.warn("Unable to load repository \"$id\": Unknown repository type \"${typeId.asString}\"")
-                    continue
-                }
-
-                // Load the repository config.
-                val config = try {
-                    deserializeRepositoryConfig(repositoryConfig["config"], type.configType)
+            for (repositoryJson in repositoriesList) {
+                val definition = try {
+                    gson.fromJson(repositoryJson, RepositoryDefinition::class.java)
                 } catch (exception: Exception) {
-                    logger.warn("Unable to load repository \"$id\": Unable to load repository type config.", exception)
+                    logger.warn("Unable to load repository: ${exception.message}")
+                    continue
+                }
+
+                if (definition.id.isBlank()) {
+                    logger.warn("Unable to load repository \"${definition.id}\". Invalid repository id.")
+                    continue
+                }
+
+                if (definition.id in repositories) {
+                    logger.warn("Unable to load repository \"${definition.id}\". A repository with that id already exists.")
                     continue
                 }
 
                 // Create repository.
-                val repositoryResult: Result<Repository> = type.create(id, config)
+                @Suppress("UNCHECKED_CAST")
+                val repositoryResult: Result<Repository> = (definition.type as RepositoryType<Repository, RepositoryConfig>).create(definition.id, definition.config)
                 if (repositoryResult.isFailure) {
-                    logger.warn("Unable to create repository \"$id\".", repositoryResult.exceptionOrNull())
+                    logger.warn("Unable to create repository \"${definition.id}\".", repositoryResult.exceptionOrNull())
                     continue
                 }
                 val repository = repositoryResult.getOrThrow()
@@ -169,110 +159,42 @@ public class VarpLoader internal constructor(
 
     private fun saveRepositories(): Result<Unit> {
         return runCatching {
-            val repositoriesJson = JsonObject()
-            for (repository in repositories.values.sortedBy(Repository::id)) {
-                val repositoryJson = JsonObject()
-
-                // Add the repository type.
-                repositoryJson.addProperty("type", repository.type.id)
-
-                // Add the repository config.
-                repositoryJson.add("config", serializeRepositoryConfig(repository.config))
-
-                // Add to serialized repositories.
-                repositoriesJson.add(repository.id, repositoryJson)
-            }
-
-            // Save the repositories file.
-            path.resolve(REPOSITORIES_FILE).writeText(repositoriesJson.toString())
+            val definitions = repositories.values.map { RepositoryDefinition(it.id, it.type, it.config) }
+            path.resolve(REPOSITORIES_FILE).writeText(gson.toJson(definitions))
         }
     }
 
     private fun loadTree(): Result<Unit> {
         return runCatching {
+            // Deserialize tree configuration.
+            val treeConfig = gson.fromJson<TreeConfiguration>(path.resolve(TREE_FILE).bufferedReader(), TreeConfiguration::class.java)
+
+            // Generate mount list.
             val mounts = mutableListOf<CompositorMount>()
-
-            val treeConfig = JsonParser.parseReader(path.resolve(TREE_FILE).bufferedReader())
-            if (treeConfig !is JsonObject) {
-                return Result.failure(Exception("Tree config must be a json object"))
-            }
-
-            val mountsConfig = treeConfig["mounts"]
-            if (mountsConfig !is JsonArray) {
-                return Result.failure(Exception("Mounts config must be a json array"))
-            }
-
-            for (mountConfig in mountsConfig) {
-                if (mountConfig !is JsonObject) {
-                    logger.warn("Unable to load mount, invalid format")
-                    continue
-                }
-
-                val locationResult = NodeParentPath.parse(mountConfig["location"].asString)
-                if (locationResult.isFailure) {
-                    logger.warn("Unable to load mount, invalid location \"${(mountConfig["location"])}\"")
-                    continue
-                }
-                val location = locationResult.getOrThrow()
-
-                val repositoryId = mountConfig["repository"].asString
-                val repository = repositories[repositoryId]
+            for (mountDefinition in treeConfig.mounts) {
+                val repository = repositories[mountDefinition.repository]
                 if (repository == null) {
-                    logger.warn("Unable to load mount, unknown repository \"$repositoryId\"")
+                    logger.warn("Unable to load mount, unknown repository \"${mountDefinition.repository}\"")
                     continue
                 }
 
-                val mount = CompositorMount(location, repository)
+                val mount = CompositorMount(mountDefinition.location, repository)
                 mounts.add(mount)
             }
 
+            // Update compositor.
             compositor.updateMounts(mounts)
         }
     }
 
     private fun saveTree(): Result<Unit> {
         return runCatching {
-            val treeJson = JsonObject()
-
-            // Store mounts.
-            val mountsJson = JsonArray()
-            for (mount in compositor.mounts()) {
-                val mountJson = JsonObject()
-                mountJson.addProperty("location", mount.location.toString())
-                mountJson.addProperty("repository", mount.repository.id)
-                mountsJson.add(mountJson)
-            }
-            treeJson.add("mounts", mountsJson)
+            val mountDefinitions = compositor.mounts().map { mount -> MountDefinition(mount.location, mount.repository.id) }
+            val treeConfiguration = TreeConfiguration(mountDefinitions)
 
             // Save the tree file.
-            path.resolve(TREE_FILE).writeText(treeJson.toString())
+            path.resolve(TREE_FILE).writeText(gson.toJson(treeConfiguration))
         }
-    }
-
-    private fun serializeRepositoryConfig(config: RepositoryConfig): JsonElement {
-        // If the config is a kotlin object, return an empty json object.
-        if (config::class.objectInstance != null || config::class.isCompanion) {
-            return JsonObject()
-        }
-
-        // Serialize the config using gson.
-        return gson.toJsonTree(config)
-    }
-
-    private fun deserializeRepositoryConfig(json: JsonElement, type: KClass<RepositoryConfig>): RepositoryConfig {
-        require(json is JsonObject) { "Repository config must be a json object" }
-
-        // Return the kotlin object instance if type is a kotlin object.
-        if (type.objectInstance != null) {
-            return type.objectInstance!!
-        }
-
-        // Deserialize the config using gson.
-        return gson.fromJson(json, type.java)
-    }
-
-    private fun repositoryPath(id: String): Path {
-        return repositoriesPath.resolve(id)
     }
 
     public class Builder internal constructor(
