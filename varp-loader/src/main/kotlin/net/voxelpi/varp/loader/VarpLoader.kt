@@ -14,6 +14,7 @@ import net.voxelpi.varp.loader.serializer.PathSerializer
 import net.voxelpi.varp.loader.serializer.RepositoryDefinitionSerializer
 import net.voxelpi.varp.serializer.gson.varpSerializers
 import net.voxelpi.varp.warp.Tree
+import net.voxelpi.varp.warp.path.NodeParentPath
 import net.voxelpi.varp.warp.repository.Repository
 import net.voxelpi.varp.warp.repository.RepositoryConfig
 import net.voxelpi.varp.warp.repository.RepositoryType
@@ -26,6 +27,7 @@ import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import kotlin.io.path.bufferedReader
 import kotlin.io.path.createDirectories
+import kotlin.io.path.exists
 import kotlin.io.path.writeText
 
 /**
@@ -39,6 +41,8 @@ import kotlin.io.path.writeText
 public class VarpLoader internal constructor(
     public val path: Path,
     repositoryTypes: Collection<RepositoryType<*, *>>,
+    private val defaultRepositories: Collection<RepositoryDefinition>,
+    private val defaultMounts: Collection<MountDefinition>,
 ) {
 
     private val logger: Logger = LoggerFactory.getLogger(VarpLoader::class.java)
@@ -163,14 +167,24 @@ public class VarpLoader internal constructor(
         repositories.clear()
 
         return runCatching {
-            val repositoriesList = JsonParser.parseReader(path.resolve(REPOSITORIES_FILE).bufferedReader())
+            val repositoriesFile = path.resolve(REPOSITORIES_FILE)
+
+            // Save default repositories if the repositories file doesn't exist.
+            repositoriesFile.parent.createDirectories()
+            if (!repositoriesFile.exists()) {
+                repositoriesFile.writeText(gson.toJson(defaultRepositories.toList()))
+            }
+
+            // Load repositories for repositories file.
+            val repositoriesList = JsonParser.parseReader(repositoriesFile.bufferedReader())
             if (repositoriesList !is JsonArray) {
                 return Result.failure(Exception("Repositories list must be a json array"))
             }
 
+            // Load definitions.
             for (repositoryJson in repositoriesList) {
                 val definition = try {
-                    gson.fromJson(repositoryJson, RepositoryDefinition::class.java)
+                    gson.fromJson(repositoryJson, RepositoryDefinition::class.java)!!
                 } catch (exception: Exception) {
                     logger.warn("Unable to load repository: ${exception.message}")
                     continue
@@ -208,8 +222,16 @@ public class VarpLoader internal constructor(
 
     private fun loadTree(): Result<Unit> {
         return runCatching {
+            val treeFile = path.resolve(TREE_FILE)
+
+            // Save default repositories if the repositories file doesn't exist.
+            treeFile.parent.createDirectories()
+            if (!treeFile.exists()) {
+                treeFile.writeText(gson.toJson(TreeConfiguration(defaultMounts.toList())))
+            }
+
             // Deserialize tree configuration.
-            val treeConfig = gson.fromJson<TreeConfiguration>(path.resolve(TREE_FILE).bufferedReader(), TreeConfiguration::class.java)
+            val treeConfig = gson.fromJson<TreeConfiguration>(treeFile.bufferedReader(), TreeConfiguration::class.java)
 
             // Generate mount list.
             val mounts = mutableListOf<CompositorMount>()
@@ -248,6 +270,8 @@ public class VarpLoader internal constructor(
         repositoryTypes: Collection<RepositoryType<*, *>>,
     ) {
         private val repositoryTypes: MutableMap<String, RepositoryType<*, *>> = repositoryTypes.associateBy(RepositoryType<*, *>::id).toMutableMap()
+        private val defaultRepositories: MutableMap<String, RepositoryDefinition> = mutableMapOf()
+        private val defaultMounts: MutableMap<NodeParentPath, MountDefinition> = mutableMapOf()
 
         /**
          * Registers the given [repositoryType] to the loader.
@@ -267,10 +291,21 @@ public class VarpLoader internal constructor(
         }
 
         /**
+         * Adds a new default repository with default mounts.
+         */
+        public fun <C : RepositoryConfig> addDefaultRepository(id: String, type: RepositoryType<*, C>, config: C, mounts: Collection<NodeParentPath>): Builder {
+            defaultRepositories[id] = RepositoryDefinition(id, type, config)
+            for (mount in mounts) {
+                defaultMounts[mount] = MountDefinition(mount, id)
+            }
+            return this
+        }
+
+        /**
          * Creates the loader from this builder.
          */
         public fun build(): VarpLoader {
-            return VarpLoader(path, repositoryTypes.values)
+            return VarpLoader(path, repositoryTypes.values, defaultRepositories.values, defaultMounts.values)
         }
     }
 

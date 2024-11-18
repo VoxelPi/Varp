@@ -22,9 +22,12 @@ import net.voxelpi.varp.mod.fabric.util.toIdentifier
 import net.voxelpi.varp.mod.server.VarpServerImpl
 import net.voxelpi.varp.mod.server.api.VarpServerAPI
 import net.voxelpi.varp.mod.server.warp.VarpServerNetworkBridge
+import net.voxelpi.varp.repository.filetree.FileTreeRepositoryConfig
 import net.voxelpi.varp.repository.filetree.FileTreeRepositoryType
+import net.voxelpi.varp.warp.path.RootPath
 import java.nio.file.Path
 import java.util.UUID
+import kotlin.io.path.Path
 
 class FabricVarpServer(
     val server: MinecraftServer,
@@ -51,6 +54,8 @@ class FabricVarpServer(
 
     override val loader: VarpLoader = VarpLoader.loader(server.getSavePath(WorldSavePath.ROOT).resolve("data").resolve("varp")) {
         registerRepositoryType(FileTreeRepositoryType)
+
+        addDefaultRepository("default", FileTreeRepositoryType, FileTreeRepositoryConfig(Path("./default/"), "json", false), listOf(RootPath))
     }
 
     override val serverNetworkHandler: FabricVarpServerNetworkHandler = FabricVarpServerNetworkHandler(this)

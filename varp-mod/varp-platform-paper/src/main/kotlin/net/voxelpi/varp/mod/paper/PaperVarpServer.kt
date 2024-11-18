@@ -14,13 +14,16 @@ import net.voxelpi.varp.mod.paper.player.PaperVarpServerPlayerService
 import net.voxelpi.varp.mod.server.VarpServerImpl
 import net.voxelpi.varp.mod.server.api.VarpServerAPI
 import net.voxelpi.varp.mod.server.warp.VarpServerNetworkBridge
+import net.voxelpi.varp.repository.filetree.FileTreeRepositoryConfig
 import net.voxelpi.varp.repository.filetree.FileTreeRepositoryType
+import net.voxelpi.varp.warp.path.RootPath
 import org.bukkit.Server
 import org.bukkit.plugin.ServicePriority
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
 import java.util.UUID
+import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 
 class PaperVarpServer(
@@ -49,6 +52,8 @@ class PaperVarpServer(
 
     override val loader: VarpLoader = VarpLoader.loader(plugin.dataPath.resolve("data")) {
         registerRepositoryType(FileTreeRepositoryType)
+
+        addDefaultRepository("default", FileTreeRepositoryType, FileTreeRepositoryConfig(Path("./default/"), "json", false), listOf(RootPath))
     }
 
     override val serverNetworkHandler: PaperVarpServerNetworkHandler = PaperVarpServerNetworkHandler(this)
