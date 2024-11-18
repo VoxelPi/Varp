@@ -4,6 +4,6 @@ import net.voxelpi.varp.warp.path.NodeParentPath
 
 @JvmRecord
 internal data class MountDefinition(
-    val location: NodeParentPath,
+    val path: NodeParentPath,
     val repository: String,
 )

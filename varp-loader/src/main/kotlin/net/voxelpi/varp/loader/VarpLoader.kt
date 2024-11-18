@@ -220,7 +220,7 @@ public class VarpLoader internal constructor(
                     continue
                 }
 
-                val mount = CompositorMount(mountDefinition.location, repository)
+                val mount = CompositorMount(mountDefinition.path, repository)
                 mounts.add(mount)
             }
 
@@ -231,7 +231,7 @@ public class VarpLoader internal constructor(
 
     private fun saveTree(): Result<Unit> {
         return runCatching {
-            val mountDefinitions = compositor.mounts().map { mount -> MountDefinition(mount.location, mount.repository.id) }
+            val mountDefinitions = compositor.mounts().map { mount -> MountDefinition(mount.path, mount.repository.id) }
             val treeConfiguration = TreeConfiguration(mountDefinitions)
 
             // Save the tree file.

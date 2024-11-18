@@ -4,11 +4,11 @@ import net.voxelpi.varp.warp.path.NodeParentPath
 import net.voxelpi.varp.warp.repository.Repository
 
 /**
- * Specifies a mount in a tree compositor.
- * @property location the location where the storage should be mounted.
+ * Specifies a mount of a tree compositor.
+ * @property path the path where the repository should be mounted.
  * @property repository the repository that should be mounted.
  */
 public data class CompositorMount(
-    val location: NodeParentPath,
+    val path: NodeParentPath,
     val repository: Repository,
 )

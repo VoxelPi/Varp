@@ -14,7 +14,7 @@ object MountsCommand {
 
         commandManager.buildAndRegister("mounts", Description.description("Lists all loaded mounts")) {
             handler { context ->
-                context.sender().sendMessage("The following mounts are loaded: ${cli.loader.compositor.mounts().joinToString(", ") { "\"${it.repository.id}\" at \"${it.location}\"" }}")
+                context.sender().sendMessage("The following mounts are loaded: ${cli.loader.compositor.mounts().joinToString(", ") { "\"${it.repository.id}\" at \"${it.path}\"" }}")
             }
         }
     }

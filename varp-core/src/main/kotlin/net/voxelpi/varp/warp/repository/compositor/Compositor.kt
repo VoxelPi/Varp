@@ -44,10 +44,10 @@ public class Compositor(
         get() = CompositorType
 
     override val config: RepositoryConfig
-        get() = CompositorConfig(mounts.values.sortedByDescending { it.location.value.length })
+        get() = CompositorConfig(mounts.values.sortedByDescending { it.path.value.length })
 
     private val mounts: MutableMap<NodeParentPath, CompositorMount> = config.mounts
-        .associateBy { it.location }
+        .associateBy { it.path }
         .toMutableMap()
 
     public val eventScope: EventScope = eventScope()
@@ -60,7 +60,7 @@ public class Compositor(
     init {
         buildTree()
         for (mount in this.mounts.values) {
-            eventScope.post(CompositorRepositoryMountEvent(this, mount.repository, mount.location))
+            eventScope.post(CompositorRepositoryMountEvent(this, mount.repository, mount.path))
         }
     }
 
@@ -76,11 +76,11 @@ public class Compositor(
         registry.clear()
 
         // Check if all locations are unique
-        require(mounts.size == mounts.values.map(CompositorMount::location).size) { "Duplicate mounts detected." }
+        require(mounts.size == mounts.values.map(CompositorMount::path).size) { "Duplicate mounts detected." }
 
-        val mountList = mounts().sortedByDescending { it.location.value.length }
+        val mountList = mounts().sortedByDescending { it.path.value.length }
         for (mount in mountList) {
-            val location = mount.location
+            val location = mount.path
             when (location) {
                 is RootPath -> {
                     registry.root = mount.repository.registryView.root
@@ -121,7 +121,7 @@ public class Compositor(
     public fun removeMount(path: NodeParentPath) {
         val mount = mounts.remove(path) ?: return
         buildTree()
-        eventScope.post(CompositorRepositoryUnmountEvent(this, mount.repository, mount.location))
+        eventScope.post(CompositorRepositoryUnmountEvent(this, mount.repository, mount.path))
     }
 
     public fun clearMounts() {
@@ -129,17 +129,17 @@ public class Compositor(
         mounts.clear()
         buildTree()
         for (mount in previousMounts) {
-            eventScope.post(CompositorRepositoryUnmountEvent(this, mount.repository, mount.location))
+            eventScope.post(CompositorRepositoryUnmountEvent(this, mount.repository, mount.path))
         }
     }
 
     public fun updateMounts(mounts: Collection<CompositorMount>) {
         clearMounts()
 
-        this.mounts.putAll(mounts.associateBy { it.location })
+        this.mounts.putAll(mounts.associateBy { it.path })
         buildTree()
         for (mount in this.mounts.values) {
-            eventScope.post(CompositorRepositoryMountEvent(this, mount.repository, mount.location))
+            eventScope.post(CompositorRepositoryMountEvent(this, mount.repository, mount.path))
         }
     }
 
@@ -149,14 +149,14 @@ public class Compositor(
         }
         return Result.success(
             mounts.values
-                .filter { it.location.isSubPathOf(path) }
-                .maxBy { it.location.value.length }
+                .filter { it.path.isSubPathOf(path) }
+                .maxBy { it.path.value.length }
         )
     }
 
     override suspend fun create(path: WarpPath, state: WarpState): Result<Unit> {
         val mount = mountAt(path).getOrElse { return Result.failure(it) }
-        val relativePath = path.relativeTo(mount.location)!!
+        val relativePath = path.relativeTo(mount.path)!!
         mount.repository.create(relativePath, state).getOrElse { return Result.failure(it) }
 
         registry[path] = state
@@ -169,7 +169,7 @@ public class Compositor(
 
     override suspend fun create(path: FolderPath, state: FolderState): Result<Unit> {
         val mount = mountAt(path).getOrElse { return Result.failure(it) }
-        val relativePath = path.relativeTo(mount.location)!!
+        val relativePath = path.relativeTo(mount.path)!!
         require(relativePath is FolderPath)
         mount.repository.create(relativePath, state).getOrElse { return Result.failure(it) }
 
@@ -183,7 +183,7 @@ public class Compositor(
 
     override suspend fun save(path: WarpPath, state: WarpState): Result<Unit> {
         val mount = mountAt(path).getOrElse { return Result.failure(it) }
-        val relativePath = path.relativeTo(mount.location)!!
+        val relativePath = path.relativeTo(mount.path)!!
 
         // Temporary save previous state.
         val previousState = mount.repository.registryView[relativePath] ?: run {
@@ -204,7 +204,7 @@ public class Compositor(
 
     override suspend fun save(path: FolderPath, state: FolderState): Result<Unit> {
         val mount = mountAt(path).getOrElse { return Result.failure(it) }
-        val relativePath = path.relativeTo(mount.location)!!
+        val relativePath = path.relativeTo(mount.path)!!
 
         // Temporary save previous state.
         val previousState = mount.repository.registryView[relativePath] ?: run {
@@ -248,7 +248,7 @@ public class Compositor(
         tree.eventScope.post(WarpDeleteEvent(warp))
 
         val mount = mountAt(path).getOrElse { return Result.failure(it) }
-        val relativePath = path.relativeTo(mount.location)!!
+        val relativePath = path.relativeTo(mount.path)!!
 
         mount.repository.delete(relativePath).getOrElse { return Result.failure(it) }
 
@@ -269,7 +269,7 @@ public class Compositor(
         tree.eventScope.post(FolderDeleteEvent(folder))
 
         val mount = mountAt(path).getOrElse { return Result.failure(it) }
-        val relativePath = path.relativeTo(mount.location)!!
+        val relativePath = path.relativeTo(mount.path)!!
 
         when (relativePath) {
             is RootPath -> {
@@ -279,8 +279,8 @@ public class Compositor(
         }
 
         // Unmount all mounts that are part of the folder.
-        val removedMounts = mounts.values.filter { path.isSubPathOf(it.location) }
-        mounts -= removedMounts.map(CompositorMount::location)
+        val removedMounts = mounts.values.filter { path.isSubPathOf(it.path) }
+        mounts -= removedMounts.map(CompositorMount::path)
 
         // Remove folder from registry.
         val state = registry.delete(path)
@@ -291,7 +291,7 @@ public class Compositor(
         }
 
         for (mount in mounts.values) {
-            eventScope.post(CompositorRepositoryUnmountEvent(this, mount.repository, mount.location))
+            eventScope.post(CompositorRepositoryUnmountEvent(this, mount.repository, mount.path))
         }
 
         return Result.success(Unit)
@@ -300,10 +300,10 @@ public class Compositor(
     override suspend fun move(src: WarpPath, dst: WarpPath): Result<Unit> {
         val srcMount = mountAt(src).getOrElse { return Result.failure(it) }
         val dstMount = mountAt(dst).getOrElse { return Result.failure(it) }
-        val srcRelativePath = src.relativeTo(srcMount.location)!!
-        val dstRelativePath = dst.relativeTo(dstMount.location)!!
+        val srcRelativePath = src.relativeTo(srcMount.path)!!
+        val dstRelativePath = dst.relativeTo(dstMount.path)!!
 
-        if (srcMount.location == dstMount.location) {
+        if (srcMount.path == dstMount.path) {
             // The warp doesn't change its mount during the move operation.
             val mount = srcMount
             mount.repository.move(srcRelativePath, dstRelativePath).getOrElse { return Result.failure(it) }
@@ -326,10 +326,10 @@ public class Compositor(
     override suspend fun move(src: FolderPath, dst: FolderPath): Result<Unit> {
         val srcMount = mountAt(src).getOrElse { return Result.failure(it) }
         val dstMount = mountAt(dst).getOrElse { return Result.failure(it) }
-        val srcRelativePath = src.relativeTo(srcMount.location)!!
-        val dstRelativePath = dst.relativeTo(dstMount.location)!!
+        val srcRelativePath = src.relativeTo(srcMount.path)!!
+        val dstRelativePath = dst.relativeTo(dstMount.path)!!
 
-        if (srcMount.location == dstMount.location) {
+        if (srcMount.path == dstMount.path) {
             val mount = srcMount
             when (dstRelativePath) {
                 is FolderPath -> {
@@ -363,7 +363,7 @@ public class Compositor(
             val affectedFoldersRelativePaths = registry.folders.keys.filter(src::isSubPathOf).sortedBy { it.value.length }
             for (oldPath in affectedFoldersRelativePaths) {
                 val state = registry[oldPath]!!
-                val newPath = FolderPath(dst.value + oldPath.relativeTo(src)!!.value.substring(1)).relativeTo(dstMount.location)!!
+                val newPath = FolderPath(dst.value + oldPath.relativeTo(src)!!.value.substring(1)).relativeTo(dstMount.path)!!
                 when (newPath) {
                     is FolderPath -> dstMount.repository.create(newPath, state).getOrElse { return Result.failure(it) }
                     RootPath -> dstMount.repository.save(state)
@@ -375,7 +375,7 @@ public class Compositor(
             val affectedWarpsRelativePaths = registry.warps.keys.filter(src::isSubPathOf)
             for (oldPath in affectedWarpsRelativePaths) {
                 val state = registry[oldPath]!!
-                val newPath = WarpPath(dst.value + oldPath.relativeTo(src)!!.value.substring(1)).relativeTo(dstMount.location)!!
+                val newPath = WarpPath(dst.value + oldPath.relativeTo(src)!!.value.substring(1)).relativeTo(dstMount.path)!!
                 dstMount.repository.create(newPath, state).getOrElse { return Result.failure(it) }
             }
 
@@ -390,11 +390,11 @@ public class Compositor(
             }
 
             // Unmount all mounts that are part of the folder.
-            val removedMounts = mounts.values.filter { src.isSubPathOf(it.location) }
-            mounts -= removedMounts.map(CompositorMount::location)
+            val removedMounts = mounts.values.filter { src.isSubPathOf(it.path) }
+            mounts -= removedMounts.map(CompositorMount::path)
 
             for (mount in mounts.values) {
-                eventScope.post(CompositorRepositoryUnmountEvent(this, mount.repository, mount.location))
+                eventScope.post(CompositorRepositoryUnmountEvent(this, mount.repository, mount.path))
             }
         }
 
