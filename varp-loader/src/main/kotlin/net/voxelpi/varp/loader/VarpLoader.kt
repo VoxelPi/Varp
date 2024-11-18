@@ -68,7 +68,7 @@ public class VarpLoader internal constructor(
         setPrettyPrinting()
         setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
         varpSerializers()
-        registerTypeAdapter(Path::class.java, PathSerializer(repositoriesDataDirectory))
+        registerTypeHierarchyAdapter(Path::class.java, PathSerializer(repositoriesDataDirectory))
         registerTypeAdapter(RepositoryDefinition::class.java, RepositoryDefinitionSerializer { this@VarpLoader.repositoryTypes })
     }.create()
 

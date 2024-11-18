@@ -14,9 +14,12 @@ internal class PathSerializer(
 ) : JsonSerializer<Path>, JsonDeserializer<Path> {
 
     override fun serialize(src: Path, typeOfSrc: Type, context: JsonSerializationContext): JsonElement {
-        require(src.startsWith(rootPath)) { "Path not inside \"$rootPath\"" }
-
-        return JsonPrimitive(rootPath.relativize(src).toString())
+        if (src.isAbsolute) {
+            require(src.startsWith(rootPath)) { "Path not inside \"$rootPath\"" }
+            return JsonPrimitive(rootPath.relativize(src).toString())
+        } else {
+            return JsonPrimitive(src.toString())
+        }
     }
 
     override fun deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext): Path {
