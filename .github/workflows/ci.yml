@@ -11,6 +11,9 @@ on:
   push:
     branches:
       - '**'
+    paths-ignore:
+      - license.md
+      - readme.md
   pull_request:
 
   # Modify the permissions granted to the GITHUB_TOKEN.
