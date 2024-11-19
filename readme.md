@@ -9,3 +9,34 @@ VoxelPi's warp management system
 ## Minecraft Mod / Plugin
 
 For more information about the minecraft mod see [varp-mod](./varp-mod)
+
+## Developers
+
+### Getting started
+
+build.gradle.kts
+
+```kotlin
+repositories {
+    maven {
+        url = uri("https://repo.voxelpi.net/repository/maven-public/")
+    }
+}
+
+dependencies {
+    // Core library, required to use the varp api.
+    implementation("net.voxelpi.varp:varp-core:<version>")
+
+    // Repository loader, provides ability to load repositories from disk.
+    implementation("net.voxelpi.varp:varp-loader:<version>") 
+    
+    // Varp data serializers, provides way to serialize varp data to common formats.
+    implementation("net.voxelpi.varp:varp-serializer-configurate:<version>")
+    implementation("net.voxelpi.varp:varp-serializer-gson:<version>")
+    
+    // More repository types, provides ways to store varp data.
+    implementation("net.voxelpi.varp:varp-repository-file-tree:<version>")
+    implementation("net.voxelpi.varp:varp-repository-mysql:<version>")
+}
+```
+You can get the latest version number from the [GitHub page](https://github.com/VoxelPi/Varp)
