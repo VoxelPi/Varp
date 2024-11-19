@@ -58,7 +58,6 @@ public class Compositor(
         get() = registry
 
     init {
-        buildTree()
         for (mount in this.mounts.values) {
             eventScope.post(CompositorRepositoryMountEvent(this, mount.repository, mount.path))
         }
@@ -68,17 +67,14 @@ public class Compositor(
         for (mount in this.mounts.values) {
             mount.repository.load().getOrElse { return Result.failure(it) }
         }
-        buildTree()
+        buildTree().onFailure { return Result.failure(it) }
         return Result.success(Unit)
     }
 
-    private fun buildTree() {
+    private fun buildTree(): Result<Unit> {
         registry.clear()
 
-        // Check if all locations are unique
-        require(mounts.size == mounts.values.map(CompositorMount::path).size) { "Duplicate mounts detected." }
-
-        val mountList = mounts().sortedByDescending { it.path.value.length }
+        val mountList = mounts().sortedBy { it.path.value.length }
         for (mount in mountList) {
             val location = mount.path
             when (location) {
@@ -86,6 +82,11 @@ public class Compositor(
                     registry.root = mount.repository.registryView.root
                 }
                 is FolderPath -> {
+                    if (location.parent !in registry) {
+                        registry.clear()
+                        throw MissingMountException(location.parent)
+                    }
+
                     registry[location] = mount.repository.registryView.root
                 }
             }
@@ -106,46 +107,16 @@ public class Compositor(
         }
 
         tree.eventScope.post(RepositoryLoadEvent(this))
+        return Result.success(Unit)
     }
 
     public fun mounts(): Collection<CompositorMount> {
         return mounts.values
     }
 
-    public fun addMount(path: NodeParentPath, repository: Repository) {
-        mounts[path] = CompositorMount(path, repository)
-        buildTree()
-        eventScope.post(CompositorRepositoryMountEvent(this, repository, path))
-    }
-
-    public fun removeMount(path: NodeParentPath) {
-        val mount = mounts.remove(path) ?: return
-        buildTree()
-        eventScope.post(CompositorRepositoryUnmountEvent(this, mount.repository, mount.path))
-    }
-
-    public fun clearMounts() {
-        val previousMounts = mounts.values.toList()
-        mounts.clear()
-        buildTree()
-        for (mount in previousMounts) {
-            eventScope.post(CompositorRepositoryUnmountEvent(this, mount.repository, mount.path))
-        }
-    }
-
-    public fun updateMounts(mounts: Collection<CompositorMount>) {
-        clearMounts()
-
-        this.mounts.putAll(mounts.associateBy { it.path })
-        buildTree()
-        for (mount in this.mounts.values) {
-            eventScope.post(CompositorRepositoryMountEvent(this, mount.repository, mount.path))
-        }
-    }
-
     public fun mountAt(path: NodePath): Result<CompositorMount> {
         if (mounts.isEmpty()) {
-            return Result.failure(NoMountException(path))
+            return Result.failure(MissingMountException(path))
         }
         return Result.success(
             mounts.values
@@ -153,6 +124,45 @@ public class Compositor(
                 .maxBy { it.path.value.length }
         )
     }
+
+    /**
+     * Modifies the mount list, by replacing the previous mounts with the mounts present in [newMounts].
+     */
+    public fun modifyMounts(newMounts: Collection<CompositorMount>): Result<Unit> {
+        // Remove all mounts.
+        val previousMounts = mounts.values.toList()
+        mounts.clear()
+        registry.clear()
+
+        // Post the unmount event for every old mount.
+        for (mount in previousMounts) {
+            eventScope.post(CompositorRepositoryUnmountEvent(this, mount.repository, mount.path))
+        }
+
+        // Register all mounts.
+        mounts.putAll(newMounts.associateBy { it.path })
+
+        // Rebuild tree
+        buildTree().onFailure { return Result.failure(it) }
+
+        // Post the mount event for every new mount.
+        for (mount in this.mounts.values) {
+            eventScope.post(CompositorRepositoryMountEvent(this, mount.repository, mount.path))
+        }
+
+        return Result.success(Unit)
+    }
+
+    /**
+     * Modifies the mount list using the given [action].
+     */
+    public fun modifyMounts(action: MountModificationContext.() -> Unit): Result<Unit> {
+        val context = MountModificationContext(mounts.values)
+        context.apply(action)
+        return modifyMounts(context.mounts())
+    }
+
+    // region repository functions
 
     override suspend fun create(path: WarpPath, state: WarpState): Result<Unit> {
         val mount = mountAt(path).getOrElse { return Result.failure(it) }
@@ -405,6 +415,52 @@ public class Compositor(
         tree.eventScope.post(FolderPathChangeEvent(tree.resolve(dst)!!, dst, src))
 
         return Result.success(Unit)
+    }
+
+    // endregion
+
+    /**
+     * Context used when modifying the mount list.
+     */
+    public class MountModificationContext(mounts: Collection<CompositorMount>) {
+        private val mounts = mounts.associateBy { it.path }.toMutableMap()
+
+        /**
+         * Returns all currently registered mounts.
+         */
+        public fun mounts(): Collection<CompositorMount> {
+            return mounts.values
+        }
+
+        /**
+         * Returns the mount that is mounted at the given [path] or null if no mount is mounted there.
+         */
+        public fun mount(path: NodeParentPath): CompositorMount? {
+            return mounts[path]
+        }
+
+        /**
+         * Removes all mounts.
+         */
+        public fun clear() {
+            mounts.clear()
+        }
+
+        /**
+         * Adds a mount for the given [repository] at the given [path].
+         * @return The previous mount or null if there was no mount at the given [path].
+         */
+        public fun register(path: NodeParentPath, repository: Repository): CompositorMount? {
+            return mounts.put(path, CompositorMount(path, repository))
+        }
+
+        /**
+         * Removes the mount at the given [path].
+         * @return The previous mount or null if there was no mount at the given [path].
+         */
+        public fun unregister(path: NodeParentPath): CompositorMount? {
+            return mounts.remove(path)
+        }
     }
 
     public companion object {

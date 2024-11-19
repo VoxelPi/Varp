@@ -247,7 +247,7 @@ public class VarpLoader internal constructor(
             }
 
             // Update compositor.
-            compositor.updateMounts(mounts)
+            compositor.modifyMounts(mounts)
         }
     }
 

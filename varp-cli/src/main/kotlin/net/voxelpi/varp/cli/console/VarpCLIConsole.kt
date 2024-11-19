@@ -13,7 +13,7 @@ import net.voxelpi.varp.cli.command.VarpCLICommandSender
 import net.voxelpi.varp.exception.tree.FolderMoveIntoChildException
 import net.voxelpi.varp.exception.tree.NodeAlreadyExistsException
 import net.voxelpi.varp.exception.tree.NodeNotFoundException
-import net.voxelpi.varp.warp.repository.compositor.NoMountException
+import net.voxelpi.varp.warp.repository.compositor.MissingMountException
 import org.incendo.cloud.exception.ArgumentParseException
 import org.incendo.cloud.exception.CommandExecutionException
 import org.incendo.cloud.exception.InvalidSyntaxException
@@ -86,7 +86,7 @@ class VarpCLIConsole(
                     is FolderMoveIntoChildException -> logger.error(cause.message)
                     is NodeAlreadyExistsException -> logger.error(cause.message)
                     is NodeNotFoundException -> logger.error(cause.message)
-                    is NoMountException -> logger.error(cause.message)
+                    is MissingMountException -> logger.error(cause.message)
                     else -> logger.error("An error occurred while executing the last command.", cause)
                 }
             } catch (exception: Exception) {
