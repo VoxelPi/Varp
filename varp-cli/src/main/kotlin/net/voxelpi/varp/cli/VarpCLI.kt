@@ -32,7 +32,7 @@ object VarpCLI {
 
     val console = VarpCLIConsole(this, commandManager)
 
-    val loader = VarpLoader.loader(Path(".")) {
+    val loader = VarpLoader.loader(Path(".").toAbsolutePath().normalize()) {
         registerRepositoryType(FileTreeRepositoryType)
         registerRepositoryType(MySQLRepositoryType)
 
