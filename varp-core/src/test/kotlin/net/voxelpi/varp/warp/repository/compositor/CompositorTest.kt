@@ -11,6 +11,7 @@ import net.voxelpi.varp.warp.repository.ephemeral.EphemeralRepository
 import net.voxelpi.varp.warp.state.FolderState
 import net.voxelpi.varp.warp.state.WarpState
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertTrue
 
 class CompositorTest {
@@ -65,5 +66,36 @@ class CompositorTest {
         compositor.create(WarpPath("/data2/data3/test_warp_3"), WarpState(MinecraftLocation(Key.key("varp:test"), 50.0, 40.0, 30.0, 20f, 10f), Component.text("test warp 3")))
         assertTrue(compositor.tree.exists(WarpPath("/data2/data3/test_warp_3")))
         assertTrue(repo3.tree.exists(WarpPath("/test_warp_3")))
+    }
+
+    @Test
+    fun `test empty compositor`() {
+        val compositor = Compositor(
+            "main",
+            CompositorConfig(
+                emptyList(),
+            ),
+        )
+
+        assertThrows<MissingMountException> {
+            runBlocking {
+                compositor.create(FolderPath("/test_folder_0/"), FolderState(Component.text("test folder 0"))).getOrThrow()
+            }
+        }
+    }
+
+    @Test
+    fun `test invalid compositor`() {
+        val repo = EphemeralRepository("repo")
+
+        val compositor = Compositor(
+            "main",
+            CompositorConfig(
+                listOf(
+                    CompositorMount(NodeParentPath.parse("/test/repo/").getOrThrow(), repo),
+                ),
+            ),
+        )
+        assertThrows<MissingMountException> { runBlocking { compositor.load() } }
     }
 }
