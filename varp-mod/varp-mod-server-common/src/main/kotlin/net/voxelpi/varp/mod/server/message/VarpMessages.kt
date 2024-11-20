@@ -42,6 +42,15 @@ interface VarpMessages {
     @Message("prefix")
     fun prefix(): Component
 
+    @Message("info")
+    fun sendVarpInfo(
+        @Receiver receiver: Audience,
+        @Placeholder("version") version: String,
+        @Placeholder("platform") platform: String,
+        @Placeholder("platform_brand") platformBrand: String,
+        @Placeholder("platform_version") platformVersion: String,
+    )
+
     // region client link messages
 
     @Message("client.support_enabled")

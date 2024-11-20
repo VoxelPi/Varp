@@ -1,6 +1,12 @@
 {
   "prefix": "<bold><gold>>> <yellow>Varp <gold>▎<reset>",
 
+  "info": [
+    "<prefix> <gray>The server is running <yellow>varp-<platform></yellow>",
+    "<dark_gray>  ├ <gray>Version<dark_gray>:</dark_gray> <yellow><version></yellow>",
+    "<dark_gray>  └ <gray>Platform<dark_gray>:</dark_gray> <yellow><platform_brand></yellow> (<platform_version>)"
+  ],
+
   "client": {
     "support_enabled": [
       "<prefix> <gray>Detected <yellow>varp client mod</yellow> version <yellow><client_version></yellow>",
