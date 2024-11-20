@@ -47,6 +47,7 @@ class PaperVarpServer(
     override val platform: PaperServerPlatform = PaperServerPlatform()
 
     init {
+        plugin.commandService.registerServer(this)
         loadMessages()
     }
 

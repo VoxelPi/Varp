@@ -1,5 +1,6 @@
 package net.voxelpi.varp.mod.fabric.server.command
 
+import net.kyori.adventure.audience.Audience
 import net.minecraft.server.command.ServerCommandSource
 import net.voxelpi.varp.MinecraftLocation
 import net.voxelpi.varp.mod.server.command.VarpCommandSourceStack
@@ -17,4 +18,7 @@ class FabricVarpCommandSourceStack(
             sourceStack.rotation.y,
             sourceStack.rotation.x,
         )
+
+    override val sender: Audience
+        get() = sourceStack
 }

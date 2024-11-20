@@ -24,7 +24,8 @@ object FabricVarpMod : ModInitializer {
 
     lateinit var commandService: FabricVarpCommandService
 
-    private var varpServer: FabricVarpServer? = null
+    var varpServer: FabricVarpServer? = null
+        private set
 
     val configDirectory = FabricLoader.getInstance().configDir.resolve("varp")
 
