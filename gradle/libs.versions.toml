@@ -1,6 +1,6 @@
 [versions]
 adventure = "4.17.0"
-adventure-fabric = "5.14.1"
+adventure-fabric = "6.1.0"
 cloud-command = "2.0.0"
 cloud-command-minecraft = "2.0.0-beta.10"
 cloud-command-minecraft-modded = "2.0.0-beta.9"
@@ -21,20 +21,20 @@ terminalconsoleappender = "1.3.0"
 jline = "3.26.3"
 
 # Paper
-papwerweight = "1.7.3"
+papwerweight = "1.7.4"
 
 # Fabric
-minecraft = "1.21.1"
-yarn = "1.21.1+build.3"
+minecraft = "1.21.3"
+yarn = "1.21.3+build.2"
 fabric-loader = "0.16.9"
-fabric-api = "0.107.0+1.21.1"
+fabric-api = "0.109.0+1.21.3"
 loom = "1.8-SNAPSHOT"
 fabric-kotlin = "1.12.3+kotlin.2.0.21"
-fabric-permissions-api = "0.3.1"
+fabric-permissions-api = "0.3.3"
 
 # Fabric mods
-modmenu = "11.0.3"
-owo-lib = "0.12.15+1.21"
+modmenu = "12.0.0-beta.1"
+owo-lib = "0.12.18+1.21.2"
 
 # Plugins
 blossom = "2.1.0"
