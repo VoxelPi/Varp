@@ -2,6 +2,8 @@ package net.voxelpi.varp.warp.repository
 
 import net.voxelpi.varp.warp.Tree
 import net.voxelpi.varp.warp.path.FolderPath
+import net.voxelpi.varp.warp.path.NodeParentPath
+import net.voxelpi.varp.warp.path.RootPath
 import net.voxelpi.varp.warp.path.WarpPath
 import net.voxelpi.varp.warp.state.FolderState
 import net.voxelpi.varp.warp.state.TreeStateRegistryView
@@ -66,6 +68,13 @@ public abstract class Repository(
     public abstract suspend fun save(path: FolderPath, state: FolderState): Result<Unit>
 
     public abstract suspend fun save(state: FolderState): Result<Unit>
+
+    public suspend fun save(path: NodeParentPath, state: FolderState): Result<Unit> {
+        return when (path) {
+            is FolderPath -> save(path, state)
+            RootPath -> save(state)
+        }
+    }
 
     public abstract suspend fun delete(path: WarpPath): Result<Unit>
 
