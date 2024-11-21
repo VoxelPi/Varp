@@ -33,4 +33,14 @@ class RootPathTest {
         assertEquals(null, path.relativeTo(folder1Path))
         assertEquals(RootPath, path.relativeTo(RootPath))
     }
+
+    @Test
+    fun `test path concatenation`() {
+        assertEquals(FolderPath("/folder2/folder3/"), RootPath / (FolderPath("/folder2/folder3/") as NodePath))
+        assertEquals(FolderPath("/folder2/folder3/"), RootPath / (FolderPath("/folder2/folder3/") as NodeParentPath))
+        assertEquals(FolderPath("/folder2/folder3/"), RootPath / (FolderPath("/folder2/folder3/") as NodeChildPath))
+        assertEquals(WarpPath("/folder2/warp"), RootPath / WarpPath("/folder2/warp"))
+        assertEquals(FolderPath("/folder2/folder3/"), RootPath / FolderPath("/folder2/folder3/"))
+        assertEquals(RootPath, RootPath / RootPath)
+    }
 }

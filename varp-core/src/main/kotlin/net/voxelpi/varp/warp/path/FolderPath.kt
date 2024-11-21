@@ -40,6 +40,42 @@ public data class FolderPath(
         return NodeParentPath.parse(this.value.substring(path.value.length - 1)).getOrThrow()
     }
 
+    override fun div(path: NodePath): NodeChildPath {
+        return when (path) {
+            is FolderPath -> this / path // Uses folder method.
+            is WarpPath -> this / path // Uses warp method.
+            RootPath -> this
+        }
+    }
+
+    override fun div(path: NodeParentPath): FolderPath {
+        return when (path) {
+            is FolderPath -> this / path // Uses folder method.
+            RootPath -> this
+        }
+    }
+
+    override fun div(path: NodeChildPath): NodeChildPath {
+        return when (path) {
+            is FolderPath -> this / path // Uses folder method.
+            is WarpPath -> this / path // Uses warp method.
+        }
+    }
+
+    override fun div(path: FolderPath): FolderPath {
+        // Remove leading slash from second path to avoid duplicated slash.
+        return FolderPath(value + path.value.substring(1))
+    }
+
+    override fun div(path: WarpPath): WarpPath {
+        // Remove leading slash from second path to avoid duplicated slash.
+        return WarpPath(value + path.value.substring(1))
+    }
+
+    override fun div(path: RootPath): FolderPath {
+        return this
+    }
+
     override fun toString(): String {
         return value
     }

@@ -25,6 +25,30 @@ public data object RootPath : NodeParentPath {
         return this
     }
 
+    override fun div(path: NodePath): NodePath {
+        return path
+    }
+
+    override fun div(path: NodeParentPath): NodeParentPath {
+        return path
+    }
+
+    override fun div(path: NodeChildPath): NodeChildPath {
+        return path
+    }
+
+    override fun div(path: FolderPath): FolderPath {
+        return path
+    }
+
+    override fun div(path: WarpPath): WarpPath {
+        return path
+    }
+
+    override fun div(path: RootPath): RootPath {
+        return path
+    }
+
     override fun toString(): String {
         return value
     }

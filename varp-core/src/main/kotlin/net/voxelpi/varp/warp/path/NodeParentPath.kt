@@ -45,6 +45,36 @@ public sealed interface NodeParentPath : NodePath {
 
     override fun relativeTo(path: NodeParentPath): NodeParentPath?
 
+    /**
+     * Concatenates this path with the given node [path].
+     */
+    public operator fun div(path: NodePath): NodePath
+
+    /**
+     * Concatenates this path with the given node parent [path].
+     */
+    public operator fun div(path: NodeParentPath): NodeParentPath
+
+    /**
+     * Concatenates this path with the given node child [path].
+     */
+    public operator fun div(path: NodeChildPath): NodeChildPath
+
+    /**
+     * Concatenates this path with the given folder [path].
+     */
+    public operator fun div(path: FolderPath): FolderPath
+
+    /**
+     * Concatenates this path with the given warp [path].
+     */
+    public operator fun div(path: WarpPath): WarpPath
+
+    /**
+     * Concatenates this path with the given root [path].
+     */
+    public operator fun div(path: RootPath): NodeParentPath
+
     public companion object {
         private val PATH_PATTERN = Pattern.compile("^/((?:[a-z0-9_]+/)*)\$")
 

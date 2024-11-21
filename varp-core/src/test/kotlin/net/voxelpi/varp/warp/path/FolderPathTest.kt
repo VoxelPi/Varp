@@ -74,4 +74,16 @@ class FolderPathTest {
         assertEquals(path1, path2.parent)
         assertEquals(root, path1.parent)
     }
+
+    @Test
+    fun `test path concatenation`() {
+        val path1 = FolderPath.parse("/folder/").getOrThrow()
+
+        assertEquals(FolderPath("/folder/folder2/folder3/"), path1 / (FolderPath("/folder2/folder3/") as NodePath))
+        assertEquals(FolderPath("/folder/folder2/folder3/"), path1 / (FolderPath("/folder2/folder3/") as NodeParentPath))
+        assertEquals(FolderPath("/folder/folder2/folder3/"), path1 / (FolderPath("/folder2/folder3/") as NodeChildPath))
+        assertEquals(WarpPath("/folder/folder2/warp"), path1 / WarpPath("/folder2/warp"))
+        assertEquals(FolderPath("/folder/folder2/folder3/"), path1 / FolderPath("/folder2/folder3/"))
+        assertEquals(path1, path1 / RootPath)
+    }
 }
