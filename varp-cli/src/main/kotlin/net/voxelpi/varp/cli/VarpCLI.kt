@@ -36,7 +36,7 @@ object VarpCLI {
         registerRepositoryType(FileTreeRepositoryType)
         registerRepositoryType(MySQLRepositoryType)
 
-        addDefaultRepository("default", FileTreeRepositoryType, FileTreeRepositoryConfig(Path("./default/"), "json", false), listOf(RootPath))
+        addDefaultRepository("default", FileTreeRepositoryType, FileTreeRepositoryConfig(Path("./default/"), "json", false), listOf(RootPath to RootPath))
     }
 
     var tree: Tree = loader.tree

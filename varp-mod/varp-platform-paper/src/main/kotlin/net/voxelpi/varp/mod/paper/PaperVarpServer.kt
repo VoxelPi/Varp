@@ -55,7 +55,7 @@ class PaperVarpServer(
     override val loader: VarpLoader = VarpLoader.loader(plugin.dataPath.resolve("data")) {
         registerRepositoryType(FileTreeRepositoryType)
 
-        addDefaultRepository("default", FileTreeRepositoryType, FileTreeRepositoryConfig(Path("./default/"), "json", false), listOf(RootPath))
+        addDefaultRepository("default", FileTreeRepositoryType, FileTreeRepositoryConfig(Path("./default/"), "json", false), listOf(RootPath to RootPath))
     }
 
     override val serverNetworkHandler: PaperVarpServerNetworkHandler = PaperVarpServerNetworkHandler(this)

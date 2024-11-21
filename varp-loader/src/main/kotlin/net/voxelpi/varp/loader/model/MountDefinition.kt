@@ -6,4 +6,5 @@ import net.voxelpi.varp.warp.path.NodeParentPath
 internal data class MountDefinition(
     val path: NodeParentPath,
     val repository: String,
+    val sourcePath: NodeParentPath,
 )
