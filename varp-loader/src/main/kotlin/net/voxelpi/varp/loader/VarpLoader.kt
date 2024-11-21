@@ -132,7 +132,6 @@ public class VarpLoader internal constructor(
         }
 
         loadTree().onFailure { return Result.failure(it) }
-        compositor.load().getOrElse { return Result.failure(it) }
         return Result.success(Unit)
     }
 
@@ -220,7 +219,7 @@ public class VarpLoader internal constructor(
         }
     }
 
-    private fun loadTree(): Result<Unit> {
+    private suspend fun loadTree(): Result<Unit> {
         return runCatching {
             val treeFile = path.resolve(TREE_FILE)
 

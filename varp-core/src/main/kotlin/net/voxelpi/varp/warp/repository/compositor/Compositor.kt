@@ -73,6 +73,10 @@ public class Compositor(
         return Result.success(Unit)
     }
 
+    public fun rebuild(): Result<Unit> {
+        return buildTree()
+    }
+
     private fun buildTree(): Result<Unit> {
         registry.clear()
 
@@ -144,8 +148,9 @@ public class Compositor(
 
     /**
      * Modifies the mount list, by replacing the previous mounts with the mounts present in [newMounts].
+     * Note that this loads all mounted repositories.
      */
-    public fun modifyMounts(newMounts: Collection<CompositorMount>): Result<Unit> {
+    public suspend fun modifyMounts(newMounts: Collection<CompositorMount>): Result<Unit> {
         // Remove all mounts.
         val previousMounts = mounts.values.toList()
         mounts.clear()
@@ -160,7 +165,7 @@ public class Compositor(
         mounts.putAll(newMounts.associateBy { it.path })
 
         // Rebuild tree
-        buildTree().onFailure { return Result.failure(it) }
+        load()
 
         // Post the mount event for every new mount.
         for (mount in this.mounts.values) {
@@ -172,8 +177,9 @@ public class Compositor(
 
     /**
      * Modifies the mount list using the given [action].
+     * Note that this loads all mounted repositories.
      */
-    public fun modifyMounts(action: MountModificationContext.() -> Unit): Result<Unit> {
+    public suspend fun modifyMounts(action: MountModificationContext.() -> Unit): Result<Unit> {
         val context = MountModificationContext(mounts.values)
         context.apply(action)
         return modifyMounts(context.mounts())
