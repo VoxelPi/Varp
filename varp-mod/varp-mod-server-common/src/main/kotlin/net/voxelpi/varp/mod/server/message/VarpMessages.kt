@@ -59,6 +59,17 @@ interface VarpMessages {
         @Placeholder("client") clientInformation: VarpClientInformation,
     )
 
+    @Message("client.info.bridge_enabled")
+    fun sendClientInfoBridgeEnabled(
+        @Receiver receiver: Audience,
+        @Placeholder("client") clientInformation: VarpClientInformation,
+    )
+
+    @Message("client.info.bridge_disabled")
+    fun sendClientInfoBridgeDisabled(
+        @Receiver receiver: Audience,
+    )
+
     @Message("client.error.no_support")
     fun sendErrorNoClientSupport(
         @Receiver receiver: Audience,

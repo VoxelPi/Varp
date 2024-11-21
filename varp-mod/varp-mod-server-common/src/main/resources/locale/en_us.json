@@ -8,6 +8,17 @@
   ],
 
   "client": {
+    "info": {
+      "bridge_enabled": [
+        "<prefix> <gray>Detected <yellow>varp client mod</yellow> version <yellow><client_version></yellow>",
+        "<prefix> <gray>Native <yellow>client support</yellow> is <green>enabled"
+      ],
+      "bridge_disabled": [
+        "<prefix> <gray>No <yellow>clientside varp mod</yellow> detected",
+        "<prefix> <gray>Native <yellow>client support</yellow> is <red>disabled"
+      ]
+    },
+
     "support_enabled": [
       "<prefix> <gray>Detected <yellow>varp client mod</yellow> version <yellow><client_version></yellow>",
       "<prefix> <gray><green>Enabling</green> native <yellow>client support</yellow>."

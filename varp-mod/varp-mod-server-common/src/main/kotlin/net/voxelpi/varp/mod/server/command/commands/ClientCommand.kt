@@ -6,24 +6,26 @@ import net.voxelpi.varp.mod.server.command.VarpCommandSourceStack
 import org.incendo.cloud.CommandManager
 import org.incendo.cloud.kotlin.extension.buildAndRegister
 
-object InfoCommand : VarpCommand {
+object ClientCommand : VarpCommand {
 
     override fun register(manager: CommandManager<out VarpCommandSourceStack>, serverProvider: () -> VarpServerImpl) {
         manager.buildAndRegister("varp", aliases = arrayOf("warpmanager", "wm")) {
+            literal("client")
+
             handler { context ->
                 val server = serverProvider()
+                val player = context.sender().playerOrThrow()
 
-                server.messages.sendVarpInfo(
-                    context.sender().sender,
-                    server.version,
-                    server.platform.name,
-                    server.platform.brand,
-                    server.platform.version,
-                )
+                val clientInformation = player.clientInformation
+                if (clientInformation == null) {
+                    server.messages.sendClientInfoBridgeDisabled(context.sender().sender)
+                    return@handler
+                }
+
+                server.messages.sendClientInfoBridgeEnabled(context.sender().sender, clientInformation)
             }
 
             registerCopy("info") {}
-            registerCopy("version") {}
         }
     }
 }
