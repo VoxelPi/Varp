@@ -5,6 +5,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger
 import net.voxelpi.varp.mod.server.api.VarpServerAPI
+import net.voxelpi.varp.mod.server.entity.VarpServerEntityServiceImpl
 import net.voxelpi.varp.mod.server.message.VarpMessages
 import net.voxelpi.varp.mod.server.network.VarpServerNetworkHandler
 import net.voxelpi.varp.mod.server.player.VarpServerPlayerImpl
@@ -28,6 +29,8 @@ abstract class VarpServerImpl : VarpServerAPI {
         private set
 
     abstract override val playerService: VarpServerPlayerServiceImpl<out VarpServerPlayerImpl>
+
+    abstract override val entityService: VarpServerEntityServiceImpl
 
     abstract val serverNetworkHandler: VarpServerNetworkHandler
 

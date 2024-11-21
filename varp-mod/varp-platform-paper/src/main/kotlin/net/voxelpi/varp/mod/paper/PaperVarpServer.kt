@@ -9,6 +9,7 @@ import net.voxelpi.varp.Varp
 import net.voxelpi.varp.loader.VarpLoader
 import net.voxelpi.varp.mod.VarpModConstants
 import net.voxelpi.varp.mod.api.VarpServerInformation
+import net.voxelpi.varp.mod.paper.entity.PaperVarpServerEntityService
 import net.voxelpi.varp.mod.paper.network.PaperVarpServerNetworkHandler
 import net.voxelpi.varp.mod.paper.player.PaperVarpServerPlayerService
 import net.voxelpi.varp.mod.server.VarpServerImpl
@@ -70,6 +71,8 @@ class PaperVarpServer(
     }
 
     override val playerService: PaperVarpServerPlayerService = PaperVarpServerPlayerService(this)
+
+    override val entityService: PaperVarpServerEntityService = PaperVarpServerEntityService(this)
 
     init {
         // Register api service

@@ -3,6 +3,7 @@ package net.voxelpi.varp.mod.server.api
 import net.voxelpi.event.EventScope
 import net.voxelpi.varp.loader.VarpLoader
 import net.voxelpi.varp.mod.api.VarpServerInformation
+import net.voxelpi.varp.mod.server.api.entity.VarpServerEntityService
 import net.voxelpi.varp.mod.server.api.player.VarpServerPlayerService
 import net.voxelpi.varp.warp.Tree
 import net.voxelpi.varp.warp.repository.compositor.Compositor
@@ -54,6 +55,11 @@ public interface VarpServerAPI {
      * The server player service.
      */
     public val playerService: VarpServerPlayerService
+
+    /**
+     * The server entity service.
+     */
+    public val entityService: VarpServerEntityService
 
     public companion object {
         private var provider: VarpServerAPI? = null

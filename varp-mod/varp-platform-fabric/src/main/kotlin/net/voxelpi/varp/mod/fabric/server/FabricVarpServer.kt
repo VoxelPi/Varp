@@ -16,6 +16,7 @@ import net.voxelpi.varp.loader.VarpLoader
 import net.voxelpi.varp.mod.VarpModConstants
 import net.voxelpi.varp.mod.api.VarpServerInformation
 import net.voxelpi.varp.mod.fabric.FabricVarpMod
+import net.voxelpi.varp.mod.fabric.server.entity.FabricVarpServerEntityService
 import net.voxelpi.varp.mod.fabric.server.network.FabricVarpServerNetworkHandler
 import net.voxelpi.varp.mod.fabric.server.player.FabricVarpServerPlayerService
 import net.voxelpi.varp.mod.fabric.util.toIdentifier
@@ -71,6 +72,8 @@ class FabricVarpServer(
     }
 
     override val playerService: FabricVarpServerPlayerService = FabricVarpServerPlayerService(this)
+
+    override val entityService: FabricVarpServerEntityService = FabricVarpServerEntityService(this)
 
     init {
         // Register api service
