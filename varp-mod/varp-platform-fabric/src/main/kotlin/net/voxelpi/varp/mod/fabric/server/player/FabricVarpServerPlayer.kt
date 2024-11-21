@@ -4,7 +4,6 @@ import me.lucko.fabric.api.permissions.v0.Permissions
 import net.kyori.adventure.audience.Audience
 import net.kyori.adventure.audience.ForwardingAudience
 import net.kyori.adventure.identity.Identity
-import net.kyori.adventure.platform.modcommon.MinecraftAudiences
 import net.kyori.adventure.text.Component
 import net.minecraft.network.packet.s2c.play.PositionFlag
 import net.minecraft.server.network.ServerPlayerEntity
@@ -27,7 +26,7 @@ class FabricVarpServerPlayer(
         get() = player.gameProfile.name
 
     override val displayName: Component
-        get() = MinecraftAudiences.nonWrappingSerializer { server.server.registryManager }.deserialize(player.displayName ?: player.name)
+        get() = server.serverAudiences.nonWrappingSerializer().deserialize(player.displayName ?: player.name)
 
     override val location: MinecraftLocation
         get() = MinecraftLocation(player.world.registryKey.value.toKey(), player.x, player.y, player.z, player.yaw, player.pitch)

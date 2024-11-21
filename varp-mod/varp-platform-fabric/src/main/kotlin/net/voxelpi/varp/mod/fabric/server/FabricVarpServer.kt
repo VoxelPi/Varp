@@ -3,6 +3,7 @@ package net.voxelpi.varp.mod.fabric.server
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.runBlocking
 import net.kyori.adventure.key.Key
+import net.kyori.adventure.platform.modcommon.MinecraftServerAudiences
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger
 import net.minecraft.registry.RegistryKey
 import net.minecraft.registry.RegistryKeys
@@ -48,6 +49,8 @@ class FabricVarpServer(
     override val eventScope: EventScope = eventScope()
 
     override val platform: FabricServerPlatform = FabricServerPlatform()
+
+    val serverAudiences: MinecraftServerAudiences = MinecraftServerAudiences.of(server)
 
     init {
         loadMessages()
