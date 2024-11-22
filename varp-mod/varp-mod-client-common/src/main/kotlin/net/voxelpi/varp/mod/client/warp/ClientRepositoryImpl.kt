@@ -37,6 +37,7 @@ import net.voxelpi.varp.mod.network.protocol.serverbound.VarpServerboundModifyFo
 import net.voxelpi.varp.mod.network.protocol.serverbound.VarpServerboundModifyRootStatePacket
 import net.voxelpi.varp.mod.network.protocol.serverbound.VarpServerboundModifyWarpPathPacket
 import net.voxelpi.varp.mod.network.protocol.serverbound.VarpServerboundModifyWarpStatePacket
+import net.voxelpi.varp.option.OptionsContext
 import net.voxelpi.varp.warp.path.FolderPath
 import net.voxelpi.varp.warp.path.WarpPath
 import net.voxelpi.varp.warp.state.FolderState
@@ -98,12 +99,12 @@ class ClientRepositoryImpl(
         return Result.success(Unit)
     }
 
-    override suspend fun move(src: WarpPath, dst: WarpPath): Result<Unit> {
+    override suspend fun move(src: WarpPath, dst: WarpPath, options: OptionsContext): Result<Unit> {
         clientNetworkHandler.sendServerboundPacket(VarpServerboundModifyWarpPathPacket(src, dst))
         return Result.success(Unit)
     }
 
-    override suspend fun move(src: FolderPath, dst: FolderPath): Result<Unit> {
+    override suspend fun move(src: FolderPath, dst: FolderPath, options: OptionsContext): Result<Unit> {
         clientNetworkHandler.sendServerboundPacket(VarpServerboundModifyFolderPathPacket(src, dst))
         return Result.success(Unit)
     }

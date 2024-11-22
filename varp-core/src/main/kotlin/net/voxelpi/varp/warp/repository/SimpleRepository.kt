@@ -15,6 +15,7 @@ import net.voxelpi.varp.event.warp.WarpPostDeleteEvent
 import net.voxelpi.varp.event.warp.WarpStateChangeEvent
 import net.voxelpi.varp.exception.tree.FolderNotFoundException
 import net.voxelpi.varp.exception.tree.WarpNotFoundException
+import net.voxelpi.varp.option.OptionsContext
 import net.voxelpi.varp.warp.path.FolderPath
 import net.voxelpi.varp.warp.path.WarpPath
 import net.voxelpi.varp.warp.state.FolderState
@@ -52,9 +53,9 @@ public abstract class SimpleRepository(
 
     protected abstract suspend fun handleDelete(path: FolderPath): Result<Unit>
 
-    protected abstract suspend fun handleMove(src: WarpPath, dst: WarpPath): Result<Unit>
+    protected abstract suspend fun handleMove(src: WarpPath, dst: WarpPath, options: OptionsContext): Result<Unit>
 
-    protected abstract suspend fun handleMove(src: FolderPath, dst: FolderPath): Result<Unit>
+    protected abstract suspend fun handleMove(src: FolderPath, dst: FolderPath, options: OptionsContext): Result<Unit>
 
     // endregion
 
@@ -185,9 +186,9 @@ public abstract class SimpleRepository(
         return Result.success(Unit)
     }
 
-    public override suspend fun move(src: WarpPath, dst: WarpPath): Result<Unit> {
+    public override suspend fun move(src: WarpPath, dst: WarpPath, options: OptionsContext): Result<Unit> {
         // Run implementation logic.
-        handleMove(src, dst).getOrElse { return Result.failure(it) }
+        handleMove(src, dst, options).getOrElse { return Result.failure(it) }
 
         // Update registry.
         registry.move(src, dst) ?: return Result.failure(WarpNotFoundException(src))
@@ -198,9 +199,9 @@ public abstract class SimpleRepository(
         return Result.success(Unit)
     }
 
-    public override suspend fun move(src: FolderPath, dst: FolderPath): Result<Unit> {
+    public override suspend fun move(src: FolderPath, dst: FolderPath, options: OptionsContext): Result<Unit> {
         // Run implementation logic.
-        handleMove(src, dst).getOrElse { return Result.failure(it) }
+        handleMove(src, dst, options).getOrElse { return Result.failure(it) }
 
         // Update registry.
         registry.move(src, dst) ?: return Result.failure(FolderNotFoundException(src))

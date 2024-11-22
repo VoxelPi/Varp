@@ -20,6 +20,7 @@ import net.voxelpi.varp.event.warp.WarpStateChangeEvent
 import net.voxelpi.varp.exception.tree.FolderMoveIntoChildException
 import net.voxelpi.varp.exception.tree.FolderNotFoundException
 import net.voxelpi.varp.exception.tree.WarpNotFoundException
+import net.voxelpi.varp.option.OptionsContext
 import net.voxelpi.varp.warp.path.FolderPath
 import net.voxelpi.varp.warp.path.NodeParentPath
 import net.voxelpi.varp.warp.path.NodePath
@@ -307,7 +308,7 @@ public class Compositor(
         return Result.success(Unit)
     }
 
-    override suspend fun move(src: WarpPath, dst: WarpPath): Result<Unit> {
+    override suspend fun move(src: WarpPath, dst: WarpPath, options: OptionsContext): Result<Unit> {
         val srcMount = mountAt(src).getOrElse { return Result.failure(it) }
         val dstMount = mountAt(dst).getOrElse { return Result.failure(it) }
         val srcRelativePath = src.relativeTo(srcMount.path)!!
@@ -316,7 +317,7 @@ public class Compositor(
         if (srcMount.path == dstMount.path) {
             // The warp doesn't change its mount during the move operation.
             val mount = srcMount
-            mount.repository.move(srcRelativePath, dstRelativePath).getOrElse { return Result.failure(it) }
+            mount.repository.move(srcRelativePath, dstRelativePath, options).getOrElse { return Result.failure(it) }
         } else {
             // The warp is moved into a different mount.
             val state = registry[src] ?: return Result.failure(WarpNotFoundException(src))
@@ -333,7 +334,7 @@ public class Compositor(
         return Result.success(Unit)
     }
 
-    override suspend fun move(src: FolderPath, dst: FolderPath): Result<Unit> {
+    override suspend fun move(src: FolderPath, dst: FolderPath, options: OptionsContext): Result<Unit> {
         val srcMount = mountAt(src).getOrElse { return Result.failure(it) }
         val dstMount = mountAt(dst).getOrElse { return Result.failure(it) }
         val srcRelativePath = src.relativeTo(srcMount.path)!!
@@ -346,7 +347,7 @@ public class Compositor(
                     if (srcRelativePath !is FolderPath) {
                         return Result.failure(FolderMoveIntoChildException(src, dst))
                     }
-                    mount.repository.move(srcRelativePath, dstRelativePath).getOrElse { return Result.failure(it) }
+                    mount.repository.move(srcRelativePath, dstRelativePath, options).getOrElse { return Result.failure(it) }
                 }
                 RootPath -> {
                     mount.repository.save(registry[src]!!)
@@ -355,14 +356,14 @@ public class Compositor(
                     val directChildFolders = mount.repository.registryView.folders.keys
                         .filter { srcRelativePath.isTrueSubPathOf(it) && !it.value.substring(srcRelativePath.value.length, it.value.length - 1).contains("/") }
                     for (folder in directChildFolders) {
-                        mount.repository.move(folder, folder.relativeTo(srcRelativePath)!! as FolderPath).getOrElse { return Result.failure(it) }
+                        mount.repository.move(folder, folder.relativeTo(srcRelativePath)!! as FolderPath, options).getOrElse { return Result.failure(it) }
                     }
 
                     // Move all direct child warps.
                     val directChildWarps = mount.repository.registryView.warps.keys
                         .filter { srcRelativePath.isSubPathOf(it) && !it.value.substring(srcRelativePath.value.length).contains("/") }
                     for (warp in directChildWarps) {
-                        mount.repository.move(warp, warp.relativeTo(srcRelativePath)!!).getOrElse { return Result.failure(it) }
+                        mount.repository.move(warp, warp.relativeTo(srcRelativePath)!!, options).getOrElse { return Result.failure(it) }
                     }
                 }
             }

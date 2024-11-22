@@ -1,6 +1,5 @@
 package net.voxelpi.varp.mod.server.player
 
-import net.voxelpi.varp.DuplicatesStrategy
 import net.voxelpi.varp.MinecraftLocation
 import net.voxelpi.varp.exception.tree.FolderAlreadyExistsException
 import net.voxelpi.varp.exception.tree.FolderNotFoundException
@@ -190,7 +189,7 @@ abstract class VarpServerPlayerImpl(
         }
 
         // Move the folder.
-        folder.move(dst, DuplicatesStrategy.FAIL).onFailure { exception ->
+        folder.move(dst).onFailure { exception ->
             when (exception) {
                 is FolderNotFoundException -> server.messages.sendErrorFolderPathUnresolved(this, exception.path)
                 is FolderAlreadyExistsException -> server.messages.sendErrorFolderAlreadyExists(this, exception.path)
@@ -273,7 +272,7 @@ abstract class VarpServerPlayerImpl(
         }
 
         // Move the warp.
-        warp.move(dst, DuplicatesStrategy.FAIL).onFailure { exception ->
+        warp.move(dst).onFailure { exception ->
             when (exception) {
                 is FolderNotFoundException -> server.messages.sendErrorFolderPathUnresolved(this, exception.path)
                 is WarpAlreadyExistsException -> server.messages.sendErrorWarpAlreadyExists(this, exception.path)

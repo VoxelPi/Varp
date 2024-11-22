@@ -1,5 +1,6 @@
 package net.voxelpi.varp.warp.repository
 
+import net.voxelpi.varp.option.OptionsContext
 import net.voxelpi.varp.warp.Tree
 import net.voxelpi.varp.warp.path.FolderPath
 import net.voxelpi.varp.warp.path.NodeParentPath
@@ -80,9 +81,9 @@ public abstract class Repository(
 
     public abstract suspend fun delete(path: FolderPath): Result<Unit>
 
-    public abstract suspend fun move(src: WarpPath, dst: WarpPath): Result<Unit>
+    public abstract suspend fun move(src: WarpPath, dst: WarpPath, options: OptionsContext): Result<Unit>
 
-    public abstract suspend fun move(src: FolderPath, dst: FolderPath): Result<Unit>
+    public abstract suspend fun move(src: FolderPath, dst: FolderPath, options: OptionsContext): Result<Unit>
 
     public companion object {
         private val logger: Logger = LoggerFactory.getLogger(this::class.java)

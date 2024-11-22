@@ -3,6 +3,7 @@ package net.voxelpi.varp.repository.mysql
 import net.kyori.adventure.key.Key
 import net.kyori.adventure.text.minimessage.MiniMessage.miniMessage
 import net.voxelpi.varp.MinecraftLocation
+import net.voxelpi.varp.option.OptionsContext
 import net.voxelpi.varp.repository.mysql.functions.ReplaceFunction
 import net.voxelpi.varp.repository.mysql.tables.Folders
 import net.voxelpi.varp.repository.mysql.tables.Warps
@@ -200,7 +201,7 @@ class MySQLRepository(
         }
     }
 
-    override suspend fun handleMove(src: WarpPath, dst: WarpPath): Result<Unit> {
+    override suspend fun handleMove(src: WarpPath, dst: WarpPath, options: OptionsContext): Result<Unit> {
         return runCatching {
             transaction {
                 Warps.update({ Warps.path eq src.toString() }) {
@@ -210,7 +211,7 @@ class MySQLRepository(
         }
     }
 
-    override suspend fun handleMove(src: FolderPath, dst: FolderPath): Result<Unit> {
+    override suspend fun handleMove(src: FolderPath, dst: FolderPath, options: OptionsContext): Result<Unit> {
         return runCatching {
             transaction {
                 Folders.update({ Folders.path like "$src%" }) {

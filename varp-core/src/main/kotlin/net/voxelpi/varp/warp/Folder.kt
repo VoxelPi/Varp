@@ -2,6 +2,10 @@ package net.voxelpi.varp.warp
 
 import net.voxelpi.varp.DuplicatesStrategy
 import net.voxelpi.varp.exception.tree.FolderAlreadyExistsException
+import net.voxelpi.varp.option.DuplicatesStrategyOption
+import net.voxelpi.varp.option.Option
+import net.voxelpi.varp.option.OptionValue
+import net.voxelpi.varp.option.OptionsContext
 import net.voxelpi.varp.warp.path.FolderPath
 import net.voxelpi.varp.warp.path.NodeParentPath
 import net.voxelpi.varp.warp.state.FolderState
@@ -46,8 +50,8 @@ public class Folder internal constructor(
      * Moves the folder to the given [destination].
      * Also renames the folder to the id given in the path.
      */
-    public suspend fun move(destination: FolderPath, duplicatesStrategy: DuplicatesStrategy): Result<Unit> {
-        tree.move(path, destination, duplicatesStrategy).onFailure {
+    public suspend fun move(destination: FolderPath, options: Collection<OptionValue<out Option<*>>> = emptyList()): Result<Unit> {
+        tree.move(path, destination, options).onFailure {
             return Result.failure(it)
         }
 
@@ -55,39 +59,41 @@ public class Folder internal constructor(
         return Result.success(Unit)
     }
 
-    override suspend fun move(destination: NodeParentPath, duplicatesStrategy: DuplicatesStrategy, destinationId: String?): Result<Unit> {
-        return move(destination.folder(destinationId ?: id), duplicatesStrategy)
+    override suspend fun move(destination: NodeParentPath, destinationId: String?, options: Collection<OptionValue<out Option<*>>>): Result<Unit> {
+        return move(destination.folder(destinationId ?: id), options)
     }
 
-    override suspend fun move(id: String, duplicatesStrategy: DuplicatesStrategy): Result<Unit> {
-        return move(path.parent.folder(id), duplicatesStrategy)
+    override suspend fun move(id: String, options: Collection<OptionValue<out Option<*>>>): Result<Unit> {
+        return move(path.parent.folder(id), options)
     }
 
     /**
      * Copies the folder to the given [destination].
      * Also renames the folder to name given in the path.
      */
-    public suspend fun copy(destination: FolderPath, duplicatesStrategy: DuplicatesStrategy, recursive: Boolean = true): Result<Folder> {
-        return copy(destination, duplicatesStrategy, recursive, destination)
+    public suspend fun copy(destination: FolderPath, recursive: Boolean = true, options: Collection<OptionValue<out Option<*>>> = emptyList()): Result<Folder> {
+        return copy(destination, recursive, destination, options)
     }
 
     /**
      * Copies the folder to the given [destination].
      * If [recursive] is true child nodes will also be copied, otherwise only the folder itself is copied.
      */
-    public suspend fun copy(destination: NodeParentPath, duplicatesStrategy: DuplicatesStrategy, destinationId: String? = null, recursive: Boolean = true): Result<Folder> {
-        return copy(destination.folder(destinationId ?: id), duplicatesStrategy, recursive)
+    public suspend fun copy(destination: NodeParentPath, destinationId: String? = null, recursive: Boolean = true, options: Collection<OptionValue<out Option<*>>> = emptyList()): Result<Folder> {
+        return copy(destination.folder(destinationId ?: id), recursive, options)
     }
 
     /**
      * Copies the folder and all its child nodes to the given [destination].
      */
-    override suspend fun copy(destination: NodeParentPath, duplicatesStrategy: DuplicatesStrategy, destinationId: String?): Result<Folder> {
-        return copy(destination, duplicatesStrategy, destinationId, true)
+    override suspend fun copy(destination: NodeParentPath, destinationId: String?, options: Collection<OptionValue<out Option<*>>>): Result<Folder> {
+        return copy(destination, destinationId, true, options)
     }
 
-    private suspend fun copy(destination: FolderPath, duplicatesStrategy: DuplicatesStrategy, recursive: Boolean, skipPath: FolderPath): Result<Folder> {
+    private suspend fun copy(destination: FolderPath, recursive: Boolean, skipPath: FolderPath, options: Collection<OptionValue<out Option<*>>>): Result<Folder> {
         // Check if the folder already exists
+        val optionsContext = OptionsContext(options)
+        val duplicatesStrategy = optionsContext.getOrDefault(DuplicatesStrategyOption)
         tree.resolve(destination)?.let { folder ->
             when (duplicatesStrategy) {
                 DuplicatesStrategy.FAIL -> return Result.failure(FolderAlreadyExistsException(folder.path))
@@ -105,7 +111,7 @@ public class Folder internal constructor(
         // Copy children
         val parent = folder.getOrElse { return folder }
         for (child in childWarps()) {
-            child.copy(parent.path.warp(child.id), duplicatesStrategy).onFailure {
+            child.copy(parent.path.warp(child.id), options).onFailure {
                 return Result.failure(it)
             }
         }
@@ -115,7 +121,7 @@ public class Folder internal constructor(
                 continue
             }
 
-            child.copy(parent.path.folder(child.id), duplicatesStrategy, true, skipPath).onFailure {
+            child.copy(parent.path.folder(child.id), true, skipPath, options).onFailure {
                 return Result.failure(it)
             }
         }

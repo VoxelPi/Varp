@@ -9,6 +9,10 @@ import net.voxelpi.varp.exception.tree.FolderNotFoundException
 import net.voxelpi.varp.exception.tree.NodeParentNotFoundException
 import net.voxelpi.varp.exception.tree.WarpAlreadyExistsException
 import net.voxelpi.varp.exception.tree.WarpNotFoundException
+import net.voxelpi.varp.option.DuplicatesStrategyOption
+import net.voxelpi.varp.option.Option
+import net.voxelpi.varp.option.OptionValue
+import net.voxelpi.varp.option.OptionsContext
 import net.voxelpi.varp.warp.path.FolderPath
 import net.voxelpi.varp.warp.path.NodeChildPath
 import net.voxelpi.varp.warp.path.NodeParentPath
@@ -365,14 +369,18 @@ public class Tree internal constructor(
     /**
      * Moves the warp at [src] to [dst].
      */
-    public suspend fun move(src: WarpPath, dst: WarpPath, duplicatesStrategy: DuplicatesStrategy): Result<Unit> {
+    public suspend fun move(src: WarpPath, dst: WarpPath, options: Collection<OptionValue<out Option<*>>> = emptyList()): Result<Unit> {
         // Early return if source and destination path are the same.
         if (src == dst) {
             return Result.success(Unit)
         }
 
+        // Create option context.
+        val optionsContext = OptionsContext(options)
+
         // Fail if a warp already exists at the destination path.
         if (exists(dst)) {
+            val duplicatesStrategy = optionsContext.getOrDefault(DuplicatesStrategyOption)
             when (duplicatesStrategy) {
                 DuplicatesStrategy.REPLACE_EXISTING -> TODO()
                 DuplicatesStrategy.SKIP -> TODO()
@@ -381,7 +389,7 @@ public class Tree internal constructor(
         }
 
         // Move the state.
-        repository.move(src, dst).onFailure { return Result.failure(it) }
+        repository.move(src, dst, optionsContext).onFailure { return Result.failure(it) }
 
         return Result.success(Unit)
     }
@@ -389,7 +397,7 @@ public class Tree internal constructor(
     /**
      * Moves the folder at [src] to [dst].
      */
-    public suspend fun move(src: FolderPath, dst: FolderPath, duplicatesStrategy: DuplicatesStrategy): Result<Unit> {
+    public suspend fun move(src: FolderPath, dst: FolderPath, options: Collection<OptionValue<out Option<*>>> = emptyList()): Result<Unit> {
         // Early return if source and destination path are the same.
         if (src == dst) {
             return Result.success(Unit)
@@ -400,8 +408,12 @@ public class Tree internal constructor(
             return Result.failure(FolderMoveIntoChildException(src, dst))
         }
 
+        // Create option context.
+        val optionsContext = OptionsContext(options)
+
         // Fail if a folder already exists at the destination path.
         if (exists(dst)) {
+            val duplicatesStrategy = optionsContext.getOrDefault(DuplicatesStrategyOption)
             when (duplicatesStrategy) {
                 DuplicatesStrategy.REPLACE_EXISTING -> TODO()
                 DuplicatesStrategy.SKIP -> TODO()
@@ -410,7 +422,7 @@ public class Tree internal constructor(
         }
 
         // Move the state.
-        repository.move(src, dst).onFailure { return Result.failure(it) }
+        repository.move(src, dst, optionsContext).onFailure { return Result.failure(it) }
 
         return Result.success(Unit)
     }

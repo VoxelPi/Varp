@@ -1,5 +1,6 @@
 package net.voxelpi.varp.warp.repository.ephemeral
 
+import net.voxelpi.varp.option.OptionsContext
 import net.voxelpi.varp.warp.path.FolderPath
 import net.voxelpi.varp.warp.path.WarpPath
 import net.voxelpi.varp.warp.repository.SimpleRepository
@@ -46,11 +47,11 @@ public class EphemeralRepository(
         return Result.success(Unit)
     }
 
-    override suspend fun handleMove(src: WarpPath, dst: WarpPath): Result<Unit> {
+    override suspend fun handleMove(src: WarpPath, dst: WarpPath, options: OptionsContext): Result<Unit> {
         return Result.success(Unit)
     }
 
-    override suspend fun handleMove(src: FolderPath, dst: FolderPath): Result<Unit> {
+    override suspend fun handleMove(src: FolderPath, dst: FolderPath, options: OptionsContext): Result<Unit> {
         return Result.success(Unit)
     }
 }

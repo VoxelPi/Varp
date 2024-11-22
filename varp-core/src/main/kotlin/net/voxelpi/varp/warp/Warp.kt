@@ -3,6 +3,10 @@ package net.voxelpi.varp.warp
 import net.voxelpi.varp.DuplicatesStrategy
 import net.voxelpi.varp.MinecraftLocation
 import net.voxelpi.varp.exception.tree.WarpAlreadyExistsException
+import net.voxelpi.varp.option.DuplicatesStrategyOption
+import net.voxelpi.varp.option.Option
+import net.voxelpi.varp.option.OptionValue
+import net.voxelpi.varp.option.OptionsContext
 import net.voxelpi.varp.warp.path.NodeParentPath
 import net.voxelpi.varp.warp.path.WarpPath
 import net.voxelpi.varp.warp.state.WarpState
@@ -53,8 +57,8 @@ public class Warp internal constructor(
      * Moves the warp to the given [destination].
      * Also renames the warp to name given in the path.
      */
-    public suspend fun move(destination: WarpPath, duplicatesStrategy: DuplicatesStrategy): Result<Unit> {
-        tree.move(path, destination, duplicatesStrategy).onFailure {
+    public suspend fun move(destination: WarpPath, options: Collection<OptionValue<out Option<*>>> = emptyList()): Result<Unit> {
+        tree.move(path, destination, options).onFailure {
             return Result.failure(it)
         }
 
@@ -62,19 +66,22 @@ public class Warp internal constructor(
         return Result.success(Unit)
     }
 
-    override suspend fun move(destination: NodeParentPath, duplicatesStrategy: DuplicatesStrategy, destinationId: String?): Result<Unit> {
-        return move(destination.warp(destinationId ?: id), duplicatesStrategy)
+    override suspend fun move(destination: NodeParentPath, destinationId: String?, options: Collection<OptionValue<out Option<*>>>): Result<Unit> {
+        return move(destination.warp(destinationId ?: id), options)
     }
 
-    override suspend fun move(id: String, duplicatesStrategy: DuplicatesStrategy): Result<Unit> {
-        return move(path.parent.warp(id), duplicatesStrategy)
+    override suspend fun move(id: String, options: Collection<OptionValue<out Option<*>>>): Result<Unit> {
+        return move(path.parent.warp(id), options)
     }
 
     /**
      * Copies the warp to the given [destination].
      * Also renames the warp to the id given in the path.
      */
-    public suspend fun copy(destination: WarpPath, duplicatesStrategy: DuplicatesStrategy): Result<Warp> {
+    public suspend fun copy(destination: WarpPath, options: Collection<OptionValue<out Option<*>>> = emptyList()): Result<Warp> {
+        val optionsContext = OptionsContext(options)
+        val duplicatesStrategy = optionsContext.getOrDefault(DuplicatesStrategyOption)
+
         // Check if the warp already exists
         tree.resolve(destination)?.let { warp ->
             when (duplicatesStrategy) {
@@ -90,10 +97,10 @@ public class Warp internal constructor(
 
     override suspend fun copy(
         destination: NodeParentPath,
-        duplicatesStrategy: DuplicatesStrategy,
         destinationId: String?,
+        options: Collection<OptionValue<out Option<*>>>,
     ): Result<Warp> {
-        return copy(destination.warp(destinationId ?: id), duplicatesStrategy)
+        return copy(destination.warp(destinationId ?: id), options)
     }
 
     override suspend fun delete(): Result<Unit> {

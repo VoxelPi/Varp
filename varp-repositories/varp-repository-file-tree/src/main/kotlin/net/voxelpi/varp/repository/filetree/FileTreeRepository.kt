@@ -3,6 +3,7 @@ package net.voxelpi.varp.repository.filetree
 import net.kyori.adventure.serializer.configurate4.ConfigurateComponentSerializer
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.serializer.ComponentSerializer
+import net.voxelpi.varp.option.OptionsContext
 import net.voxelpi.varp.serializer.configurate.VarpConfigurateSerializers
 import net.voxelpi.varp.warp.path.FolderPath
 import net.voxelpi.varp.warp.path.NodeParentPath
@@ -136,7 +137,7 @@ class FileTreeRepository(
         }
     }
 
-    override suspend fun handleMove(src: WarpPath, dst: WarpPath): Result<Unit> {
+    override suspend fun handleMove(src: WarpPath, dst: WarpPath, options: OptionsContext): Result<Unit> {
         return runCatching {
             val srcPath = src.file()
             val dstPath = dst.file()
@@ -144,7 +145,7 @@ class FileTreeRepository(
         }
     }
 
-    override suspend fun handleMove(src: FolderPath, dst: FolderPath): Result<Unit> {
+    override suspend fun handleMove(src: FolderPath, dst: FolderPath, options: OptionsContext): Result<Unit> {
         return runCatching {
             val srcPath = src.directory()
             val dstPath = dst.directory()
