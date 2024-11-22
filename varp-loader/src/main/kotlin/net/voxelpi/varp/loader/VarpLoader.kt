@@ -132,7 +132,6 @@ public class VarpLoader internal constructor(
         }
 
         loadTree().onFailure { return Result.failure(it) }
-        compositor.load().getOrElse { return Result.failure(it) }
         return Result.success(Unit)
     }
 
@@ -220,7 +219,7 @@ public class VarpLoader internal constructor(
         }
     }
 
-    private fun loadTree(): Result<Unit> {
+    private suspend fun loadTree(): Result<Unit> {
         return runCatching {
             val treeFile = path.resolve(TREE_FILE)
 
@@ -242,7 +241,7 @@ public class VarpLoader internal constructor(
                     continue
                 }
 
-                val mount = CompositorMount(mountDefinition.path, repository)
+                val mount = CompositorMount(mountDefinition.path, repository, mountDefinition.sourcePath)
                 mounts.add(mount)
             }
 
@@ -253,7 +252,7 @@ public class VarpLoader internal constructor(
 
     private fun saveTree(): Result<Unit> {
         return runCatching {
-            val mountDefinitions = compositor.mounts().map { mount -> MountDefinition(mount.path, mount.repository.id) }
+            val mountDefinitions = compositor.mounts().map { mount -> MountDefinition(mount.path, mount.repository.id, mount.sourcePath) }
             val treeConfiguration = TreeConfiguration(mountDefinitions)
 
             // Save the tree file.
@@ -293,10 +292,10 @@ public class VarpLoader internal constructor(
         /**
          * Adds a new default repository with default mounts.
          */
-        public fun <C : RepositoryConfig> addDefaultRepository(id: String, type: RepositoryType<*, C>, config: C, mounts: Collection<NodeParentPath>): Builder {
+        public fun <C : RepositoryConfig> addDefaultRepository(id: String, type: RepositoryType<*, C>, config: C, mounts: Collection<Pair<NodeParentPath, NodeParentPath>>): Builder {
             defaultRepositories[id] = RepositoryDefinition(id, type, config)
-            for (mount in mounts) {
-                defaultMounts[mount] = MountDefinition(mount, id)
+            for ((path, repositoryPath) in mounts) {
+                defaultMounts[path] = MountDefinition(path, id, repositoryPath)
             }
             return this
         }

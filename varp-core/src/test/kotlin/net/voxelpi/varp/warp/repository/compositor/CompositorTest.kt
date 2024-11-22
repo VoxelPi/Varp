@@ -6,6 +6,7 @@ import net.kyori.adventure.text.Component
 import net.voxelpi.varp.MinecraftLocation
 import net.voxelpi.varp.warp.path.FolderPath
 import net.voxelpi.varp.warp.path.NodeParentPath
+import net.voxelpi.varp.warp.path.RootPath
 import net.voxelpi.varp.warp.path.WarpPath
 import net.voxelpi.varp.warp.repository.ephemeral.EphemeralRepository
 import net.voxelpi.varp.warp.state.FolderState
@@ -27,10 +28,10 @@ class CompositorTest {
             "main",
             CompositorConfig(
                 listOf(
-                    CompositorMount(NodeParentPath.parse("/").getOrThrow(), repo0),
-                    CompositorMount(NodeParentPath.parse("/data1/").getOrThrow(), repo1),
-                    CompositorMount(NodeParentPath.parse("/data2/").getOrThrow(), repo2),
-                    CompositorMount(NodeParentPath.parse("/data2/data3/").getOrThrow(), repo3),
+                    CompositorMount(NodeParentPath.parse("/").getOrThrow(), repo0, RootPath),
+                    CompositorMount(NodeParentPath.parse("/data1/").getOrThrow(), repo1, RootPath),
+                    CompositorMount(NodeParentPath.parse("/data2/").getOrThrow(), repo2, RootPath),
+                    CompositorMount(NodeParentPath.parse("/data2/data3/").getOrThrow(), repo3, RootPath),
                 ),
             ),
         )
@@ -92,7 +93,7 @@ class CompositorTest {
             "main",
             CompositorConfig(
                 listOf(
-                    CompositorMount(NodeParentPath.parse("/test/repo/").getOrThrow(), repo),
+                    CompositorMount(NodeParentPath.parse("/test/repo/").getOrThrow(), repo, RootPath),
                 ),
             ),
         )
