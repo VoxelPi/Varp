@@ -4,7 +4,7 @@
 [![Sonatype Nexus (Releases)](https://img.shields.io/nexus/r/net.voxelpi.varp/varp-api?server=https%3A%2F%2Frepo.voxelpi.net&nexusVersion=3&style=for-the-badge&label=stable&color=blue)](https://repo.voxelpi.net/#browse/search=keyword%3Dvarp)
 [![Sonatype Nexus (Snapshots)](https://img.shields.io/nexus/s/net.voxelpi.varp/varp-api?server=https%3A%2F%2Frepo.voxelpi.net&nexusVersion=3&style=for-the-badge&label=dev)](https://repo.voxelpi.net/#browse/search=keyword%3Dvarp)
 
-VoxelPi's warp management system
+A powerful tree-based warp management system for minecraft.
 
 ## Minecraft Mod / Plugin
 

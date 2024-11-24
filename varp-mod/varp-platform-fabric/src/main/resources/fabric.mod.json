@@ -4,7 +4,7 @@
   "version": "${version}",
 
   "name": "Varp",
-  "description": "VoxelPi's warp mod",
+  "description": "A powerful tree-based warp management system.",
   "authors": [
     {
       "name": "VoxelPi",

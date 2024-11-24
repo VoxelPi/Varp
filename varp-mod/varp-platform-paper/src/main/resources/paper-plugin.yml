@@ -1,5 +1,5 @@
 name: Varp
-description: VoxelPi's warp plugin
+description: A powerful tree-based warp management system.
 version: '${version}'
 authors:
   - VoxelPi
