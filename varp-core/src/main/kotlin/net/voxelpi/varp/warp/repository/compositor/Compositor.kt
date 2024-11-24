@@ -136,10 +136,24 @@ public class Compositor(
         return Result.success(Unit)
     }
 
+    /**
+     * Returns all mounts of this compositor.
+     */
     public fun mounts(): Collection<CompositorMount> {
         return mounts.values
     }
 
+    /**
+     * Returns the mount that is mounted at the given [path].
+     * If no repository is mounted there, null is returned.
+     */
+    public fun mount(path: NodeParentPath): CompositorMount? {
+        return mounts[path]
+    }
+
+    /**
+     * Returns the mount that stores the node at the given [path].
+     */
     public fun mountAt(path: NodePath): Result<CompositorMount> {
         if (mounts.isEmpty()) {
             return Result.failure(MissingMountException(path))
@@ -149,6 +163,14 @@ public class Compositor(
                 .filter { it.path.isSubPathOf(path) }
                 .maxBy { it.path.value.length }
         )
+    }
+
+    /**
+     * Returns all repositories that are mounted to the compositor.
+     * Note that a repository is listed only once, even if it is mounted multiple times.
+     */
+    public fun mountedRepositories(): Collection<Repository> {
+        return mounts.values.map(CompositorMount::repository).associateBy { it.id }.values
     }
 
     /**
