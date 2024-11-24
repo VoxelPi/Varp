@@ -14,6 +14,22 @@ public sealed interface NodeParent : Node {
      */
     override val path: NodeParentPath
 
+    override val state: FolderState
+
+    /**
+     * Modifies the state of the folder.
+     */
+    public suspend fun modify(state: FolderState): Result<FolderState>
+
+    /**
+     * Modifies the state of the folder.
+     */
+    public suspend fun modify(init: FolderState.Builder.() -> Unit): Result<FolderState> {
+        val builder = FolderState.Builder(state)
+        builder.init()
+        return modify(builder.build())
+    }
+
     /**
      * List of all warps that are direct children of this node.
      */

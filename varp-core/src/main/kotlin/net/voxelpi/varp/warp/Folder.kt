@@ -29,20 +29,11 @@ public class Folder internal constructor(
     /**
      * Modifies the state of the folder.
      */
-    public suspend fun modify(state: FolderState): Result<FolderState> {
+    override suspend fun modify(state: FolderState): Result<FolderState> {
         tree.folderState(path, state).getOrElse {
             return Result.failure(it)
         }
         return Result.success(state)
-    }
-
-    /**
-     * Modifies the state of the folder.
-     */
-    public suspend fun modify(init: FolderState.Builder.() -> Unit): Result<FolderState> {
-        val builder = FolderState.Builder(state)
-        builder.init()
-        return modify(builder.build())
     }
 
     /**
