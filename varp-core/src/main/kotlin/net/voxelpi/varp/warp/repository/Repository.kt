@@ -1,5 +1,9 @@
 package net.voxelpi.varp.warp.repository
 
+import net.voxelpi.varp.DuplicatesStrategy
+import net.voxelpi.varp.exception.tree.FolderNotFoundException
+import net.voxelpi.varp.exception.tree.NodeParentAlreadyExistsException
+import net.voxelpi.varp.option.DuplicatesStrategyOption
 import net.voxelpi.varp.option.OptionsContext
 import net.voxelpi.varp.warp.Tree
 import net.voxelpi.varp.warp.path.FolderPath
@@ -84,6 +88,43 @@ public abstract class Repository(
     public abstract suspend fun move(src: WarpPath, dst: WarpPath, options: OptionsContext): Result<Unit>
 
     public abstract suspend fun move(src: FolderPath, dst: FolderPath, options: OptionsContext): Result<Unit>
+
+    public open suspend fun move(src: FolderPath, dst: NodeParentPath, options: OptionsContext): Result<Unit> {
+        return when (dst) {
+            is FolderPath -> {
+                move(src, dst, options)
+            }
+            RootPath -> {
+                val duplicatesStrategy = options.getOrDefault(DuplicatesStrategyOption)
+                if (duplicatesStrategy == DuplicatesStrategy.FAIL) {
+                    return Result.failure(NodeParentAlreadyExistsException(dst))
+                }
+
+                // If replace strategy is used, overwrite root node state.
+                if (duplicatesStrategy == DuplicatesStrategy.REPLACE_EXISTING) {
+                    val srcState = registryView[src] ?: throw FolderNotFoundException(src)
+                    save(srcState)
+                }
+
+                // Move all direct child folders
+                val directChildFolders = registryView.folders.keys
+                    .filter { src.isTrueSubPathOf(it) && !it.value.substring(src.value.length, it.value.length - 1).contains("/") }
+                for (folder in directChildFolders) {
+                    move(folder, RootPath / (folder.relativeTo(src)!! as FolderPath), options).getOrElse { return Result.failure(it) }
+                }
+
+                // Move all direct child warps.
+                val directChildWarps = registryView.warps.keys
+                    .filter { src.isSubPathOf(it) && !it.value.substring(src.value.length).contains("/") }
+                for (warp in directChildWarps) {
+                    move(warp, RootPath / warp.relativeTo(src)!!, options).getOrElse { return Result.failure(it) }
+                }
+
+                // Everything completed successfully.
+                Result.success(Unit)
+            }
+        }
+    }
 
     public companion object {
         private val logger: Logger = LoggerFactory.getLogger(this::class.java)

@@ -3,6 +3,7 @@ package net.voxelpi.varp.warp.repository.compositor
 import net.voxelpi.event.EventScope
 import net.voxelpi.event.eventScope
 import net.voxelpi.event.post
+import net.voxelpi.varp.DuplicatesStrategy
 import net.voxelpi.varp.event.compositor.CompositorRepositoryMountEvent
 import net.voxelpi.varp.event.compositor.CompositorRepositoryUnmountEvent
 import net.voxelpi.varp.event.folder.FolderCreateEvent
@@ -19,8 +20,12 @@ import net.voxelpi.varp.event.warp.WarpPostDeleteEvent
 import net.voxelpi.varp.event.warp.WarpStateChangeEvent
 import net.voxelpi.varp.exception.tree.FolderMoveIntoChildException
 import net.voxelpi.varp.exception.tree.FolderNotFoundException
+import net.voxelpi.varp.exception.tree.NodeParentAlreadyExistsException
 import net.voxelpi.varp.exception.tree.NodeParentNotFoundException
+import net.voxelpi.varp.exception.tree.WarpAlreadyExistsException
 import net.voxelpi.varp.exception.tree.WarpNotFoundException
+import net.voxelpi.varp.option.DuplicatesStrategyOption
+import net.voxelpi.varp.option.MoveMountsOptions
 import net.voxelpi.varp.option.OptionsContext
 import net.voxelpi.varp.warp.path.FolderPath
 import net.voxelpi.varp.warp.path.NodeParentPath
@@ -365,86 +370,162 @@ public class Compositor(
     }
 
     override suspend fun move(src: FolderPath, dst: FolderPath, options: OptionsContext): Result<Unit> {
-        // TODO: This breaks if multiple mounts are used
+        // Get relevant options.
+        val moveMounts = options.getOrDefault(MoveMountsOptions)
+        val duplicatesStrategy = options.getOrDefault(DuplicatesStrategyOption)
+
+        // Fail if mounts should be moved, and the destination already exists.
+        // This is needed because mounts can't be "merged".
+        if (moveMounts && dst in registryView) {
+            throw NodeParentAlreadyExistsException(dst)
+        }
+
+        // Throw exception when trying to move a folder into one of its children.
+        if (src.isTrueSubPathOf(dst)) {
+            return Result.failure(FolderMoveIntoChildException(src, dst))
+        }
+
         val srcMount = mountAt(src).getOrElse { return Result.failure(it) }
         val dstMount = mountAt(dst).getOrElse { return Result.failure(it) }
         val srcRepositoryPath = srcMount.sourcePath / src.relativeTo(srcMount.path)!!
         val dstRepositoryPath = dstMount.sourcePath / dst.relativeTo(dstMount.path)!!
 
-        if (srcMount.path == dstMount.path) {
-            // Source and destination are stored in the same repository.
-            // Therefore, the move operation is forwarded to the repository.
-            val mount = srcMount
-            when (dstRepositoryPath) {
-                is FolderPath -> {
-                    if (srcRepositoryPath !is FolderPath) {
-                        return Result.failure(FolderMoveIntoChildException(src, dst))
+        if (moveMounts) {
+            // Mounts are moved.
+            // This mode always fails if duplicates are detected.
+
+            if (srcMount == dstMount) {
+                // Source and destination are the same.
+                val mount = srcMount
+
+                // This would mean moving a parent folder into its own child folder, which is not possible as it is already checked.
+                require(srcRepositoryPath is FolderPath) { "Can't move root folder" }
+
+                // Perform move in repository.
+                mount.repository.move(srcRepositoryPath, dstRepositoryPath, options).getOrElse { return Result.failure(it) }
+            } else {
+                // Source and destination mount are not the same.
+
+                // Check that the srcRepositoryPath is not the source path of that mount.
+                // Would that be the case, the movement is handled only be changing the mounts.
+                if (srcRepositoryPath is FolderPath && srcRepositoryPath != srcMount.sourcePath) {
+                    // Create a list of all folders that are sub folders (or the folder itself) and sort it by the length of their paths.
+                    // That way a parent folder is always created before its child folders, as it has a shorter path.
+                    // Then use the list to create all folders at the new location.
+                    val relativeFolderPaths = registry.folders.keys.mapNotNull { it.relativeTo(src) }.sortedBy { it.value.length }
+                    for (relativePath in relativeFolderPaths) {
+                        val state = registry[src / relativePath]!!
+                        val folderDst = dst / relativePath
+                        // Because move mounts is true, it is ensured that the dst does not exist. Therefore, the dstMount is guaranteed to not change for sub folders.
+                        val folderDstRepositoryPath = dstMount.sourcePath / folderDst.relativeTo(dstMount.path)!!
+                        when (folderDstRepositoryPath) {
+                            is FolderPath -> dstMount.repository.create(folderDstRepositoryPath, state).getOrElse { return Result.failure(it) }
+                            RootPath -> error("This is impossible") // dstMount.repository.save(state) // Impossible
+                        }
                     }
-                    mount.repository.move(srcRepositoryPath, dstRepositoryPath, options).getOrElse { return Result.failure(it) }
+
+                    // Create a list of all warps that are children of the moved folder.
+                    // Then use the list to create all warps at the new location.
+                    val relativeWarpPaths = registry.warps.keys.mapNotNull { it.relativeTo(src) }
+                    for (relativePath in relativeWarpPaths) {
+                        val state = registry[src / relativePath]!!
+                        val warpDst = dst / relativePath
+                        // Because move mounts is true, it is ensured that the dst does not exist. Therefore, the dstMount is guaranteed to not change for sub folders.
+                        val warpDstRepositoryPath = dstMount.sourcePath / warpDst.relativeTo(dstMount.path)!!
+                        dstMount.repository.create(warpDstRepositoryPath, state).getOrElse { return Result.failure(it) }
+                    }
+
+                    // Delete folder.
+                    srcMount.repository.delete(srcRepositoryPath)
                 }
-                RootPath -> {
-                    // Move root by saving state in root.
-                    mount.repository.save(registry[src]!!)
+            }
 
-                    // Move all direct child folders
-                    val directChildFolders = mount.repository.registryView.folders.keys
-                        .filter { srcRepositoryPath.isTrueSubPathOf(it) && !it.value.substring(srcRepositoryPath.value.length, it.value.length - 1).contains("/") }
-                    for (folder in directChildFolders) {
-                        mount.repository.move(folder, folder.relativeTo(srcRepositoryPath)!! as FolderPath, options).getOrElse { return Result.failure(it) }
-                    }
-
-                    // Move all direct child warps.
-                    val directChildWarps = mount.repository.registryView.warps.keys
-                        .filter { srcRepositoryPath.isSubPathOf(it) && !it.value.substring(srcRepositoryPath.value.length).contains("/") }
-                    for (warp in directChildWarps) {
-                        mount.repository.move(warp, warp.relativeTo(srcRepositoryPath)!!, options).getOrElse { return Result.failure(it) }
-                    }
-
-                    // TODO: Probably still have to delete the original folder.
-                }
+            // Move all mounts that are mounted to the src path or a subpath.
+            val mountPaths = mounts.keys.filter { src.isSubPathOf(it) }
+            for (srcMountPath in mountPaths) {
+                val dstMountPath = dst / srcMountPath.relativeTo(src)!!
+                val mount = mounts.remove(srcMountPath)!!
+                mounts[dstMountPath] = mount.copy(path = dstMountPath)
             }
         } else {
-            // Create a list of all folders that are sub folders (or the folder itself) and sort it by the length of their paths.
-            // That way a parent folder is always created before its child folders, as it has a shorter path.
-            // Then use the list to create all folders at the new location.
-            // TODO: This will break if moving stuff into a directory that contains a subfolder that is also a mount (dst mount changes
-            val affectedFoldersRelativePaths = registry.folders.keys.mapNotNull { it.relativeTo(src) }.sortedBy { it.value.length }
-            for (relativePath in affectedFoldersRelativePaths) {
-                val state = registry[src / relativePath]!!
-                val folderDst = dst / relativePath
-                val folderDstRepositoryPath = dstMount.sourcePath / folderDst.relativeTo(dstMount.path)!!
-                when (folderDstRepositoryPath) {
-                    is FolderPath -> dstMount.repository.create(folderDstRepositoryPath, state).getOrElse { return Result.failure(it) }
-                    RootPath -> dstMount.repository.save(state)
+            // Mounts are not moved, data is always copied between mounts.
+
+            if (srcMount == dstMount && (dst !in registry || mounts.keys.none { dst.isTrueSubPathOf(it) })) {
+                // Source mount is the same as the destination mount,
+                // and there are mounts inside the destination mount.
+                // Therefore, the move operation can be delegated to the mounted repository.
+
+                val mount = srcMount
+
+                // This would mean moving a parent folder into its own child folder, which is not possible as it is already checked.
+                require(srcRepositoryPath is FolderPath) { "Can't move root folder" }
+
+                mount.repository.move(srcRepositoryPath, dstRepositoryPath, options).getOrElse { return Result.failure(it) }
+            } else {
+                // Create a list of all folders that are sub folders (or the folder itself) and sort it by the length of their paths.
+                // That way a parent folder is always created before its child folders, as it has a shorter path.
+                // Then use the list to create all folders at the new location.
+                val affectedFoldersRelativePaths = registry.folders.keys.mapNotNull { it.relativeTo(src) }.sortedBy { it.value.length }
+                for (relativePath in affectedFoldersRelativePaths) {
+                    val state = registry[src / relativePath]!!
+                    val folderDst = dst / relativePath
+                    val folderDstMount = mountAt(folderDst).getOrElse { return Result.failure(it) }
+                    val folderDstRepositoryPath = folderDstMount.sourcePath / folderDst.relativeTo(folderDstMount.path)!!
+
+                    if (folderDstRepositoryPath in folderDstMount.repository.registryView) {
+                        // The destination already exists. Action depends on duplicate strategy.
+                        when (duplicatesStrategy) {
+                            DuplicatesStrategy.FAIL -> return Result.failure(NodeParentAlreadyExistsException(folderDstRepositoryPath))
+                            DuplicatesStrategy.REPLACE_EXISTING -> folderDstMount.repository.save(folderDstRepositoryPath, state).getOrElse { return Result.failure(it) }
+                            DuplicatesStrategy.SKIP -> {}
+                        }
+                    } else {
+                        // The destination doesn't already exist and must be created.
+                        when (folderDstRepositoryPath) {
+                            is FolderPath -> folderDstMount.repository.create(folderDstRepositoryPath, state).getOrElse { return Result.failure(it) }
+                            RootPath -> folderDstMount.repository.save(state)
+                        }
+                    }
                 }
-            }
 
-            // Create a list of all warps that are children of the moved folder.
-            // Then use the list to create all warps at the new location.
-            val affectedWarpsRelativePaths = registry.warps.keys.mapNotNull { it.relativeTo(src) }
-            for (relativePath in affectedWarpsRelativePaths) {
-                val state = registry[src / relativePath]!!
-                val warpDst = dst / relativePath
-                val warpDstRepositoryPath = dstMount.sourcePath / warpDst.relativeTo(dstMount.path)!!
-                dstMount.repository.create(warpDstRepositoryPath, state).getOrElse { return Result.failure(it) }
-            }
+                // Create a list of all warps that are children of the moved folder.
+                // Then use the list to create all warps at the new location.
+                val affectedWarpsRelativePaths = registry.warps.keys.mapNotNull { it.relativeTo(src) }
+                for (relativePath in affectedWarpsRelativePaths) {
+                    val state = registry[src / relativePath]!!
+                    val warpDst = dst / relativePath
+                    val warpDstMount = mountAt(warpDst).getOrElse { return Result.failure(it) }
+                    val warpDstRepositoryPath = warpDstMount.sourcePath / warpDst.relativeTo(warpDstMount.path)!!
 
-            when (srcRepositoryPath) {
-                is FolderPath -> {
-                    // Remove the old folder.
-                    srcMount.repository.delete(srcRepositoryPath).getOrElse { return Result.failure(it) }
+                    if (warpDstRepositoryPath in warpDstMount.repository.registryView) {
+                        // The destination already exists. Action depends on duplicate strategy.
+                        when (duplicatesStrategy) {
+                            DuplicatesStrategy.FAIL -> return Result.failure(WarpAlreadyExistsException(warpDstRepositoryPath))
+                            DuplicatesStrategy.REPLACE_EXISTING -> warpDstMount.repository.save(warpDstRepositoryPath, state).getOrElse { return Result.failure(it) }
+                            DuplicatesStrategy.SKIP -> {}
+                        }
+                    } else {
+                        // The destination doesn't already exist and must be created.
+                        dstMount.repository.create(warpDstRepositoryPath, state).getOrElse { return Result.failure(it) }
+                    }
                 }
-                RootPath -> {
-                    // This is handled by removing the mount itself.
+
+                when (srcRepositoryPath) {
+                    is FolderPath -> {
+                        // Remove the old folder.
+                        srcMount.repository.delete(srcRepositoryPath).getOrElse { return Result.failure(it) }
+                    }
+                    RootPath -> {
+                        // This is handled by removing the mount itself.
+                    }
                 }
-            }
 
-            // Unmount all mounts that are part of the folder.
-            val removedMounts = mounts.values.filter { src.isSubPathOf(it.path) }
-            mounts -= removedMounts.map(CompositorMount::path)
-
-            for (mount in mounts.values) {
-                eventScope.post(CompositorRepositoryUnmountEvent(this, mount.repository, mount.path))
+                // Unmount all mounts that are part of the folder.
+                val removedMounts = mounts.values.filter { src.isSubPathOf(it.path) }
+                mounts -= removedMounts.map(CompositorMount::path)
+                for (mount in mounts.values) {
+                    eventScope.post(CompositorRepositoryUnmountEvent(this, mount.repository, mount.path))
+                }
             }
         }
 
@@ -455,6 +536,17 @@ public class Compositor(
         tree.eventScope.post(FolderPathChangeEvent(tree.resolve(dst)!!, dst, src))
 
         return Result.success(Unit)
+    }
+
+    override suspend fun move(src: FolderPath, dst: NodeParentPath, options: OptionsContext): Result<Unit> {
+        // If mount movement is enabled, check if the destination already exists.
+        if (options.getOrDefault(MoveMountsOptions)) {
+            if (dst in registryView) {
+                return Result.failure(NodeParentAlreadyExistsException(dst))
+            }
+        }
+
+        return super.move(src, dst, options)
     }
 
     // endregion
