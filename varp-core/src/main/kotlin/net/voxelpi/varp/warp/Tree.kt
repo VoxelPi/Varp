@@ -10,7 +10,6 @@ import net.voxelpi.varp.exception.tree.NodeParentNotFoundException
 import net.voxelpi.varp.exception.tree.WarpAlreadyExistsException
 import net.voxelpi.varp.exception.tree.WarpNotFoundException
 import net.voxelpi.varp.option.DuplicatesStrategyOption
-import net.voxelpi.varp.option.Option
 import net.voxelpi.varp.option.OptionValue
 import net.voxelpi.varp.option.OptionsContext
 import net.voxelpi.varp.warp.path.FolderPath
@@ -369,7 +368,7 @@ public class Tree internal constructor(
     /**
      * Moves the warp at [src] to [dst].
      */
-    public suspend fun move(src: WarpPath, dst: WarpPath, options: Collection<OptionValue<out Option<*>>> = emptyList()): Result<Unit> {
+    public suspend fun move(src: WarpPath, dst: WarpPath, options: Collection<OptionValue<*>> = emptyList()): Result<Unit> {
         // Early return if source and destination path are the same.
         if (src == dst) {
             return Result.success(Unit)
@@ -397,7 +396,7 @@ public class Tree internal constructor(
     /**
      * Moves the folder at [src] to [dst].
      */
-    public suspend fun move(src: FolderPath, dst: FolderPath, options: Collection<OptionValue<out Option<*>>> = emptyList()): Result<Unit> {
+    public suspend fun move(src: FolderPath, dst: FolderPath, options: Collection<OptionValue<*>> = emptyList()): Result<Unit> {
         // Early return if source and destination path are the same.
         if (src == dst) {
             return Result.success(Unit)

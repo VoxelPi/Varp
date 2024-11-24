@@ -7,7 +7,7 @@ public class OptionsContext internal constructor(
     private val options: Map<Option<*>, *>,
 ) {
 
-    internal constructor(optionValues: Collection<OptionValue<*>>) : this(optionValues.associate { it.value as Option<*> to it.value })
+    internal constructor(optionValues: Collection<OptionValue<*>>) : this(optionValues.associate { it.option to it.value })
 
     /**
      * Gets the current value of the given [option] or null, if the option is not set.

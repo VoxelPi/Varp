@@ -1,6 +1,5 @@
 package net.voxelpi.varp.warp
 
-import net.voxelpi.varp.option.Option
 import net.voxelpi.varp.option.OptionValue
 import net.voxelpi.varp.warp.path.NodeChildPath
 import net.voxelpi.varp.warp.path.NodeParentPath
@@ -24,18 +23,18 @@ public sealed interface NodeChild : Node {
     /**
      * Changes the id of the node.
      */
-    public suspend fun move(id: String, options: Collection<OptionValue<out Option<*>>> = emptyList()): Result<Unit>
+    public suspend fun move(id: String, options: Collection<OptionValue<*>> = emptyList()): Result<Unit>
 
     /**
      * Moves the node the given path.
      */
-    public suspend fun move(destination: NodeParentPath, destinationId: String? = null, options: Collection<OptionValue<out Option<*>>> = emptyList()): Result<Unit>
+    public suspend fun move(destination: NodeParentPath, destinationId: String? = null, options: Collection<OptionValue<*>> = emptyList()): Result<Unit>
 
     /**
      * Copies the node the given path.
      * @return the created node.
      */
-    public suspend fun copy(destination: NodeParentPath, destinationId: String? = null, options: Collection<OptionValue<out Option<*>>> = emptyList()): Result<NodeChild>
+    public suspend fun copy(destination: NodeParentPath, destinationId: String? = null, options: Collection<OptionValue<*>> = emptyList()): Result<NodeChild>
 
     /**
      * Delete the node.

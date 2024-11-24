@@ -14,4 +14,4 @@ public data class OptionValue<T>(
 /**
  * Creates an option value.
  */
-public infix fun <T> Option<T>.to(value: T): OptionValue<T> = OptionValue(this, value)
+public infix fun <T> Option<T>.assign(value: T): OptionValue<T> = OptionValue(this, value)
