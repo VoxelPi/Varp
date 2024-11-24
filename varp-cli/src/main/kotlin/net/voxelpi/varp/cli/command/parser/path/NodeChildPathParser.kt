@@ -10,7 +10,7 @@ import org.incendo.cloud.parser.ParserDescriptor
 import org.incendo.cloud.suggestion.BlockingSuggestionProvider
 
 class NodeChildPathParser<C : Any>(
-    val treeSource: (() -> Tree?)?,
+    val treeSource: ((context: CommandContext<C>) -> Tree?)?,
 ) : ArgumentParser<C, NodeChildPath>, BlockingSuggestionProvider.Strings<C> {
 
     override fun parse(commandContext: CommandContext<C>, commandInput: CommandInput): ArgumentParseResult<NodeChildPath> {
@@ -24,12 +24,12 @@ class NodeChildPathParser<C : Any>(
     }
 
     override fun stringSuggestions(commandContext: CommandContext<C>, input: CommandInput): List<String> {
-        val tree = treeSource?.invoke() ?: return emptyList()
+        val tree = treeSource?.invoke(commandContext) ?: return emptyList()
         return tree.warps().map { it.path.toString() } + tree.folders().map { it.path.toString() }
     }
 }
 
-fun <C : Any> nodeChildPathParser(treeSource: (() -> Tree?)?): ParserDescriptor<C, NodeChildPath> {
+fun <C : Any> nodeChildPathParser(treeSource: ((context: CommandContext<C>) -> Tree?)?): ParserDescriptor<C, NodeChildPath> {
     return ParserDescriptor.of(
         NodeChildPathParser<C>(treeSource),
         NodeChildPath::class.java,

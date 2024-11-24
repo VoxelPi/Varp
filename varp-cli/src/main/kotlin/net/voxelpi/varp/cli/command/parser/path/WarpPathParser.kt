@@ -13,7 +13,7 @@ import kotlin.getOrElse
 import kotlin.jvm.java
 
 class WarpPathParser<C : Any>(
-    val treeSource: (() -> Tree?)?,
+    val treeSource: ((context: CommandContext<C>) -> Tree?)?,
 ) : ArgumentParser<C, WarpPath>, BlockingSuggestionProvider.Strings<C> {
 
     override fun parse(
@@ -30,12 +30,12 @@ class WarpPathParser<C : Any>(
     }
 
     override fun stringSuggestions(commandContext: CommandContext<C>, input: CommandInput): List<String> {
-        val tree = treeSource?.invoke() ?: return emptyList()
+        val tree = treeSource?.invoke(commandContext) ?: return emptyList()
         return tree.warps().map { it.path.toString() }
     }
 }
 
-fun <C : Any> warpPathParser(treeSource: (() -> Tree?)?): ParserDescriptor<C, WarpPath> {
+fun <C : Any> warpPathParser(treeSource: ((context: CommandContext<C>) -> Tree?)?): ParserDescriptor<C, WarpPath> {
     return ParserDescriptor.of(
         WarpPathParser<C>(treeSource),
         WarpPath::class.java,

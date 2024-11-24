@@ -15,7 +15,7 @@ import kotlin.getOrElse
 import kotlin.jvm.java
 
 class FolderParser<C : Any>(
-    val treeSource: () -> Tree,
+    val treeSource: (context: CommandContext<C>) -> Tree,
 ) : ArgumentParser<C, Folder>, BlockingSuggestionProvider.Strings<C> {
 
     override fun parse(
@@ -25,7 +25,7 @@ class FolderParser<C : Any>(
         val input = commandInput.peekString()
         val path = FolderPath.parse(input).getOrElse { return ArgumentParseResult.failure(it) }
 
-        val tree = treeSource()
+        val tree = treeSource(commandContext)
         val folder = tree.resolve(path)
             ?: return ArgumentParseResult.failure(FolderNotFoundException(path))
 
@@ -34,12 +34,12 @@ class FolderParser<C : Any>(
     }
 
     override fun stringSuggestions(commandContext: CommandContext<C>, input: CommandInput): List<String> {
-        val tree = treeSource()
+        val tree = treeSource(commandContext)
         return tree.folders().map { it.path.toString() }
     }
 }
 
-fun <C : Any> folderParser(treeSource: () -> Tree): ParserDescriptor<C, Folder> {
+fun <C : Any> folderParser(treeSource: (context: CommandContext<C>) -> Tree): ParserDescriptor<C, Folder> {
     return ParserDescriptor.of(
         FolderParser<C>(treeSource),
         Folder::class.java,

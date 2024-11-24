@@ -15,7 +15,7 @@ import kotlin.getOrElse
 import kotlin.jvm.java
 
 class WarpParser<C : Any>(
-    val treeSource: () -> Tree,
+    val treeSource: (context: CommandContext<C>) -> Tree,
 ) : ArgumentParser<C, Warp>, BlockingSuggestionProvider.Strings<C> {
 
     override fun parse(
@@ -25,7 +25,7 @@ class WarpParser<C : Any>(
         val input = commandInput.peekString()
         val path = WarpPath.Companion.parse(input).getOrElse { return ArgumentParseResult.failure(it) }
 
-        val tree = treeSource()
+        val tree = treeSource(commandContext)
         val warp = tree.resolve(path)
             ?: return ArgumentParseResult.failure(WarpNotFoundException(path))
 
@@ -34,12 +34,12 @@ class WarpParser<C : Any>(
     }
 
     override fun stringSuggestions(commandContext: CommandContext<C>, input: CommandInput): List<String> {
-        val tree = treeSource()
+        val tree = treeSource(commandContext)
         return tree.warps().map { it.path.toString() }
     }
 }
 
-fun <C : Any> warpParser(treeSource: () -> Tree): ParserDescriptor<C, Warp> {
+fun <C : Any> warpParser(treeSource: (context: CommandContext<C>) -> Tree): ParserDescriptor<C, Warp> {
     return ParserDescriptor.of(
         WarpParser<C>(treeSource),
         Warp::class.java,

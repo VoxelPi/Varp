@@ -13,7 +13,7 @@ import kotlin.getOrElse
 import kotlin.jvm.java
 
 class FolderPathParser<C : Any>(
-    val treeSource: (() -> Tree?)?,
+    val treeSource: ((context: CommandContext<C>) -> Tree?)?,
 ) : ArgumentParser<C, FolderPath>, BlockingSuggestionProvider.Strings<C> {
 
     override fun parse(
@@ -30,12 +30,12 @@ class FolderPathParser<C : Any>(
     }
 
     override fun stringSuggestions(commandContext: CommandContext<C>, input: CommandInput): List<String> {
-        val tree = treeSource?.invoke() ?: return emptyList()
+        val tree = treeSource?.invoke(commandContext) ?: return emptyList()
         return tree.containers().map { it.path.toString() }
     }
 }
 
-fun <C : Any> folderPathParser(treeSource: (() -> Tree?)?): ParserDescriptor<C, FolderPath> {
+fun <C : Any> folderPathParser(treeSource: ((context: CommandContext<C>) -> Tree?)?): ParserDescriptor<C, FolderPath> {
     return ParserDescriptor.of(
         FolderPathParser<C>(treeSource),
         FolderPath::class.java,

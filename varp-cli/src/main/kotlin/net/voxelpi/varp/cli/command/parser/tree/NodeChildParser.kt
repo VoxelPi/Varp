@@ -12,14 +12,14 @@ import org.incendo.cloud.parser.ParserDescriptor
 import org.incendo.cloud.suggestion.BlockingSuggestionProvider
 
 class NodeChildParser<C : Any>(
-    val treeSource: () -> Tree,
+    val treeSource: (context: CommandContext<C>) -> Tree,
 ) : ArgumentParser<C, NodeChild>, BlockingSuggestionProvider.Strings<C> {
 
     override fun parse(commandContext: CommandContext<C>, commandInput: CommandInput): ArgumentParseResult<NodeChild> {
         val input = commandInput.peekString()
         val path = NodeChildPath.parse(input).getOrElse { return ArgumentParseResult.failure(it) }
 
-        val tree = treeSource()
+        val tree = treeSource(commandContext)
         val container = tree.resolve(path)
             ?: return ArgumentParseResult.failure(NodeChildNotFoundException(path))
 
@@ -27,13 +27,13 @@ class NodeChildParser<C : Any>(
         return ArgumentParseResult.success(container)
     }
 
-    override fun stringSuggestions(commandContext: CommandContext<C?>, input: CommandInput): Iterable<String> {
-        val tree = treeSource()
+    override fun stringSuggestions(commandContext: CommandContext<C>, input: CommandInput): Iterable<String> {
+        val tree = treeSource(commandContext)
         return tree.warps().map { it.path.toString() } + tree.folders().map { it.path.toString() }
     }
 }
 
-fun <C : Any> nodeChildParser(treeSource: () -> Tree): ParserDescriptor<C, NodeChild> {
+fun <C : Any> nodeChildParser(treeSource: (context: CommandContext<C>) -> Tree): ParserDescriptor<C, NodeChild> {
     return ParserDescriptor.of(
         NodeChildParser<C>(treeSource),
         NodeChild::class.java,
