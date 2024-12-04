@@ -8,6 +8,10 @@ A powerful tree-based warp management system for minecraft.
 
 ## Minecraft Mod / Plugin
 
+The project contains an implementation for the minecraft server.
+
+In addition to the server mod, there is also a client mod that provides an easy, gui-based way to manage warps.
+
 For more information about the minecraft mod see [varp-mod](./varp-mod)
 
 ## Developers
