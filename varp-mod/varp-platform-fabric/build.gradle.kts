@@ -96,9 +96,9 @@ tasks {
     }
 
     processResources {
-        inputs.property("version", project.version)
+        inputs.property("version", version)
         filesMatching("fabric.mod.json") {
-            expand(mutableMapOf("version" to project.version))
+            expand(mutableMapOf("version" to version))
         }
     }
 

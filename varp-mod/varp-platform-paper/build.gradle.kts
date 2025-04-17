@@ -48,7 +48,7 @@ tasks {
     processResources {
         filesMatching("paper-plugin.yml") {
             expand(
-                "version" to project.version,
+                "version" to version,
                 "api_version" to paperApiVersion
             )
         }

@@ -29,5 +29,5 @@ dependencies {
 }
 
 dokka {
-    dokkaPublicationDirectory.set(layout.buildDirectory.dir("docs"))
+    basePublicationsDirectory.set(layout.buildDirectory.dir("docs"))
 }
