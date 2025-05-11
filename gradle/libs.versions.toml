@@ -1,13 +1,13 @@
 [versions]
-adventure = "4.20.0"
-adventure-fabric = "6.3.0"
+adventure = "4.21.0"
+adventure-fabric = "6.4.0"
 cloud-command = "2.0.0"
 cloud-command-minecraft = "2.0.0-beta.10"
 cloud-command-minecraft-modded = "2.0.0-beta.10"
-configurate = "4.1.2"
+configurate = "4.2.0"
 coroutine = "1.10.2"
 event = "0.6.2"
-exposed = "0.56.0"
+exposed = "0.61.0"
 gson = "2.11.0"
 junit = "5.11.3"
 kotlin = "2.1.20"
@@ -24,17 +24,17 @@ jline = "3.26.3"
 papwerweight = "2.0.0-beta.16"
 
 # Fabric
-minecraft = "1.21.4"
-yarn = "1.21.4+build.8"
+minecraft = "1.21.5"
+yarn = "1.21.5+build.1"
 loom = "1.10-SNAPSHOT"
-fabric-api = "0.119.2+1.21.4"
+fabric-api = "0.124.0+1.21.5"
 fabric-kotlin = "1.13.2+kotlin.2.1.20"
-fabric-loader = "0.16.13"
+fabric-loader = "0.16.14"
 fabric-permissions-api = "0.3.3"
 
 # Fabric mods
-modmenu = "12.0.0-beta.1"
-owo-lib = "0.12.20+1.21.4"
+modmenu = "14.0.0-rc.2"
+owo-lib = "0.12.20+1.21.5"
 
 # Plugins
 blossom = "2.1.0"
