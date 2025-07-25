@@ -6,7 +6,7 @@ import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
-import org.bukkit.event.player.PlayerLoginEvent
+import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 
 class PaperVarpServerPlayerService(
@@ -22,7 +22,7 @@ class PaperVarpServerPlayerService(
     }
 
     @EventHandler(priority = EventPriority.LOW)
-    fun onLogin(event: PlayerLoginEvent) {
+    fun onLogin(event: PlayerJoinEvent) {
         val player = PaperVarpServerPlayer(server, event.player)
         players[player.uniqueId] = player
     }

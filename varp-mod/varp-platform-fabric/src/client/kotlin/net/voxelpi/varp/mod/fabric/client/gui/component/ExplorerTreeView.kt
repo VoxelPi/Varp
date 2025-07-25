@@ -15,7 +15,6 @@ import io.wispforest.owo.ui.core.Surface
 import io.wispforest.owo.ui.util.Delta
 import io.wispforest.owo.ui.util.UISounds
 import net.minecraft.text.Text
-import net.minecraft.util.math.RotationAxis
 import net.voxelpi.varp.mod.fabric.client.FabricVarpClientMod
 import net.voxelpi.varp.mod.fabric.client.util.clientNative
 import net.voxelpi.varp.warp.Folder
@@ -139,13 +138,13 @@ class ExplorerTreeView(
             override fun draw(context: OwoUIDrawContext, mouseX: Int, mouseY: Int, partialTicks: Float, delta: Float) {
                 val matrices = context.matrices
 
-                matrices.push()
-                matrices.translate(x + width / 2f - 1, y + height / 2f - 1, 0f)
-                matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(rotation))
-                matrices.translate(-(x + width / 2f - 1), -(y + height / 2f - 1), 0f)
+                matrices.pushMatrix()
+                matrices.translate(x + width / 2f - 1, y + height / 2f - 1)
+                matrices.rotate(Math.toRadians(rotation.toDouble()).toFloat())
+                matrices.translate(-(x + width / 2f - 1), -(y + height / 2f - 1))
 
                 super.draw(context, mouseX, mouseY, partialTicks, delta)
-                matrices.pop()
+                matrices.popMatrix()
             }
         }
 
