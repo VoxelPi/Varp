@@ -14,7 +14,7 @@ allprojects {
         mavenLocal()
     }
 }
- 
+
 dependencies {
     dokka(projects.varpCore)
     dokka(projects.varpLoader)
