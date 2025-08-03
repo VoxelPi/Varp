@@ -11,7 +11,7 @@ dependencies {
     api(projects.varpCore)
     implementation(projects.varpLoader)
     implementation(projects.varpRepositories.varpRepositoryFileTree)
-    implementation(projects.varpRepositories.varpRepositoryMysql)
+    implementation(projects.varpRepositories.varpRepositorySql)
 
     // Libraries
     implementation(libs.kotlin.stdlib)
@@ -20,13 +20,19 @@ dependencies {
     implementation(libs.bundles.adventure)
     implementation(libs.bundles.configurate.core)
     implementation(libs.bundles.configurate.formats)
-    implementation(libs.bundles.exposed) {
-        exclude(group = "org.slf4j", module = "slf4j-api")
-    }
     implementation(libs.adventure.serializer.configurate4)
     implementation(libs.event)
     implementation(libs.gson)
+
+    // Database
+    implementation(libs.bundles.exposed) {
+        exclude(group = "org.slf4j", module = "slf4j-api")
+    }
+    implementation(libs.hikaricp) {
+        exclude(group = "org.slf4j", module = "slf4j-api")
+    }
     implementation(libs.mysql.connector)
+    implementation(libs.postgresql)
 
     // Logging
     implementation(libs.slf4j.api)

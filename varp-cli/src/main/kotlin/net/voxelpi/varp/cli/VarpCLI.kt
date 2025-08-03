@@ -12,7 +12,7 @@ import net.voxelpi.varp.cli.coroutine.VarpCLIDispatcher
 import net.voxelpi.varp.loader.VarpLoader
 import net.voxelpi.varp.repository.filetree.FileTreeRepositoryConfig
 import net.voxelpi.varp.repository.filetree.FileTreeRepositoryType
-import net.voxelpi.varp.repository.mysql.MySQLRepositoryType
+import net.voxelpi.varp.repository.sql.SqlRepositoryType
 import net.voxelpi.varp.warp.Tree
 import net.voxelpi.varp.warp.path.RootPath
 import org.slf4j.LoggerFactory
@@ -34,7 +34,8 @@ object VarpCLI {
 
     val loader = VarpLoader.loader(Path(".").toAbsolutePath().normalize()) {
         registerRepositoryType(FileTreeRepositoryType)
-        registerRepositoryType(MySQLRepositoryType)
+        registerRepositoryType(SqlRepositoryType.PostgreSql)
+        registerRepositoryType(SqlRepositoryType.MySql)
 
         addDefaultRepository("default", FileTreeRepositoryType, FileTreeRepositoryConfig(Path("./default/"), "json", false), listOf(RootPath to RootPath))
     }

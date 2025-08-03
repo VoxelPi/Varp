@@ -12,6 +12,6 @@ dependencies {
 
     // Libraries
     compileOnlyApi(libs.bundles.adventure)
+    compileOnly(libs.hikaricp)
     compileOnly(libs.bundles.exposed)
-    compileOnly(libs.mysql.connector)
 }

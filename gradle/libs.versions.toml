@@ -7,13 +7,15 @@ cloud-command-minecraft-modded = "2.0.0-beta.12"
 configurate = "4.2.0"
 coroutine = "1.10.2"
 event = "0.6.2"
-exposed = "0.61.0"
+exposed = "1.0.0-beta-5"
 gson = "2.11.0"
+hikaricp = "7.0.0"
 junit = "5.13.2"
 kotlin = "2.2.0"
 log4j = "2.24.2"
 moonshine = "2.0.4"
-mysql-connector = "8.4.0"
+mysql-connector = "9.4.0"
+postgresql = "42.7.7"
 slf4j = "1.7.36"
 
 # CLI
@@ -68,10 +70,6 @@ cloud-fabric = { module = "org.incendo:cloud-fabric", version.ref = "cloud-comma
 cloud-paper = { module = "org.incendo:cloud-paper", version.ref = "cloud-command-minecraft" }
 
 event = { module = "net.voxelpi.event:event", version.ref = "event" }
-exposed-core = { module = "org.jetbrains.exposed:exposed-core", version.ref = "exposed" }
-exposed-jdbc = { module = "org.jetbrains.exposed:exposed-jdbc", version.ref = "exposed" }
-exposed-json = { module = "org.jetbrains.exposed:exposed-json", version.ref = "exposed" }
-mysql-connector = { module = "com.mysql:mysql-connector-j", version.ref = "mysql-connector" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 
 junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
@@ -83,6 +81,14 @@ kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-c
 
 moonshine-standard = { module = "net.kyori.moonshine:moonshine-standard", version.ref = "moonshine" }
 moonshine-core = { module = "net.kyori.moonshine:moonshine-core", version.ref = "moonshine" }
+
+# Database
+hikaricp = { module = "com.zaxxer:HikariCP", version.ref = "hikaricp" }
+mysql-connector = { module = "com.mysql:mysql-connector-j", version.ref = "mysql-connector" }
+postgresql = { module = "org.postgresql:postgresql", version.ref = "postgresql" }
+exposed-core = { module = "org.jetbrains.exposed:exposed-core", version.ref = "exposed" }
+exposed-jdbc = { module = "org.jetbrains.exposed:exposed-jdbc", version.ref = "exposed" }
+exposed-json = { module = "org.jetbrains.exposed:exposed-json", version.ref = "exposed" }
 
 # Logging
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }

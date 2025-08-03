@@ -127,7 +127,10 @@ public class VarpLoader internal constructor(
             for (repository in repositories.values) {
                 launch {
                     repository.activate().onFailure {
-                        logger.error("Unable to activate repository ${repository.id}", it)
+                        logger.error("Unable to activate repository ${repository.id}")
+                        (it.message ?: "").split("\n").map(String::trim).filter(String::isNotBlank).forEach { line ->
+                            logger.error(line)
+                        }
                     }
                 }
             }
