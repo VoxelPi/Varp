@@ -1,14 +1,14 @@
-package net.voxelpi.varp.repository.mysql.tables
+package net.voxelpi.varp.repository.sql.table
 
-import org.jetbrains.exposed.sql.Table
+import org.jetbrains.exposed.v1.core.Table
 
-object Warps : Table("warps") {
-    val path = varchar("path", 512)
+object WarpTable : Table("varp.warp") {
+    val path = text("path")
     val name = text("name")
     val description = text("description")
     val tags = text("tags")
     val properties = text("properties")
-    val world = varchar("world", 256)
+    val world = text("world")
     val x = double("x")
     val y = double("y")
     val z = double("z")

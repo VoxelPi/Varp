@@ -10,6 +10,7 @@
         <Logger name="net.voxelpi.varp" level="debug" additivity="false">
             <AppenderRef ref="LogToConsole"/>
         </Logger>
+        <Logger name ="com.zaxxer.hikari" level="OFF"/>
         <Root level="info">
             <AppenderRef ref="LogToConsole"/>
         </Root>

@@ -1,9 +1,9 @@
-package net.voxelpi.varp.repository.mysql.tables
+package net.voxelpi.varp.repository.sql.table
 
-import org.jetbrains.exposed.sql.Table
+import org.jetbrains.exposed.v1.core.Table
 
-object Folders : Table("folders") {
-    val path = varchar("path", 512)
+object FolderTable : Table("varp.folder") {
+    val path = text("path")
     val name = text("name")
     val description = text("description")
     val tags = text("tags")

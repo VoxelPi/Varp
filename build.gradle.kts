@@ -19,7 +19,7 @@ dependencies {
     dokka(projects.varpCore)
     dokka(projects.varpLoader)
     dokka(projects.varpRepositories.varpRepositoryFileTree)
-    dokka(projects.varpRepositories.varpRepositoryMysql)
+    dokka(projects.varpRepositories.varpRepositorySql)
     dokka(projects.varpSerializers.varpSerializerConfigurate)
     dokka(projects.varpSerializers.varpSerializerGson)
     dokka(projects.varpMod.varpModApi)
