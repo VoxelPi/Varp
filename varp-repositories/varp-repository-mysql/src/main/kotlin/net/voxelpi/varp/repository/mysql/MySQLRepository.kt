@@ -41,6 +41,11 @@ class MySQLRepository(
                 password = config.password,
             )
 
+            // Check if the connection was successful.
+            if (!isConnected()) {
+                return Result.failure(IllegalStateException("Unable to connect to database"))
+            }
+
             transaction {
                 // Create tables.
                 SchemaUtils.create(Warps)
@@ -49,13 +54,13 @@ class MySQLRepository(
                 // Create root folder data if it doesn't already exist.
                 val rootExists = Folders.selectAll().where { Folders.path eq RootPath.toString() }.count() > 0
                 if (!rootExists) {
-                    Folders.insert {
+                    Folders.insert { entry ->
                         val state = FolderState.defaultRootState()
-                        it[path] = RootPath.toString()
-                        it[name] = miniMessage().serialize(state.name)
-                        it[description] = state.description.map { miniMessage().serialize(it) }.joinToString("\n")
-                        it[tags] = state.tags.joinToString(",")
-                        it[properties] = state.properties.map { "${it.key}=${it.value}" }.joinToString("\n")
+                        entry[path] = RootPath.toString()
+                        entry[name] = miniMessage().serialize(state.name)
+                        entry[description] = state.description.joinToString("\n") { miniMessage().serialize(it) }
+                        entry[tags] = state.tags.joinToString(",")
+                        entry[properties] = state.properties.map { "${it.key}=${it.value}" }.joinToString("\n")
                     }
                 }
             }
@@ -66,6 +71,18 @@ class MySQLRepository(
 
     override suspend fun deactivate(): Result<Unit> {
         return super.deactivate()
+    }
+
+    private fun isConnected(): Boolean {
+        return try {
+            transaction {
+                exec("SELECT 1") { resultSet ->
+                    resultSet.next()
+                } ?: false
+            }
+        } catch (exception: Exception) {
+            false
+        }
     }
 
     override suspend fun handleLoad(): Result<Unit> {

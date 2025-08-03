@@ -126,7 +126,9 @@ public class VarpLoader internal constructor(
         coroutineScope {
             for (repository in repositories.values) {
                 launch {
-                    repository.activate()
+                    repository.activate().onFailure {
+                        logger.error("Unable to activate repository ${repository.id}", it)
+                    }
                 }
             }
         }
