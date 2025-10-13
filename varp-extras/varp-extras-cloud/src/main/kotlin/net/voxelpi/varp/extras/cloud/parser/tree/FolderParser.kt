@@ -1,4 +1,4 @@
-package net.voxelpi.varp.cli.command.parser.tree
+package net.voxelpi.varp.extras.cloud.parser.tree
 
 import net.voxelpi.varp.exception.tree.FolderNotFoundException
 import net.voxelpi.varp.warp.Folder
@@ -14,8 +14,8 @@ import kotlin.collections.map
 import kotlin.getOrElse
 import kotlin.jvm.java
 
-class FolderParser<C : Any>(
-    val treeSource: (context: CommandContext<C>) -> Tree,
+public class FolderParser<C : Any>(
+    public val treeSource: (context: CommandContext<C>) -> Tree,
 ) : ArgumentParser<C, Folder>, BlockingSuggestionProvider.Strings<C> {
 
     override fun parse(
@@ -39,9 +39,9 @@ class FolderParser<C : Any>(
     }
 }
 
-fun <C : Any> folderParser(treeSource: (context: CommandContext<C>) -> Tree): ParserDescriptor<C, Folder> {
+public fun <C : Any> folderParser(treeSource: (context: CommandContext<C>) -> Tree): ParserDescriptor<C, Folder> {
     return ParserDescriptor.of(
-        FolderParser<C>(treeSource),
+        FolderParser(treeSource),
         Folder::class.java,
     )
 }

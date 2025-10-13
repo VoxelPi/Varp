@@ -3,8 +3,8 @@ package net.voxelpi.varp.cli.command.commands
 import kotlinx.coroutines.runBlocking
 import net.voxelpi.event.annotation.Subscribe
 import net.voxelpi.varp.cli.command.CommandsRegistrationEvent
-import net.voxelpi.varp.cli.command.parser.path.nodeParentPathParser
-import net.voxelpi.varp.cli.command.parser.tree.nodeChildParser
+import net.voxelpi.varp.extras.cloud.parser.path.nodeParentPathParser
+import net.voxelpi.varp.extras.cloud.parser.tree.nodeChildParser
 import net.voxelpi.varp.warp.NodeChild
 import net.voxelpi.varp.warp.path.NodeParentPath
 import org.incendo.cloud.description.Description

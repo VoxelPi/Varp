@@ -3,7 +3,7 @@ package net.voxelpi.varp.cli.command.commands
 import kotlinx.coroutines.runBlocking
 import net.voxelpi.event.annotation.Subscribe
 import net.voxelpi.varp.cli.command.CommandsRegistrationEvent
-import net.voxelpi.varp.cli.command.parser.tree.nodeParser
+import net.voxelpi.varp.extras.cloud.parser.tree.nodeParser
 import net.voxelpi.varp.warp.Node
 import net.voxelpi.varp.warp.NodeParent
 import net.voxelpi.varp.warp.Warp

@@ -1,27 +1,21 @@
-package net.voxelpi.varp.cli.command.parser.path
+package net.voxelpi.varp.extras.cloud.parser.path
 
 import net.voxelpi.varp.warp.Tree
-import net.voxelpi.varp.warp.path.FolderPath
+import net.voxelpi.varp.warp.path.NodeParentPath
 import org.incendo.cloud.context.CommandContext
 import org.incendo.cloud.context.CommandInput
 import org.incendo.cloud.parser.ArgumentParseResult
 import org.incendo.cloud.parser.ArgumentParser
 import org.incendo.cloud.parser.ParserDescriptor
 import org.incendo.cloud.suggestion.BlockingSuggestionProvider
-import kotlin.collections.map
-import kotlin.getOrElse
-import kotlin.jvm.java
 
-class FolderPathParser<C : Any>(
-    val treeSource: ((context: CommandContext<C>) -> Tree?)?,
-) : ArgumentParser<C, FolderPath>, BlockingSuggestionProvider.Strings<C> {
+public class NodeParentPathParser<C : Any>(
+    public val treeSource: ((context: CommandContext<C>) -> Tree?)?,
+) : ArgumentParser<C, NodeParentPath>, BlockingSuggestionProvider.Strings<C> {
 
-    override fun parse(
-        commandContext: CommandContext<C>,
-        commandInput: CommandInput,
-    ): ArgumentParseResult<FolderPath> {
+    override fun parse(commandContext: CommandContext<C>, commandInput: CommandInput): ArgumentParseResult<NodeParentPath> {
         val input = commandInput.peekString()
-        val path = FolderPath.parse(input).getOrElse {
+        val path = NodeParentPath.parse(input).getOrElse {
             return ArgumentParseResult.failure(it)
         }
 
@@ -35,9 +29,9 @@ class FolderPathParser<C : Any>(
     }
 }
 
-fun <C : Any> folderPathParser(treeSource: ((context: CommandContext<C>) -> Tree?)?): ParserDescriptor<C, FolderPath> {
+public fun <C : Any> nodeParentPathParser(treeSource: ((context: CommandContext<C>) -> Tree?)?): ParserDescriptor<C, NodeParentPath> {
     return ParserDescriptor.of(
-        FolderPathParser<C>(treeSource),
-        FolderPath::class.java,
+        NodeParentPathParser(treeSource),
+        NodeParentPath::class.java,
     )
 }

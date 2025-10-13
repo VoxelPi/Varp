@@ -1,4 +1,4 @@
-package net.voxelpi.varp.cli.command.parser.tree
+package net.voxelpi.varp.extras.cloud.parser.tree
 
 import net.voxelpi.varp.exception.tree.WarpNotFoundException
 import net.voxelpi.varp.warp.Tree
@@ -14,8 +14,8 @@ import kotlin.collections.map
 import kotlin.getOrElse
 import kotlin.jvm.java
 
-class WarpParser<C : Any>(
-    val treeSource: (context: CommandContext<C>) -> Tree,
+public class WarpParser<C : Any>(
+    public val treeSource: (context: CommandContext<C>) -> Tree,
 ) : ArgumentParser<C, Warp>, BlockingSuggestionProvider.Strings<C> {
 
     override fun parse(
@@ -39,9 +39,9 @@ class WarpParser<C : Any>(
     }
 }
 
-fun <C : Any> warpParser(treeSource: (context: CommandContext<C>) -> Tree): ParserDescriptor<C, Warp> {
+public fun <C : Any> warpParser(treeSource: (context: CommandContext<C>) -> Tree): ParserDescriptor<C, Warp> {
     return ParserDescriptor.of(
-        WarpParser<C>(treeSource),
+        WarpParser(treeSource),
         Warp::class.java,
     )
 }

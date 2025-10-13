@@ -7,9 +7,13 @@ plugins {
 }
 
 dependencies {
+    // Kotlin
     compileOnly(libs.kotlin.stdlib)
     compileOnly(libs.kotlin.reflect)
     compileOnlyApi(libs.kotlinx.coroutines.core)
+
+    // Project
+    compileOnlyApi(projects.varpCore)
 
     // Libraries
     compileOnlyApi(libs.adventure.api)
