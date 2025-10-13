@@ -15,13 +15,13 @@ import net.voxelpi.varp.cli.command.commands.RemoveCommand
 import net.voxelpi.varp.cli.command.commands.RepositoriesCommand
 import net.voxelpi.varp.cli.command.commands.StopCommand
 import net.voxelpi.varp.cli.command.commands.TagsCommand
-import net.voxelpi.varp.cli.command.parser.KeyParser
 import net.voxelpi.varp.cli.command.parser.path.FolderPathParser
 import net.voxelpi.varp.cli.command.parser.path.NodeParentPathParser
 import net.voxelpi.varp.cli.command.parser.path.WarpPathParser
 import net.voxelpi.varp.cli.command.parser.tree.FolderParser
 import net.voxelpi.varp.cli.command.parser.tree.NodeParentParser
 import net.voxelpi.varp.cli.command.parser.tree.WarpParser
+import net.voxelpi.varp.extras.cloud.parser.KeyParser
 import net.voxelpi.varp.warp.Folder
 import net.voxelpi.varp.warp.NodeParent
 import net.voxelpi.varp.warp.Warp

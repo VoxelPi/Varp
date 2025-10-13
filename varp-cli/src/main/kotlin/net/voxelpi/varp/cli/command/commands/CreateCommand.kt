@@ -7,9 +7,9 @@ import net.voxelpi.event.annotation.Subscribe
 import net.voxelpi.varp.MinecraftLocation
 import net.voxelpi.varp.cli.command.CommandsRegistrationEvent
 import net.voxelpi.varp.cli.command.VarpCLICommandSender
-import net.voxelpi.varp.cli.command.parser.keyParser
 import net.voxelpi.varp.cli.command.parser.tree.nodeParentParser
 import net.voxelpi.varp.cli.util.valueFlag
+import net.voxelpi.varp.extras.cloud.parser.keyParser
 import net.voxelpi.varp.warp.NodeParent
 import net.voxelpi.varp.warp.state.FolderState
 import net.voxelpi.varp.warp.state.WarpState
