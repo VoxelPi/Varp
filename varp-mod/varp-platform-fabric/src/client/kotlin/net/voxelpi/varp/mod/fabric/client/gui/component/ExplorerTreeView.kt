@@ -14,6 +14,8 @@ import io.wispforest.owo.ui.core.Sizing
 import io.wispforest.owo.ui.core.Surface
 import io.wispforest.owo.ui.util.Delta
 import io.wispforest.owo.ui.util.UISounds
+import net.minecraft.client.gui.Click
+import net.minecraft.client.input.KeyInput
 import net.minecraft.text.Text
 import net.voxelpi.varp.mod.fabric.client.FabricVarpClientMod
 import net.voxelpi.varp.mod.fabric.client.util.clientNative
@@ -94,21 +96,21 @@ class ExplorerTreeView(
             return source == FocusSource.KEYBOARD_CYCLE
         }
 
-        override fun onKeyPress(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
-            if (keyCode == GLFW.GLFW_KEY_SPACE || keyCode == GLFW.GLFW_KEY_ENTER || keyCode == GLFW.GLFW_KEY_KP_ENTER) {
+        override fun onKeyPress(input: KeyInput?): Boolean {
+            if (input != null && (input.key == GLFW.GLFW_KEY_SPACE || input.key == GLFW.GLFW_KEY_ENTER || input.key == GLFW.GLFW_KEY_KP_ENTER)) {
                 toggleExpansion()
-                super.onKeyPress(keyCode, scanCode, modifiers)
+                super.onKeyPress(input)
                 return true
             }
 
-            return super.onKeyPress(keyCode, scanCode, modifiers)
+            return super.onKeyPress(input)
         }
 
-        override fun onMouseDown(mouseX: Double, mouseY: Double, button: Int): Boolean {
-            val superResult = super.onMouseDown(mouseX, mouseY, button)
+        override fun onMouseDown(click: Click?, doubled: Boolean): Boolean {
+            val superResult = super.onMouseDown(click, doubled)
 
-            return if (mouseY <= this.headerLayout.fullSize().height && !superResult) {
-                if (mouseX <= this.spinnyBoiComponent.fullSize().width) {
+            return if (click != null && click.y <= this.headerLayout.fullSize().height && !superResult) {
+                if (click.x <= this.spinnyBoiComponent.fullSize().width) {
                     toggleExpansion()
                     UISounds.playInteractionSound()
                 } else {

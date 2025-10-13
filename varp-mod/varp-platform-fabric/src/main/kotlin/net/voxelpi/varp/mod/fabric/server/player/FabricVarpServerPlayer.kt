@@ -29,7 +29,7 @@ class FabricVarpServerPlayer(
         get() = server.serverAudiences.nonWrappingSerializer().deserialize(player.displayName ?: player.name)
 
     override val location: MinecraftLocation
-        get() = MinecraftLocation(player.world.registryKey.value.toKey(), player.x, player.y, player.z, player.yaw, player.pitch)
+        get() = MinecraftLocation(player.entityWorld.registryKey.value.toKey(), player.x, player.y, player.z, player.yaw, player.pitch)
 
     override fun audience(): Audience {
         return player

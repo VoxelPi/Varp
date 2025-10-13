@@ -17,8 +17,8 @@ import net.voxelpi.varp.warp.repository.RepositoryConfig
 import net.voxelpi.varp.warp.repository.SimpleRepository
 import net.voxelpi.varp.warp.state.FolderState
 import net.voxelpi.varp.warp.state.WarpState
-import org.jetbrains.exposed.v1.core.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.v1.core.SqlExpressionBuilder.like
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.like
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.deleteWhere

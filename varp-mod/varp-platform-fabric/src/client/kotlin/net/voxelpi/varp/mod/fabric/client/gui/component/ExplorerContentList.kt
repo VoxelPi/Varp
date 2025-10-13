@@ -14,6 +14,7 @@ import io.wispforest.owo.ui.util.UISounds
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextDecoration
+import net.minecraft.client.gui.Click
 import net.minecraft.text.Text
 import net.minecraft.util.Identifier
 import net.voxelpi.varp.mod.fabric.client.FabricVarpClientMod
@@ -131,8 +132,8 @@ class ExplorerContentList(
             super.layout(space)
         }
 
-        override fun onMouseDown(mouseX: Double, mouseY: Double, button: Int): Boolean {
-            if (!super.onMouseDown(mouseX, mouseY, button)) {
+        override fun onMouseDown(click: Click?, doubled: Boolean): Boolean {
+            if (!super.onMouseDown(click, doubled)) {
                 UISounds.playButtonSound()
                 selectAction.invoke(folder)
                 return true
@@ -254,8 +255,8 @@ class ExplorerContentList(
             super.layout(space)
         }
 
-        override fun onMouseDown(mouseX: Double, mouseY: Double, button: Int): Boolean {
-            if (!super.onMouseDown(mouseX, mouseY, button)) {
+        override fun onMouseDown(click: Click?, doubled: Boolean): Boolean {
+            if (!super.onMouseDown(click, doubled)) {
                 UISounds.playButtonSound()
                 selectAction.invoke(warp)
                 return true

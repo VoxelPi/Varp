@@ -17,7 +17,7 @@ class FabricVarpServerEntity(
         get() = entity.uuid
 
     override val location: MinecraftLocation
-        get() = MinecraftLocation(entity.world.registryKey.key(), entity.x, entity.y, entity.z, entity.yaw, entity.pitch)
+        get() = MinecraftLocation(entity.entityWorld.registryKey.key(), entity.x, entity.y, entity.z, entity.yaw, entity.pitch)
 
     override fun teleport(location: MinecraftLocation) {
         val world = server.world(location.world) ?: throw WorldNotFoundException(location.world)
