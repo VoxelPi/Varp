@@ -46,7 +46,7 @@ dependencies {
     modImplementationAndInclude(libs.fabric.permission.api)
 
     // Libraries
-    modImplementationAndInclude(libs.adventure.platform.fabric)
+    modImplementation(libs.adventure.platform.fabric)
     implementationAndInclude(libs.adventure.serializer.configurate4)
     implementationAndInclude(libs.bundles.cloud)
     modImplementationAndInclude(libs.cloud.fabric)
