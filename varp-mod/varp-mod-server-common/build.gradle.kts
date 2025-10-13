@@ -9,6 +9,7 @@ dependencies {
     // Project
     api(projects.varpMod.varpModServerApi)
     api(projects.varpMod.varpModCommon)
+    api(projects.varpExtras.varpExtrasCloud)
 
     // Libraries
     compileOnlyApi(libs.bundles.cloud)
