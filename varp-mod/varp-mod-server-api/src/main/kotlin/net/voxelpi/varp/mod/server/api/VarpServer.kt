@@ -12,7 +12,7 @@ import org.jetbrains.annotations.ApiStatus.Internal
 /**
  * Provides the api for the server side varp implementation.
  */
-public interface VarpServerAPI {
+public interface VarpServer {
 
     /**
      * The version of the server varp mod.
@@ -62,17 +62,17 @@ public interface VarpServerAPI {
     public val entityService: VarpServerEntityService
 
     public companion object {
-        private var provider: VarpServerAPI? = null
+        private var provider: VarpServer? = null
 
         /**
          * Returns the currently loaded api implementation.
          */
-        public fun get(): VarpServerAPI {
+        public fun get(): VarpServer {
             return provider ?: throw IllegalStateException("No implementation of the server varp api is loaded.")
         }
 
         @Internal
-        public fun register(provider: VarpServerAPI) {
+        public fun register(provider: VarpServer) {
             this.provider = provider
         }
 

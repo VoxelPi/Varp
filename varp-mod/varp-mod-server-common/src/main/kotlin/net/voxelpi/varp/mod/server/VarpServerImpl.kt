@@ -4,7 +4,7 @@ import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger
-import net.voxelpi.varp.mod.server.api.VarpServerAPI
+import net.voxelpi.varp.mod.server.api.VarpServer
 import net.voxelpi.varp.mod.server.entity.VarpServerEntityServiceImpl
 import net.voxelpi.varp.mod.server.message.VarpMessages
 import net.voxelpi.varp.mod.server.network.VarpServerNetworkHandler
@@ -15,7 +15,7 @@ import org.spongepowered.configurate.gson.GsonConfigurationLoader
 import java.nio.file.Path
 import kotlin.io.path.exists
 
-abstract class VarpServerImpl : VarpServerAPI {
+abstract class VarpServerImpl : VarpServer {
 
     abstract val logger: ComponentLogger
 

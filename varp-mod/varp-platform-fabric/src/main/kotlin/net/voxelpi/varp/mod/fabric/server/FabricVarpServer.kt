@@ -22,7 +22,7 @@ import net.voxelpi.varp.mod.fabric.server.network.FabricVarpServerNetworkHandler
 import net.voxelpi.varp.mod.fabric.server.player.FabricVarpServerPlayerService
 import net.voxelpi.varp.mod.fabric.util.toIdentifier
 import net.voxelpi.varp.mod.server.VarpServerImpl
-import net.voxelpi.varp.mod.server.api.VarpServerAPI
+import net.voxelpi.varp.mod.server.api.VarpServer
 import net.voxelpi.varp.mod.server.warp.VarpServerNetworkBridge
 import net.voxelpi.varp.repository.filetree.FileTreeRepositoryConfig
 import net.voxelpi.varp.repository.filetree.FileTreeRepositoryType
@@ -80,7 +80,7 @@ class FabricVarpServer(
 
     init {
         // Register api service
-        VarpServerAPI.register(this)
+        VarpServer.register(this)
     }
 
     fun cleanup() {
@@ -94,7 +94,7 @@ class FabricVarpServer(
         coroutineScope.cancel()
 
         // Unregister api service.
-        VarpServerAPI.unregister()
+        VarpServer.unregister()
     }
 
     override fun copyResourceTemplate(resource: String, destination: Path) {

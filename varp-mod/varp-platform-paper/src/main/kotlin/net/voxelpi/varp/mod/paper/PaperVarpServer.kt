@@ -13,7 +13,7 @@ import net.voxelpi.varp.mod.paper.entity.PaperVarpServerEntityService
 import net.voxelpi.varp.mod.paper.network.PaperVarpServerNetworkHandler
 import net.voxelpi.varp.mod.paper.player.PaperVarpServerPlayerService
 import net.voxelpi.varp.mod.server.VarpServerImpl
-import net.voxelpi.varp.mod.server.api.VarpServerAPI
+import net.voxelpi.varp.mod.server.api.VarpServer
 import net.voxelpi.varp.mod.server.warp.VarpServerNetworkBridge
 import net.voxelpi.varp.repository.filetree.FileTreeRepositoryConfig
 import net.voxelpi.varp.repository.filetree.FileTreeRepositoryType
@@ -76,8 +76,8 @@ class PaperVarpServer(
 
     init {
         // Register api service
-        plugin.server.servicesManager.register(VarpServerAPI::class.java, this, plugin, ServicePriority.Normal)
-        VarpServerAPI.register(this)
+        plugin.server.servicesManager.register(VarpServer::class.java, this, plugin, ServicePriority.Normal)
+        VarpServer.register(this)
     }
 
     fun cleanup() {
@@ -89,7 +89,7 @@ class PaperVarpServer(
         coroutineScope.cancel()
 
         // Unregister api service.
-        VarpServerAPI.unregister()
+        VarpServer.unregister()
     }
 
     override fun copyResourceTemplate(resource: String, destination: Path) {

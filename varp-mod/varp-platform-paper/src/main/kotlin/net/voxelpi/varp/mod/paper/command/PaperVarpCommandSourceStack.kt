@@ -5,14 +5,15 @@ import net.kyori.adventure.audience.Audience
 import net.voxelpi.varp.MinecraftLocation
 import net.voxelpi.varp.mod.paper.PaperVarpServer
 import net.voxelpi.varp.mod.paper.util.varpLocation
-import net.voxelpi.varp.mod.server.api.VarpServerAPI
+import net.voxelpi.varp.mod.server.VarpServerImpl
+import net.voxelpi.varp.mod.server.api.VarpServer
 import net.voxelpi.varp.mod.server.api.entity.VarpServerEntity
 import net.voxelpi.varp.mod.server.api.player.VarpServerPlayer
 import net.voxelpi.varp.mod.server.command.VarpCommandSourceStack
 import org.bukkit.entity.Player
 
-@Suppress("UnstableApiUsage")
 class PaperVarpCommandSourceStack(
+    override val server: VarpServerImpl,
     val sourceStack: CommandSourceStack,
 ) : VarpCommandSourceStack {
 
@@ -24,11 +25,18 @@ class PaperVarpCommandSourceStack(
 
     override fun playerOrNull(): VarpServerPlayer? {
         val player = sourceStack.executor as? Player ?: return null
-        return (VarpServerAPI.get() as PaperVarpServer).playerService.player(player)
+        return (VarpServer.get() as PaperVarpServer).playerService.player(player)
     }
 
     override fun entityOrNull(): VarpServerEntity? {
         val entity = sourceStack.executor ?: return null
-        return (VarpServerAPI.get() as PaperVarpServer).entityService.entity(entity)
+        return (VarpServer.get() as PaperVarpServer).entityService.entity(entity)
+    }
+
+    override fun hasPermission(permission: String?): Boolean {
+        if (permission == null) {
+            return true
+        }
+        return sourceStack.sender.hasPermission(permission)
     }
 }
