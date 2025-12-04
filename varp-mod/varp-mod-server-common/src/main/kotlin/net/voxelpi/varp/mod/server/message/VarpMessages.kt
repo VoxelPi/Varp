@@ -127,6 +127,20 @@ interface VarpMessages {
         @Placeholder("warp") warp: Warp,
     )
 
+    @Message("warp.teleport.others_single")
+    fun sendWarpTeleportOthersSingle(
+        @Receiver receiver: Audience,
+        @Placeholder("warp") warp: Warp,
+        @Placeholder("target") target: Component,
+    )
+
+    @Message("warp.teleport.others_multiple")
+    fun sendWarpTeleportOthersMultiple(
+        @Receiver receiver: Audience,
+        @Placeholder("warp") warp: Warp,
+        @Placeholder("target_count") targetCount: Int,
+    )
+
     // endregion
 
     // region folder messages
@@ -228,6 +242,12 @@ interface VarpMessages {
     @Message("error.move_folder_into_child")
     fun sendErrorMoveFolderIntoChild(
         @Receiver receiver: Audience,
+    )
+
+    @Message("error.missing_mount")
+    fun sendErrorMissingMount(
+        @Receiver receiver: Audience,
+        @Placeholder("path") path: NodePath,
     )
 
     // endregion

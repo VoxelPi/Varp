@@ -7,17 +7,19 @@ import net.voxelpi.varp.exception.tree.WarpAlreadyExistsException
 import net.voxelpi.varp.exception.tree.WarpNotFoundException
 import net.voxelpi.varp.mod.server.VarpServerImpl
 import net.voxelpi.varp.mod.server.api.VarpPermissions
+import net.voxelpi.varp.mod.server.entity.VarpServerEntityImpl
 import net.voxelpi.varp.warp.Folder
 import net.voxelpi.varp.warp.Warp
 import net.voxelpi.varp.warp.path.FolderPath
 import net.voxelpi.varp.warp.path.WarpPath
+import net.voxelpi.varp.warp.repository.compositor.MissingMountException
 import net.voxelpi.varp.warp.state.FolderState
 import net.voxelpi.varp.warp.state.WarpState
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
-interface VarpActor : Audience {
+interface VarpServerActor : Audience {
 
     val server: VarpServerImpl
 
@@ -34,6 +36,7 @@ interface VarpActor : Audience {
         val folder = server.tree.createFolder(path, state).getOrElse { exception ->
             when (exception) {
                 is FolderAlreadyExistsException -> server.messages.sendErrorFolderAlreadyExists(this, exception.path)
+                is MissingMountException -> server.messages.sendErrorMissingMount(this, exception.path)
                 else -> {
                     server.messages.sendErrorGeneric(this)
                     server.logger.error("An unknown error occurred", exception)
@@ -57,6 +60,7 @@ interface VarpActor : Audience {
         val warp = server.tree.createWarp(path, state).getOrElse { exception ->
             when (exception) {
                 is WarpAlreadyExistsException -> server.messages.sendErrorWarpAlreadyExists(this, exception.path)
+                is MissingMountException -> server.messages.sendErrorMissingMount(this, exception.path)
                 else -> {
                     server.messages.sendErrorGeneric(this)
                     server.logger.error("An unknown error occurred", exception)
@@ -186,6 +190,7 @@ interface VarpActor : Audience {
         // Move the folder.
         folder.move(dst).onFailure { exception ->
             when (exception) {
+                is MissingMountException -> server.messages.sendErrorMissingMount(this, exception.path)
                 is FolderNotFoundException -> server.messages.sendErrorFolderPathUnresolved(this, exception.path)
                 is FolderAlreadyExistsException -> server.messages.sendErrorFolderAlreadyExists(this, exception.path)
                 else -> {
@@ -216,6 +221,7 @@ interface VarpActor : Audience {
         // Edit the folder.
         folder.modify(state).onFailure { exception ->
             when (exception) {
+                is MissingMountException -> server.messages.sendErrorMissingMount(this, exception.path)
                 is FolderNotFoundException -> server.messages.sendErrorFolderPathUnresolved(this, exception.path)
                 else -> {
                     server.messages.sendErrorGeneric(this)
@@ -241,6 +247,7 @@ interface VarpActor : Audience {
         // Edit the root.
         root.modify(state).onFailure { exception ->
             when (exception) {
+                is MissingMountException -> server.messages.sendErrorMissingMount(this, exception.path)
                 else -> {
                     server.messages.sendErrorGeneric(this)
                     server.logger.error("An unknown error occurred", exception)
@@ -283,6 +290,7 @@ interface VarpActor : Audience {
         // Move the warp.
         warp.move(dst).onFailure { exception ->
             when (exception) {
+                is MissingMountException -> server.messages.sendErrorMissingMount(this, exception.path)
                 is FolderNotFoundException -> server.messages.sendErrorFolderPathUnresolved(this, exception.path)
                 is WarpAlreadyExistsException -> server.messages.sendErrorWarpAlreadyExists(this, exception.path)
                 else -> {
@@ -313,6 +321,7 @@ interface VarpActor : Audience {
         // Edit the warp.
         warp.modify(state).onFailure { exception ->
             when (exception) {
+                is MissingMountException -> server.messages.sendErrorMissingMount(this, exception.path)
                 is WarpNotFoundException -> server.messages.sendErrorWarpPathUnresolved(this, exception.path)
                 else -> {
                     server.messages.sendErrorGeneric(this)
@@ -324,10 +333,47 @@ interface VarpActor : Audience {
         // Send confirmation message.
         server.messages.sendWarpEdit(this, warp)
     }
+
+    fun teleportToWarp(path: WarpPath, entities: Collection<VarpServerEntityImpl>) {
+        // Check if the player has the required permissions.
+        requirePermissionOrElse(VarpPermissions.WARP_TELEPORT_OTHERS) {
+            server.messages.sendErrorNoPermission(this)
+            return
+        }
+
+        // Get the warp.
+        val warp = server.tree.resolve(path)
+        if (warp == null) {
+            server.messages.sendErrorWarpPathUnresolved(this, path)
+            return
+        }
+
+        // Teleport the entities to the warp.
+        teleportToWarp(warp, entities)
+    }
+
+    fun teleportToWarp(warp: Warp, entities: Collection<VarpServerEntityImpl>) {
+        // Check if the player has the required permissions.
+        requirePermissionOrElse(VarpPermissions.WARP_TELEPORT_OTHERS) {
+            server.messages.sendErrorNoPermission(this)
+            return
+        }
+
+        // Teleport the entities to the warp.
+        entities.forEach { entity -> entity.teleportToWarp(warp) }
+
+        // Send confirmation message.
+        if (entities.size == 1) {
+            val targetName = entities.first().name
+            server.messages.sendWarpTeleportOthersSingle(this, warp, targetName)
+        } else {
+            server.messages.sendWarpTeleportOthersMultiple(this, warp, entities.size)
+        }
+    }
 }
 
 @OptIn(ExperimentalContracts::class)
-inline fun VarpActor.requirePermissionOrElse(permission: String?, onFailure: (String) -> Unit) {
+inline fun VarpServerActor.requirePermissionOrElse(permission: String?, onFailure: (String) -> Unit) {
     contract {
         callsInPlace(onFailure, InvocationKind.AT_MOST_ONCE)
     }

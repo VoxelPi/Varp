@@ -7,6 +7,7 @@ import net.voxelpi.varp.mod.server.command.commands.DeleteCommand
 import net.voxelpi.varp.mod.server.command.commands.InfoCommand
 import net.voxelpi.varp.mod.server.command.commands.ListCommand
 import net.voxelpi.varp.mod.server.command.commands.MoveCommand
+import net.voxelpi.varp.mod.server.command.commands.WarpCommand
 import org.incendo.cloud.CommandManager
 
 interface VarpCommandService {
@@ -20,6 +21,8 @@ interface VarpCommandService {
         CreateCommand.register(commandManager, serverProvider)
         DeleteCommand.register(commandManager, serverProvider)
         InfoCommand.register(commandManager, serverProvider)
+        ListCommand.register(commandManager, serverProvider)
         MoveCommand.register(commandManager, serverProvider)
+        WarpCommand.register(commandManager, serverProvider)
     }
 }

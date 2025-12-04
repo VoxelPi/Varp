@@ -16,6 +16,7 @@ import net.voxelpi.varp.extras.cloud.parser.tree.NodeParser
 import net.voxelpi.varp.extras.cloud.parser.tree.WarpParser
 import net.voxelpi.varp.mod.fabric.FabricVarpMod
 import net.voxelpi.varp.mod.fabric.server.FabricVarpServer
+import net.voxelpi.varp.mod.fabric.server.command.commands.FabricWarpCommand
 import net.voxelpi.varp.mod.server.command.VarpCommandService
 import org.incendo.cloud.SenderMapper
 import org.incendo.cloud.execution.ExecutionCoordinator
@@ -55,6 +56,7 @@ class FabricVarpCommandService : VarpCommandService {
 
         // Register common commands.
         registerCommonCommands()
+        FabricWarpCommand.register(commandManager, serverProvider)
     }
 
     private inline fun <reified T : ArgumentParser<FabricVarpCommandSourceStack, *>> registerArgumentMapping(mapping: ArgumentType<*>) {

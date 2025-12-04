@@ -68,7 +68,7 @@ class FabricVarpServer(
 
     init {
         runBlocking {
-            loader.load()
+            loader.load().getOrThrow()
         }
         FabricVarpMod.logger.info("Loaded ${loader.repositories().size} repositories")
         FabricVarpMod.logger.info("Loaded ${compositor.mounts().size} mounts")

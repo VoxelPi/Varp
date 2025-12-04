@@ -7,6 +7,7 @@ public object VarpPermissions {
     public const val WARP_MOVE: String = "varp.warp.move"
     public const val WARP_EDIT: String = "varp.warp.edit"
     public const val WARP_TELEPORT_SELF: String = "varp.warp.teleport.self"
+    public const val WARP_TELEPORT_OTHERS: String = "varp.warp.teleport.others"
 
     public const val FOLDER_CREATE: String = "varp.folder.create"
     public const val FOLDER_DELETE: String = "varp.folder.delete"

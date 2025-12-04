@@ -12,9 +12,9 @@ class ConfigurateMessageSource(
         val node = node.node(messageKey.split("."))
 
         return when {
-            node.virtual() -> "unknown message"
-            node.isList -> node.childrenList().joinToString("\n<reset>") { it.getString("unknown message list entry") }
-            else -> node.getString("unknown message entry")
+            node.virtual() -> "unknown message (${node.path().joinToString(".")})"
+            node.isList -> node.childrenList().joinToString("\n<reset>") { it.getString("unknown message list entry (${node.path().joinToString(".")})") }
+            else -> node.getString("unknown message entry (${node.path().joinToString(".")})")
         }
     }
 }

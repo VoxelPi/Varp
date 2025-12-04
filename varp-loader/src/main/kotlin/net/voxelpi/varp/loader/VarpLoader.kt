@@ -235,7 +235,11 @@ public class VarpLoader internal constructor(
             }
 
             // Deserialize tree configuration.
-            val treeConfig = gson.fromJson<TreeConfiguration>(treeFile.bufferedReader(), TreeConfiguration::class.java)
+            val treeConfig = try {
+                gson.fromJson(treeFile.bufferedReader(), TreeConfiguration::class.java)
+            } catch (exception: RuntimeException) {
+                throw RuntimeException("Failed to parse varp tree configuration", exception)
+            }
 
             // Generate mount list.
             val mounts = mutableListOf<CompositorMount>()

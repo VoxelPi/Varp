@@ -15,17 +15,17 @@ import org.jetbrains.annotations.NotNull;
 @SuppressWarnings("UnstableApiUsage")
 public class PaperVarpPluginLoader implements PluginLoader {
 
-    private static final String ADVENTURE_VERSION = "4.17.0";
+    private static final String ADVENTURE_VERSION = "4.25.0";
     private static final String CLOUD_VERSION = "2.0.0";
-    private static final String CLOUD_MINECRAFT_VERSION = "2.0.0-beta.10";
-    private static final String CONFIGURATE_VERSION = "4.1.2";
-    private static final String KOTLIN_VERSION = "2.0.21";
+    private static final String CLOUD_MINECRAFT_VERSION = "2.0.0-beta.13";
+    private static final String CONFIGURATE_VERSION = "4.2.0";
+    private static final String KOTLIN_VERSION = "2.2.21";
     private static final String MOONSHINE_VERSION = "2.0.4";
 
     @Override
     public void classloader(@NotNull PluginClasspathBuilder classpathBuilder) {
         MavenLibraryResolver resolver = new MavenLibraryResolver();
-        resolver.addRepository(new RemoteRepository.Builder("central", "default", "https://repo.maven.apache.org/maven2/").build());
+        resolver.addRepository(new RemoteRepository.Builder("central", "default", MavenLibraryResolver.MAVEN_CENTRAL_DEFAULT_MIRROR).build());
         resolver.addRepository(new RemoteRepository.Builder("sonatype", "default", "https://oss.sonatype.org/content/repositories/snapshots").build());
 
         // Load dependencies

@@ -3,27 +3,27 @@ package net.voxelpi.varp.mod.server.command
 import net.kyori.adventure.audience.Audience
 import net.kyori.adventure.audience.ForwardingAudience
 import net.voxelpi.varp.MinecraftLocation
-import net.voxelpi.varp.mod.server.actor.VarpActor
-import net.voxelpi.varp.mod.server.api.entity.VarpServerEntity
-import net.voxelpi.varp.mod.server.api.player.VarpServerPlayer
+import net.voxelpi.varp.mod.server.actor.VarpServerActor
 import net.voxelpi.varp.mod.server.command.exception.EntityExecutorRequiredException
 import net.voxelpi.varp.mod.server.command.exception.PlayerExecutorRequiredException
+import net.voxelpi.varp.mod.server.entity.VarpServerEntityImpl
+import net.voxelpi.varp.mod.server.player.VarpServerPlayerImpl
 
-interface VarpCommandSourceStack : VarpActor, ForwardingAudience.Single {
+interface VarpCommandSourceStack : VarpServerActor, ForwardingAudience.Single {
 
     val location: MinecraftLocation
 
     val sender: Audience
 
-    fun playerOrNull(): VarpServerPlayer?
+    fun playerOrNull(): VarpServerPlayerImpl?
 
-    fun playerOrThrow(): VarpServerPlayer {
+    fun playerOrThrow(): VarpServerPlayerImpl {
         return playerOrNull() ?: throw PlayerExecutorRequiredException()
     }
 
-    fun entityOrNull(): VarpServerEntity?
+    fun entityOrNull(): VarpServerEntityImpl?
 
-    fun entityOrThrow(): VarpServerEntity {
+    fun entityOrThrow(): VarpServerEntityImpl {
         return entityOrNull() ?: throw EntityExecutorRequiredException()
     }
 

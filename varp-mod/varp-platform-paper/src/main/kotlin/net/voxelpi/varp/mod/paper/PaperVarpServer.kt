@@ -64,7 +64,7 @@ class PaperVarpServer(
 
     init {
         runBlocking {
-            loader.load()
+            loader.load().getOrThrow()
         }
         plugin.componentLogger.info("Loaded ${loader.repositories().size} repositories")
         plugin.componentLogger.info("Loaded ${compositor.mounts().size} mounts")

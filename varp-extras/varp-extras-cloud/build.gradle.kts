@@ -22,7 +22,7 @@ dependencies {
     compileOnlyApi(libs.event)
 
     // Commands
-    implementation(libs.bundles.cloud)
+    compileOnlyApi(libs.bundles.cloud)
 
     // Test implementation
     testImplementation(libs.kotlinx.coroutines.core)

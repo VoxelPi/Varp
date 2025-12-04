@@ -42,7 +42,9 @@
     "edit": "<prefix> <gray>You have <yellow>edited</yellow> the warp <yellow><warp></yellow> <white>(<warp_path>)</white>",
 
     "teleport": {
-      "self": "<prefix> <gray>You have <yellow>teleported</yellow> to the warp <yellow><warp></yellow> <white>(<warp_path>)</white>"
+      "self": "<prefix> <gray>You have <yellow>teleported</yellow> to the warp <yellow><warp></yellow> <white>(<warp_path>)</white>",
+      "others_single": "<prefix> <gray>You have <yellow>teleported</yellow> <yellow><target></yellow> to the warp <yellow><warp></yellow> <white>(<warp_path>)</white>",
+      "others_multiple": "<prefix> <gray>You have <yellow>teleported</yellow> <yellow><target_count></yellow> entities to the warp <yellow><warp></yellow> <white>(<warp_path>)</white>"
     }
   },
 
@@ -71,6 +73,7 @@
     "folder_already_exists": "<prefix> <gray>A folder with the path <yellow><path></yellow> <red>already</red> exists",
     "node_already_exists": "<prefix> <gray>A node with the path <yellow><path></yellow> <red>already</red> exists",
 
-    "move_folder_into_child": "<prefix> <gray><red>Unable</red> to move folder, destination is a child of the source folder"
+    "move_folder_into_child": "<prefix> <gray><red>Unable</red> to move folder, destination is a child of the source folder",
+    "missing_mount": "<prefix> <gray><red>Missing mount</red> for node <yellow><path></yellow>"
   }
 }

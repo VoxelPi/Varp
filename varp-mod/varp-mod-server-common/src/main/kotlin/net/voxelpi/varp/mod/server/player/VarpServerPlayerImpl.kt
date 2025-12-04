@@ -6,15 +6,16 @@ import net.voxelpi.varp.mod.api.VarpClientInformation
 import net.voxelpi.varp.mod.network.protocol.clientbound.VarpClientboundServerInfoPacket
 import net.voxelpi.varp.mod.network.protocol.clientbound.VarpClientboundSyncTreePacket
 import net.voxelpi.varp.mod.server.VarpServerImpl
-import net.voxelpi.varp.mod.server.actor.VarpActor
+import net.voxelpi.varp.mod.server.actor.VarpServerActor
 import net.voxelpi.varp.mod.server.actor.requirePermissionOrElse
 import net.voxelpi.varp.mod.server.api.VarpPermissions
 import net.voxelpi.varp.mod.server.api.player.VarpServerPlayer
+import net.voxelpi.varp.warp.Warp
 import net.voxelpi.varp.warp.path.WarpPath
 
 abstract class VarpServerPlayerImpl(
     override val server: VarpServerImpl,
-) : VarpServerPlayer, VarpActor {
+) : VarpServerPlayer, VarpServerActor {
 
     override var clientInformation: VarpClientInformation? = null
         protected set
@@ -55,6 +56,17 @@ abstract class VarpServerPlayerImpl(
         val warp = server.tree.resolve(path)
         if (warp == null) {
             server.messages.sendErrorWarpPathUnresolved(this, path)
+            return
+        }
+
+        // Teleport the player to the warp.
+        teleportToWarp(warp)
+    }
+
+    fun teleportToWarp(warp: Warp) {
+        // Check if the player has the required permissions.
+        requirePermissionOrElse(VarpPermissions.WARP_TELEPORT_SELF) {
+            server.messages.sendErrorNoPermission(this)
             return
         }
 

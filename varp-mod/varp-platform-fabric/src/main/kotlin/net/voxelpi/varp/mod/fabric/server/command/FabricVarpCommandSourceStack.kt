@@ -6,9 +6,9 @@ import net.minecraft.server.command.ServerCommandSource
 import net.voxelpi.varp.MinecraftLocation
 import net.voxelpi.varp.mod.fabric.FabricVarpMod
 import net.voxelpi.varp.mod.server.VarpServerImpl
-import net.voxelpi.varp.mod.server.api.entity.VarpServerEntity
-import net.voxelpi.varp.mod.server.api.player.VarpServerPlayer
 import net.voxelpi.varp.mod.server.command.VarpCommandSourceStack
+import net.voxelpi.varp.mod.server.entity.VarpServerEntityImpl
+import net.voxelpi.varp.mod.server.player.VarpServerPlayerImpl
 
 class FabricVarpCommandSourceStack(
     override val server: VarpServerImpl,
@@ -28,12 +28,12 @@ class FabricVarpCommandSourceStack(
     override val sender: Audience
         get() = sourceStack
 
-    override fun playerOrNull(): VarpServerPlayer? {
+    override fun playerOrNull(): VarpServerPlayerImpl? {
         val player = sourceStack.player ?: return null
         return FabricVarpMod.varpServer?.playerService?.player(player)
     }
 
-    override fun entityOrNull(): VarpServerEntity? {
+    override fun entityOrNull(): VarpServerEntityImpl? {
         val entity = sourceStack.entity ?: return null
         return FabricVarpMod.varpServer?.entityService?.entity(entity)
     }
