@@ -5,8 +5,10 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
 import net.fabricmc.loader.api.FabricLoader
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger
+import net.voxelpi.varp.mod.fabric.event.ServerEntityTeleportEvents
 import net.voxelpi.varp.mod.fabric.server.FabricVarpServer
 import net.voxelpi.varp.mod.fabric.server.command.FabricVarpCommandService
+import net.voxelpi.varp.mod.fabric.util.minecraftLocation
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
@@ -47,6 +49,11 @@ object FabricVarpMod : ModInitializer {
         }
         ServerPlayConnectionEvents.DISCONNECT.register { handler, _ ->
             varpServer?.playerService?.handleQuit(handler)
+        }
+        ServerEntityTeleportEvents.BEFORE_PLAYER_TELEPORT.register { player, fromWorld, fromPosition, toWorld, toPosition ->
+            val from = minecraftLocation(fromWorld, fromPosition)
+            val to = minecraftLocation(toWorld, toPosition)
+            varpServer?.playerService?.player(player)?.handleTeleport(from, to)
         }
     }
 

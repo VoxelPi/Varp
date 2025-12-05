@@ -60,6 +60,11 @@
     "edit": "<prefix> <gray>You have <yellow>edited</yellow> the root <yellow><root></yellow> <white>(<root_path>)</white>"
   },
 
+  "teleportation_history": {
+    "send_to_previous_entry": "<prefix> <gray>You have been <yellow>reverted</yellow> your last <yellow><entries></yellow> teleportations",
+    "send_to_next_entry": "<prefix> <gray>You have been <yellow>replayed</yellow> your next <yellow><entries></yellow> teleportations"
+  },
+
   "error": {
     "error_occurred": "<prefix> <gray>An <red>Error occurred</red> whilst performing this action",
 
@@ -74,6 +79,11 @@
     "node_already_exists": "<prefix> <gray>A node with the path <yellow><path></yellow> <red>already</red> exists",
 
     "move_folder_into_child": "<prefix> <gray><red>Unable</red> to move folder, destination is a child of the source folder",
-    "missing_mount": "<prefix> <gray><red>Missing mount</red> for node <yellow><path></yellow>"
+    "missing_mount": "<prefix> <gray><red>Missing mount</red> for node <yellow><path></yellow>",
+
+    "teleportation_log": {
+      "no_previous_entry": "<prefix> <gray><red>No previous record</red> exists in the teleportation log",
+      "no_next_entry": "<prefix> <gray><red>No next record</red> exists in the teleportation log"
+    }
   }
 }

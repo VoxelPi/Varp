@@ -84,6 +84,22 @@ interface VarpMessages {
 
     // endregion
 
+    // region teleportation log
+
+    @Message("teleportation_history.send_to_previous_entry")
+    fun sendTeleportationLogSendToPreviousEntry(
+        @Receiver receiver: Audience,
+        @Placeholder("entries") entries: Int,
+    )
+
+    @Message("teleportation_history.send_to_next_entry")
+    fun sendTeleportationLogSendToNextEntry(
+        @Receiver receiver: Audience,
+        @Placeholder("entries") entries: Int,
+    )
+
+    // endregion
+
     // region warp messages
 
     @Message("warp.create")
@@ -248,6 +264,16 @@ interface VarpMessages {
     fun sendErrorMissingMount(
         @Receiver receiver: Audience,
         @Placeholder("path") path: NodePath,
+    )
+
+    @Message("error.teleportation_log.no_previous_entry")
+    fun sendErrorTeleportationLogNoPreviousEntry(
+        @Receiver receiver: Audience,
+    )
+
+    @Message("error.teleportation_log.no_next_entry")
+    fun sendErrorTeleportationLogNoNextEntry(
+        @Receiver receiver: Audience,
     )
 
     // endregion

@@ -44,4 +44,23 @@ public interface VarpServerPlayer : Audience, Identified {
     public fun hasClientsideVarpSupport(): Boolean {
         return clientInformation != null
     }
+
+    /**
+     * The teleportation log of the given player.
+     */
+    public val teleportationLog: TeleportationLog
+
+    /**
+     * Reverts the given number of steps of the players teleportation log.
+     *
+     * @return The number of steps that were reverted, can be less than [numberOfSteps] if the log is too small.
+     */
+    public fun undoTeleportationLogEntries(numberOfSteps: Int): Int
+
+    /**
+     * Replays the given number of steps of the players teleportation log.
+     *
+     * @return The number of steps that were reverted, can be less than [numberOfSteps] if the log is too small.
+     */
+    public fun redoTeleportationLogEntries(numberOfSteps: Int): Int
 }
