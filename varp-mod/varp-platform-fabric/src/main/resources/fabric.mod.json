@@ -39,7 +39,11 @@
     ]
   },
 
-  "mixins": [],
+  "mixins": [
+    {
+      "config": "varp.mixins.json"
+    }
+  ],
 
   "depends": {
     "adventure-platform-fabric": ">=6.7.0",
