@@ -105,6 +105,49 @@ interface VarpMessages {
 
     // endregion
 
+    // region repository messages
+
+    @Message("repository.list.header")
+    fun sendRepositoryListHeader(
+        @Receiver receiver: Audience,
+        @Placeholder("repositories") repositories: Int,
+    )
+
+    @Message("repository.list.entry_with_mounts")
+    fun sendRepositoryListEntryWithMounts(
+        @Receiver receiver: Audience,
+        @Placeholder("repository_id") repositoryId: String,
+        @Placeholder("repository_type") repositoryType: String,
+        @Placeholder("repository_mounts") repositoryMounts: String,
+    )
+
+    @Message("repository.list.entry_without_mounts")
+    fun sendRepositoryListEntryWithoutMounts(
+        @Receiver receiver: Audience,
+        @Placeholder("repository_id") repositoryId: String,
+        @Placeholder("repository_type") repositoryType: String,
+    )
+
+    // endregion
+
+    // region mount messages
+
+    @Message("mount.list.header")
+    fun sendMountListHeader(
+        @Receiver receiver: Audience,
+        @Placeholder("mounts") repositories: Int,
+    )
+
+    @Message("mount.list.entry")
+    fun sendMountListEntry(
+        @Receiver receiver: Audience,
+        @Placeholder("mount_location") mountLocation: String,
+        @Placeholder("mount_repository_id") mountRepositoryId: String,
+        @Placeholder("mount_repository_path") mountRepositoryPath: String,
+    )
+
+    // endregion
+
     // region warp messages
 
     @Message("warp.create")

@@ -38,6 +38,21 @@
     }
   },
 
+  "repository": {
+    "list": {
+      "header": "<prefix> There are currently <color:#fbf236><repositories></color> <color:aqua>repositories</color> loaded:",
+      "entry_with_mounts": "  <gray>-</gray> <color:aqua><repository_id></color> <gray>[<repository_type>]</gray> mounted at <color:#fbf236><repository_mounts></color>",
+      "entry_without_mounts": "  <gray>-</gray> <color:aqua><repository_id></color> <gray>[<repository_type>]</gray>"
+    }
+  },
+
+  "mount": {
+    "list": {
+      "header": "<prefix> There are currently <color:#fbf236><mounts></color> <color:aqua>mounts</color> registered:",
+      "entry": "  <gray>-</gray> <color:aqua><mount_location></color>: <mount_repository_id> <gray>@</gray> <mount_repository_path>"
+    }
+  },
+
   "warp": {
     "create": "<prefix> You have <green>created</green> the warp <yellow><warp></yellow> <gray>(<warp_path>)</gray>",
     "delete": "<prefix> You have <red>deleted</red> the warp <yellow><warp></yellow> <gray>(<warp_path>)</gray>",
