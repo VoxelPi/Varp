@@ -1,93 +1,93 @@
 {
-  "prefix": "<bold><gold>>> <yellow>Varp <gold>▎<reset>",
+  "prefix": " <b><color:#99e550>ᴠᴀʀᴘ</color> <gray>▎</gray></b><reset>",
 
   "info": [
-    "<prefix> <gray>The server is running <yellow>varp-<platform></yellow>",
-    "<dark_gray>  ├ <gray>Version<dark_gray>:</dark_gray> <yellow><version></yellow>",
-    "<dark_gray>  └ <gray>Platform<dark_gray>:</dark_gray> <yellow><platform_brand></yellow> (<platform_version>)"
+    "<prefix> The server is running <yellow>varp-<platform></yellow>",
+    "<gray>  ├ </gray>Version<gray>:</gray> <aqua><version></aqua>",
+    "<gray>  └ </gray>Platform<gray>:</gray> <aqua><platform_brand></aqua> (<platform_version>)"
   ],
 
   "reload": {
-    "messages": "<prefix> Reloaded all messages"
+    "messages": "<prefix> Reloaded all <yellow>messages"
   },
 
   "client": {
     "info": {
       "bridge_enabled": [
-        "<prefix> <gray>Detected <yellow>varp client mod</yellow> version <yellow><client_version></yellow>",
-        "<prefix> <gray>Native <yellow>client support</yellow> is <green>enabled"
+        "<prefix> Detected <yellow>varp client mod</yellow> version <yellow><client_version></yellow>",
+        "<prefix> Native <yellow>client support</yellow> is <green>enabled"
       ],
       "bridge_disabled": [
-        "<prefix> <gray>No <yellow>clientside varp mod</yellow> detected",
-        "<prefix> <gray>Native <yellow>client support</yellow> is <red>disabled"
+        "<prefix> No <yellow>clientside varp mod</yellow> detected",
+        "<prefix> Native <yellow>client support</yellow> is <red>disabled"
       ]
     },
 
     "support_enabled": [
-      "<prefix> <gray>Detected <yellow>varp client mod</yellow> version <yellow><client_version></yellow>",
-      "<prefix> <gray><green>Enabling</green> native <yellow>client support</yellow>."
+      "<prefix> Detected <yellow>varp client mod</yellow> version <yellow><client_version></yellow>",
+      "<prefix> <green>Enabling</green> native <yellow>client support</yellow>."
     ],
 
     "error": {
       "no_support": "<prefix> <gray>Your native <yellow>client support</yellow> is <red>disabled",
       "incompatible_protocol_version": [
-        "<prefix> <gray><red>Unable</red> to activate native <yellow>client support</yellow> because of <red>incompatible protocol versions</red>",
-        "<dark_gray>  ├ <yellow>Server <gray>version</yellow><dark_gray>: <white><server_version> <gray>protocol version<dark_gray>: <white><server_protocol_version>",
-        "<dark_gray>  └ <yellow>Client <gray>version</yellow><dark_gray>: <white><client_version> <gray>protocol version<dark_gray>: <white><client_protocol_version>"
+        "<prefix> <red>Unable</red> to activate native <yellow>client support</yellow> because of <red>incompatible protocol versions</red>",
+        "<gray>  ├ </gray>Server version<gray>:</gray> <aqua><server_version></aqua> protocol version<gray>:</gray> <aqua><server_protocol_version></aqua>",
+        "<gray>  └ </gray>Client version<gray>:</gray> <aqua><client_version></aqua> protocol version<gray>:</gray> <aqua><client_protocol_version></aqua>"
       ]
     }
   },
 
   "warp": {
-    "create": "<prefix> <gray>You have <green>created</green> the warp <yellow><warp></yellow> <white>(<warp_path>)</white>",
-    "delete": "<prefix> <gray>You have <red>deleted</red> the warp <yellow><warp></yellow> <white>(<warp_path>)</white>",
-    "copy": "<prefix> <gray>You have <green>copied</green> the warp <yellow><warp></yellow> from <white><src></white> to <white><dst></white>",
-    "move": "<prefix> <gray>You have <green>moved</green> the warp <yellow><warp></yellow> from <white><src></white> to <white><dst></white>",
-    "edit": "<prefix> <gray>You have <yellow>edited</yellow> the warp <yellow><warp></yellow> <white>(<warp_path>)</white>",
+    "create": "<prefix> You have <green>created</green> the warp <yellow><warp></yellow> <gray>(<warp_path>)</gray>",
+    "delete": "<prefix> You have <red>deleted</red> the warp <yellow><warp></yellow> <gray>(<warp_path>)</gray>",
+    "copy": "<prefix> You have <green>copied</green> the warp <yellow><warp></yellow> from <gray><src></gray> to <gray><dst></gray>",
+    "move": "<prefix> You have <green>moved</green> the warp <yellow><warp></yellow> from <gray><src></gray> to <gray><dst></gray>",
+    "edit": "<prefix> You have <yellow>edited</yellow> the warp <yellow><warp></yellow> <gray>(<warp_path>)</gray>",
 
     "teleport": {
-      "self": "<prefix> <gray>You have <yellow>teleported</yellow> to the warp <yellow><warp></yellow> <white>(<warp_path>)</white>",
-      "others_single": "<prefix> <gray>You have <yellow>teleported</yellow> <yellow><target></yellow> to the warp <yellow><warp></yellow> <white>(<warp_path>)</white>",
-      "others_multiple": "<prefix> <gray>You have <yellow>teleported</yellow> <yellow><target_count></yellow> entities to the warp <yellow><warp></yellow> <white>(<warp_path>)</white>"
+      "self": "<prefix> You have <yellow>teleported</yellow> to the warp <yellow><warp></yellow> <gray>(<warp_path>)</gray>",
+      "others_single": "<prefix> You have <yellow>teleported</yellow> <yellow><target></yellow> to the warp <yellow><warp></yellow> <gray>(<warp_path>)</gray>",
+      "others_multiple": "<prefix> You have <yellow>teleported</yellow> <yellow><target_count></yellow> entities to the warp <yellow><warp></yellow> <gray>(<warp_path>)</gray>"
     }
   },
 
   "folder": {
-    "create": "<prefix> <gray>You have <green>created</green> the folder <yellow><folder></yellow> <white>(<folder_path>)</white>",
-    "delete": "<prefix> <gray>You have <red>deleted</red> the folder <yellow><folder></yellow> <white>(<folder_path>)</white> and its content",
-    "copy": "<prefix> <gray>You have <green>copied</green> the folder <yellow><folder></yellow> from <white><src></white> to <white><dst></white>",
-    "move": "<prefix> <gray>You have <green>moved</green> the folder <yellow><from></yellow> from <white><src></white> to <white><dst></white>",
-    "edit": "<prefix> <gray>You have <yellow>edited</yellow> the folder <yellow><folder></yellow> <white>(<folder_path>)</white>"
+    "create": "<prefix> You have <green>created</green> the folder <yellow><folder></yellow> <gray>(<folder_path>)</gray>",
+    "delete": "<prefix> You have <red>deleted</red> the folder <yellow><folder></yellow> <gray>(<folder_path>)</gray> and its content",
+    "copy": "<prefix> You have <green>copied</green> the folder <yellow><folder></yellow> from <gray><src></gray> to <gray><dst></gray>",
+    "move": "<prefix> You have <green>moved</green> the folder <yellow><from></yellow> from <gray><src></gray> to <gray><dst></gray>",
+    "edit": "<prefix> You have <yellow>edited</yellow> the folder <yellow><folder></yellow> <gray>(<folder_path>)</gray>"
   },
 
   "root": {
-    "edit": "<prefix> <gray>You have <yellow>edited</yellow> the root <yellow><root></yellow> <white>(<root_path>)</white>"
+    "edit": "<prefix> You have <yellow>edited</yellow> the root <yellow><root></yellow> <gray>(<root_path>)</gray>"
   },
 
   "teleportation_history": {
-    "send_to_previous_entry": "<prefix> <gray>You have been <yellow>reverted</yellow> your last <yellow><entries></yellow> teleportations",
-    "send_to_next_entry": "<prefix> <gray>You have been <yellow>replayed</yellow> your next <yellow><entries></yellow> teleportations"
+    "send_to_previous_entry": "<prefix> You have been <yellow>reverted</yellow> your last <yellow><entries></yellow> teleportations",
+    "send_to_next_entry": "<prefix> You have been <yellow>reapplied</yellow> your next <yellow><entries></yellow> teleportations"
   },
 
   "error": {
-    "error_occurred": "<prefix> <gray>An <red>Error occurred</red> whilst performing this action",
+    "error_occurred": "<prefix> An <red>Error occurred</red> whilst performing this action",
 
     "only_players": "<prefix> <red>Only players</red> can perform this action",
-    "no_permission": "<prefix> <gray>You <red>do not</red> have the required <yellow>permissions</yellow> to perform this action",
+    "no_permission": "<prefix> You <red>do not</red> have the required <yellow>permissions</yellow> to perform this action",
 
-    "warp_path_unresolved": "<prefix> <gray><red>No warp</red> exists at the path <yellow><path></yellow>",
-    "folder_path_unresolved": "<prefix> <gray><red>No folder</red> exists at the path <yellow><path></yellow>",
+    "warp_path_unresolved": "<prefix> <red>No warp</red> exists at the path <yellow><path></yellow>",
+    "folder_path_unresolved": "<prefix> <red>No folder</red> exists at the path <yellow><path></yellow>",
 
-    "warp_already_exists": "<prefix> <gray>A warp with the path <yellow><path></yellow> <red>already</red> exists",
-    "folder_already_exists": "<prefix> <gray>A folder with the path <yellow><path></yellow> <red>already</red> exists",
-    "node_already_exists": "<prefix> <gray>A node with the path <yellow><path></yellow> <red>already</red> exists",
+    "warp_already_exists": "<prefix> A warp with the path <yellow><path></yellow> <red>already</red> exists",
+    "folder_already_exists": "<prefix> A folder with the path <yellow><path></yellow> <red>already</red> exists",
+    "node_already_exists": "<prefix> A node with the path <yellow><path></yellow> <red>already</red> exists",
 
-    "move_folder_into_child": "<prefix> <gray><red>Unable</red> to move folder, destination is a child of the source folder",
-    "missing_mount": "<prefix> <gray><red>Missing mount</red> for node <yellow><path></yellow>",
+    "move_folder_into_child": "<prefix> <red>Unable</red> to move folder, destination is a child of the source folder",
+    "missing_mount": "<prefix> <red>Missing mount</red> for node <yellow><path></yellow>",
 
     "teleportation_log": {
-      "no_previous_entry": "<prefix> <gray><red>No previous record</red> exists in the teleportation log",
-      "no_next_entry": "<prefix> <gray><red>No next record</red> exists in the teleportation log"
+      "no_previous_entry": "<prefix> <red>No previous record</red> exists in the teleportation log",
+      "no_next_entry": "<prefix> <red>No next record</red> exists in the teleportation log"
     }
   }
 }
