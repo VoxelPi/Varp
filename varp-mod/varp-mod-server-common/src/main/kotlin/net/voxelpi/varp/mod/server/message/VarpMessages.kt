@@ -51,6 +51,11 @@ interface VarpMessages {
         @Placeholder("platform_version") platformVersion: String,
     )
 
+    @Message("reload.messages")
+    fun sendReloadMessages(
+        @Receiver receiver: Audience,
+    )
+
     // region client link messages
 
     @Message("client.support_enabled")

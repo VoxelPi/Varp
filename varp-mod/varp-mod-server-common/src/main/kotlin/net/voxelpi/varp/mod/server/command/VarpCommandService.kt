@@ -24,6 +24,7 @@ interface VarpCommandService {
         InfoCommand.register(commandManager, serverProvider)
         ListCommand.register(commandManager, serverProvider)
         MoveCommand.register(commandManager, serverProvider)
+        ReloadCommand.register(commandManager, serverProvider)
         TeleportationLogCommand.register(commandManager, serverProvider)
         WarpCommand.register(commandManager, serverProvider)
     }
