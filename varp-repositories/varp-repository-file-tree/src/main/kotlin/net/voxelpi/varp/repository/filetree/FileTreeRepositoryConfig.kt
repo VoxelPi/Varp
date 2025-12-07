@@ -1,6 +1,6 @@
 package net.voxelpi.varp.repository.filetree
 
-import net.voxelpi.varp.warp.repository.RepositoryConfig
+import net.voxelpi.varp.repository.RepositoryConfig
 import java.nio.file.Path
 
 data class FileTreeRepositoryConfig(

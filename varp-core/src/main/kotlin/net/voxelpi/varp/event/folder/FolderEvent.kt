@@ -1,7 +1,7 @@
 package net.voxelpi.varp.event.folder
 
 import net.voxelpi.varp.event.node.NodeEvent
-import net.voxelpi.varp.warp.Folder
+import net.voxelpi.varp.tree.Folder
 
 /**
  * Base event for all folder related events.

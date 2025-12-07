@@ -5,8 +5,8 @@ import net.voxelpi.varp.loader.VarpLoader
 import net.voxelpi.varp.mod.api.VarpServerInformation
 import net.voxelpi.varp.mod.server.api.entity.VarpServerEntityService
 import net.voxelpi.varp.mod.server.api.player.VarpServerPlayerService
-import net.voxelpi.varp.warp.Tree
-import net.voxelpi.varp.warp.repository.compositor.Compositor
+import net.voxelpi.varp.repository.compositor.Compositor
+import net.voxelpi.varp.tree.Tree
 import org.jetbrains.annotations.ApiStatus.Internal
 
 /**

@@ -1,7 +1,7 @@
 package net.voxelpi.varp.event.warp
 
 import net.voxelpi.varp.event.node.NodeEvent
-import net.voxelpi.varp.warp.Warp
+import net.voxelpi.varp.tree.Warp
 
 /**
  * Base event for all warp related events.

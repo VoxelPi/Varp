@@ -10,9 +10,9 @@ import net.voxelpi.varp.cli.command.VarpCLICommandSender
 import net.voxelpi.varp.cli.util.valueFlag
 import net.voxelpi.varp.extras.cloud.parser.keyParser
 import net.voxelpi.varp.extras.cloud.parser.tree.nodeParentParser
-import net.voxelpi.varp.warp.NodeParent
-import net.voxelpi.varp.warp.state.FolderState
-import net.voxelpi.varp.warp.state.WarpState
+import net.voxelpi.varp.tree.NodeParent
+import net.voxelpi.varp.tree.state.FolderState
+import net.voxelpi.varp.tree.state.WarpState
 import org.incendo.cloud.kotlin.extension.buildAndRegister
 import org.incendo.cloud.kotlin.extension.parser
 import org.incendo.cloud.parser.standard.DoubleParser.doubleParser

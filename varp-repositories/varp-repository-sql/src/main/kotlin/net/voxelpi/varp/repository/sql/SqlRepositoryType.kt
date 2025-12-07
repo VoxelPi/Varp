@@ -1,7 +1,7 @@
 package net.voxelpi.varp.repository.sql
 
 import com.zaxxer.hikari.HikariConfig
-import net.voxelpi.varp.warp.repository.RepositoryType
+import net.voxelpi.varp.repository.RepositoryType
 
 abstract class SqlRepositoryType(
     id: String,

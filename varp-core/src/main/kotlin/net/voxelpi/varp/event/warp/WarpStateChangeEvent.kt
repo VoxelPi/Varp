@@ -1,8 +1,8 @@
 package net.voxelpi.varp.event.warp
 
 import net.voxelpi.varp.event.node.NodeStateChangeEvent
-import net.voxelpi.varp.warp.Warp
-import net.voxelpi.varp.warp.state.WarpState
+import net.voxelpi.varp.tree.Warp
+import net.voxelpi.varp.tree.state.WarpState
 
 /**
  * Called when the state of a warp is modified.

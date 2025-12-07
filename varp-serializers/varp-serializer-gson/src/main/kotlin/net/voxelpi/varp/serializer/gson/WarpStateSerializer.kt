@@ -9,7 +9,7 @@ import com.google.gson.JsonSerializationContext
 import com.google.gson.JsonSerializer
 import net.kyori.adventure.text.Component
 import net.voxelpi.varp.MinecraftLocation
-import net.voxelpi.varp.warp.state.WarpState
+import net.voxelpi.varp.tree.state.WarpState
 import java.lang.reflect.Type
 
 public object WarpStateSerializer : JsonSerializer<WarpState>, JsonDeserializer<WarpState> {

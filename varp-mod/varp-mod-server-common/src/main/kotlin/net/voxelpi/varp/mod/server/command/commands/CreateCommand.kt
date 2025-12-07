@@ -7,9 +7,9 @@ import net.voxelpi.varp.extras.cloud.parser.tree.nodeParentParser
 import net.voxelpi.varp.mod.server.VarpServerImpl
 import net.voxelpi.varp.mod.server.command.VarpCommand
 import net.voxelpi.varp.mod.server.command.VarpCommandSourceStack
-import net.voxelpi.varp.warp.NodeParent
-import net.voxelpi.varp.warp.state.FolderState
-import net.voxelpi.varp.warp.state.WarpState
+import net.voxelpi.varp.tree.NodeParent
+import net.voxelpi.varp.tree.state.FolderState
+import net.voxelpi.varp.tree.state.WarpState
 import org.incendo.cloud.CommandManager
 import org.incendo.cloud.kotlin.extension.argumentDescription
 import org.incendo.cloud.kotlin.extension.buildAndRegister

@@ -22,7 +22,7 @@ import net.voxelpi.varp.mod.network.protocol.clientbound.VarpClientboundUpdateRo
 import net.voxelpi.varp.mod.network.protocol.clientbound.VarpClientboundUpdateWarpPathPacket
 import net.voxelpi.varp.mod.network.protocol.clientbound.VarpClientboundUpdateWarpStatePacket
 import net.voxelpi.varp.mod.server.network.VarpServerNetworkHandler
-import net.voxelpi.varp.warp.Tree
+import net.voxelpi.varp.tree.Tree
 
 class VarpServerNetworkBridge(
     private val tree: Tree,

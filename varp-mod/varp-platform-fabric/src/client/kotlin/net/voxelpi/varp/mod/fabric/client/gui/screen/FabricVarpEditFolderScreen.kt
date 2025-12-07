@@ -16,7 +16,7 @@ import net.minecraft.client.gui.DrawContext
 import net.minecraft.text.Text
 import net.minecraft.util.Identifier
 import net.voxelpi.varp.mod.fabric.client.FabricVarpClientMod
-import net.voxelpi.varp.warp.Folder
+import net.voxelpi.varp.tree.Folder
 
 class FabricVarpEditFolderScreen(
     private var folder: Folder,

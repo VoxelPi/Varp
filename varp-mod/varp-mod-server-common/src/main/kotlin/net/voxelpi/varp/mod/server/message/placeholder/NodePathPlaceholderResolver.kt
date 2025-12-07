@@ -6,7 +6,7 @@ import net.kyori.moonshine.placeholder.ConclusionValue
 import net.kyori.moonshine.placeholder.ContinuanceValue
 import net.kyori.moonshine.placeholder.IPlaceholderResolver
 import net.kyori.moonshine.util.Either
-import net.voxelpi.varp.warp.path.NodePath
+import net.voxelpi.varp.tree.path.NodePath
 import java.lang.reflect.Method
 import java.lang.reflect.Type
 import kotlin.jvm.java

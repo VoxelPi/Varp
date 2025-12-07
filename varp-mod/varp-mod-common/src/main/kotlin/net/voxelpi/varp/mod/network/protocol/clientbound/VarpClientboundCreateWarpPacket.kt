@@ -1,8 +1,8 @@
 package net.voxelpi.varp.mod.network.protocol.clientbound
 
 import net.voxelpi.varp.mod.network.protocol.PacketId
-import net.voxelpi.varp.warp.path.WarpPath
-import net.voxelpi.varp.warp.state.WarpState
+import net.voxelpi.varp.tree.path.WarpPath
+import net.voxelpi.varp.tree.state.WarpState
 
 /**
  * Send by the server to the client to inform the client about the creation of a warp.

@@ -6,7 +6,7 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonPrimitive
 import com.google.gson.JsonSerializationContext
 import com.google.gson.JsonSerializer
-import net.voxelpi.varp.warp.path.NodePath
+import net.voxelpi.varp.tree.path.NodePath
 import java.lang.reflect.Type
 
 public object NodePathSerializer : JsonSerializer<NodePath>, JsonDeserializer<NodePath> {

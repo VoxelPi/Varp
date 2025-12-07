@@ -1,8 +1,8 @@
 package net.voxelpi.varp.event.compositor
 
-import net.voxelpi.varp.warp.path.NodeParentPath
-import net.voxelpi.varp.warp.repository.Repository
-import net.voxelpi.varp.warp.repository.compositor.Compositor
+import net.voxelpi.varp.repository.Repository
+import net.voxelpi.varp.repository.compositor.Compositor
+import net.voxelpi.varp.tree.path.NodeParentPath
 
 /**
  * An event that is called when a repository is unmounted from a compositor.

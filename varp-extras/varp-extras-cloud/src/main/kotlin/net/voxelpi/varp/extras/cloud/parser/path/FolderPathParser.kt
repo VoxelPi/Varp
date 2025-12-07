@@ -1,7 +1,7 @@
 package net.voxelpi.varp.extras.cloud.parser.path
 
-import net.voxelpi.varp.warp.Tree
-import net.voxelpi.varp.warp.path.FolderPath
+import net.voxelpi.varp.tree.Tree
+import net.voxelpi.varp.tree.path.FolderPath
 import org.incendo.cloud.context.CommandContext
 import org.incendo.cloud.context.CommandInput
 import org.incendo.cloud.parser.ArgumentParseResult

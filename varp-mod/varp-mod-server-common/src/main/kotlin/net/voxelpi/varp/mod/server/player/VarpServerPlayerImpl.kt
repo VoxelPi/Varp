@@ -10,8 +10,8 @@ import net.voxelpi.varp.mod.server.actor.VarpServerActor
 import net.voxelpi.varp.mod.server.actor.requirePermissionOrElse
 import net.voxelpi.varp.mod.server.api.VarpPermissions
 import net.voxelpi.varp.mod.server.api.player.VarpServerPlayer
-import net.voxelpi.varp.warp.Warp
-import net.voxelpi.varp.warp.path.WarpPath
+import net.voxelpi.varp.tree.Warp
+import net.voxelpi.varp.tree.path.WarpPath
 
 abstract class VarpServerPlayerImpl(
     override val server: VarpServerImpl,

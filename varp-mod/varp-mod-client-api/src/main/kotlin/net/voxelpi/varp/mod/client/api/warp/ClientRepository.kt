@@ -1,6 +1,6 @@
 package net.voxelpi.varp.mod.client.api.warp
 
-import net.voxelpi.varp.warp.repository.Repository
+import net.voxelpi.varp.repository.Repository
 
 public abstract class ClientRepository(id: String) : Repository(id) {
 

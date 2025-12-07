@@ -1,6 +1,6 @@
 package net.voxelpi.varp.event.node
 
-import net.voxelpi.varp.warp.state.NodeState
+import net.voxelpi.varp.tree.state.NodeState
 
 /**
  * Called when the state of a node is modified.

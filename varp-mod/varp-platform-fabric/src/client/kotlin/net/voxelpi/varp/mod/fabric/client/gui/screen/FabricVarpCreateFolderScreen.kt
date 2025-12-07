@@ -16,8 +16,8 @@ import net.minecraft.client.gui.DrawContext
 import net.minecraft.text.Text
 import net.minecraft.util.Identifier
 import net.voxelpi.varp.mod.fabric.client.FabricVarpClientMod
-import net.voxelpi.varp.warp.path.NodeParentPath
-import net.voxelpi.varp.warp.state.FolderState
+import net.voxelpi.varp.tree.path.NodeParentPath
+import net.voxelpi.varp.tree.state.FolderState
 
 class FabricVarpCreateFolderScreen(
     private var parentPath: NodeParentPath,

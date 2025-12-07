@@ -4,7 +4,7 @@ import net.voxelpi.varp.extras.cloud.parser.tree.warpParser
 import net.voxelpi.varp.mod.fabric.server.FabricVarpServer
 import net.voxelpi.varp.mod.fabric.server.command.FabricVarpCommand
 import net.voxelpi.varp.mod.fabric.server.command.FabricVarpCommandSourceStack
-import net.voxelpi.varp.warp.Warp
+import net.voxelpi.varp.tree.Warp
 import org.incendo.cloud.fabric.FabricServerCommandManager
 import org.incendo.cloud.kotlin.extension.buildAndRegister
 import org.incendo.cloud.minecraft.modded.data.MultipleEntitySelector

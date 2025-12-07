@@ -4,9 +4,9 @@ import kotlinx.coroutines.runBlocking
 import net.voxelpi.event.annotation.Subscribe
 import net.voxelpi.varp.cli.command.CommandsRegistrationEvent
 import net.voxelpi.varp.extras.cloud.parser.tree.nodeParser
-import net.voxelpi.varp.warp.Node
-import net.voxelpi.varp.warp.NodeParent
-import net.voxelpi.varp.warp.Warp
+import net.voxelpi.varp.tree.Node
+import net.voxelpi.varp.tree.NodeParent
+import net.voxelpi.varp.tree.Warp
 import org.incendo.cloud.description.Description
 import org.incendo.cloud.kotlin.extension.buildAndRegister
 import org.incendo.cloud.kotlin.extension.suggestionProvider

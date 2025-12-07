@@ -8,7 +8,7 @@ import com.google.gson.JsonPrimitive
 import com.google.gson.JsonSerializationContext
 import com.google.gson.JsonSerializer
 import net.voxelpi.varp.loader.model.RepositoryDefinition
-import net.voxelpi.varp.warp.repository.RepositoryType
+import net.voxelpi.varp.repository.RepositoryType
 import java.lang.reflect.Type
 
 internal class RepositoryDefinitionSerializer(

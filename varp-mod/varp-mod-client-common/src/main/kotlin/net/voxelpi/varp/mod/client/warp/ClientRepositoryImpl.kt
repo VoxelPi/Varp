@@ -38,12 +38,12 @@ import net.voxelpi.varp.mod.network.protocol.serverbound.VarpServerboundModifyRo
 import net.voxelpi.varp.mod.network.protocol.serverbound.VarpServerboundModifyWarpPathPacket
 import net.voxelpi.varp.mod.network.protocol.serverbound.VarpServerboundModifyWarpStatePacket
 import net.voxelpi.varp.option.OptionsContext
-import net.voxelpi.varp.warp.path.FolderPath
-import net.voxelpi.varp.warp.path.WarpPath
-import net.voxelpi.varp.warp.state.FolderState
-import net.voxelpi.varp.warp.state.TreeStateRegistry
-import net.voxelpi.varp.warp.state.TreeStateRegistryView
-import net.voxelpi.varp.warp.state.WarpState
+import net.voxelpi.varp.tree.path.FolderPath
+import net.voxelpi.varp.tree.path.WarpPath
+import net.voxelpi.varp.tree.state.FolderState
+import net.voxelpi.varp.tree.state.TreeStateRegistry
+import net.voxelpi.varp.tree.state.TreeStateRegistryView
+import net.voxelpi.varp.tree.state.WarpState
 
 class ClientRepositoryImpl(
     private val client: VarpClientImpl,

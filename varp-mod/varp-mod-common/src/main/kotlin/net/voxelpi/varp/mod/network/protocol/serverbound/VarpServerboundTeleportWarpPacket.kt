@@ -1,7 +1,7 @@
 package net.voxelpi.varp.mod.network.protocol.serverbound
 
 import net.voxelpi.varp.mod.network.protocol.PacketId
-import net.voxelpi.varp.warp.path.WarpPath
+import net.voxelpi.varp.tree.path.WarpPath
 
 /**
  * Send by the client to the server to request teleportation to the given warp.

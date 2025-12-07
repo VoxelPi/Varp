@@ -3,7 +3,7 @@ package net.voxelpi.varp.mod.server.command.commands
 import net.voxelpi.varp.mod.server.VarpServerImpl
 import net.voxelpi.varp.mod.server.command.VarpCommand
 import net.voxelpi.varp.mod.server.command.VarpCommandSourceStack
-import net.voxelpi.varp.warp.path.NodeParentPath
+import net.voxelpi.varp.tree.path.NodeParentPath
 import org.incendo.cloud.CommandManager
 import org.incendo.cloud.kotlin.extension.argumentDescription
 import org.incendo.cloud.kotlin.extension.buildAndRegister

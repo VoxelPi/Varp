@@ -1,6 +1,6 @@
 package net.voxelpi.varp.exception.tree
 
-import net.voxelpi.varp.warp.path.FolderPath
+import net.voxelpi.varp.tree.path.FolderPath
 
 public class FolderAlreadyExistsException(
     override val path: FolderPath,

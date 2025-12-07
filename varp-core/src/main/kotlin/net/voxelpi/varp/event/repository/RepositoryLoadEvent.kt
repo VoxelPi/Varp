@@ -1,6 +1,6 @@
 package net.voxelpi.varp.event.repository
 
-import net.voxelpi.varp.warp.repository.Repository
+import net.voxelpi.varp.repository.Repository
 
 @JvmRecord
 public data class RepositoryLoadEvent(

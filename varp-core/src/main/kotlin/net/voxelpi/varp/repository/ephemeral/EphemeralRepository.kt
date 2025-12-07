@@ -1,0 +1,57 @@
+package net.voxelpi.varp.repository.ephemeral
+
+import net.voxelpi.varp.option.OptionsContext
+import net.voxelpi.varp.repository.SimpleRepository
+import net.voxelpi.varp.tree.path.FolderPath
+import net.voxelpi.varp.tree.path.WarpPath
+import net.voxelpi.varp.tree.state.FolderState
+import net.voxelpi.varp.tree.state.WarpState
+
+public class EphemeralRepository(
+    id: String,
+    override val config: EphemeralRepositoryConfig = EphemeralRepositoryConfig,
+) : SimpleRepository(id) {
+
+    override val type: EphemeralRepositoryType
+        get() = EphemeralRepositoryType
+
+    override suspend fun handleLoad(): Result<Unit> {
+        return Result.success(Unit)
+    }
+
+    override suspend fun handleCreate(path: WarpPath, state: WarpState): Result<Unit> {
+        return Result.success(Unit)
+    }
+
+    override suspend fun handleCreate(path: FolderPath, state: FolderState): Result<Unit> {
+        return Result.success(Unit)
+    }
+
+    override suspend fun handleSave(path: WarpPath, state: WarpState): Result<Unit> {
+        return Result.success(Unit)
+    }
+
+    override suspend fun handleSave(path: FolderPath, state: FolderState): Result<Unit> {
+        return Result.success(Unit)
+    }
+
+    override suspend fun handleSave(state: FolderState): Result<Unit> {
+        return Result.success(Unit)
+    }
+
+    override suspend fun handleDelete(path: WarpPath): Result<Unit> {
+        return Result.success(Unit)
+    }
+
+    override suspend fun handleDelete(path: FolderPath): Result<Unit> {
+        return Result.success(Unit)
+    }
+
+    override suspend fun handleMove(src: WarpPath, dst: WarpPath, options: OptionsContext): Result<Unit> {
+        return Result.success(Unit)
+    }
+
+    override suspend fun handleMove(src: FolderPath, dst: FolderPath, options: OptionsContext): Result<Unit> {
+        return Result.success(Unit)
+    }
+}

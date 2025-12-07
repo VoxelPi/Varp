@@ -7,8 +7,8 @@ import net.kyori.moonshine.placeholder.ConclusionValue
 import net.kyori.moonshine.placeholder.ContinuanceValue
 import net.kyori.moonshine.placeholder.IPlaceholderResolver
 import net.kyori.moonshine.util.Either
-import net.voxelpi.varp.warp.Folder
-import net.voxelpi.varp.warp.path.FolderPath
+import net.voxelpi.varp.tree.Folder
+import net.voxelpi.varp.tree.path.FolderPath
 import java.lang.reflect.Method
 import java.lang.reflect.Type
 import kotlin.collections.joinToString

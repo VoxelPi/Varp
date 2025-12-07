@@ -1,8 +1,8 @@
 package net.voxelpi.varp.event.folder
 
 import net.voxelpi.varp.event.node.NodePostDeleteEvent
-import net.voxelpi.varp.warp.path.FolderPath
-import net.voxelpi.varp.warp.state.FolderState
+import net.voxelpi.varp.tree.path.FolderPath
+import net.voxelpi.varp.tree.state.FolderState
 
 /**
  * Called after a folder has been deleted.

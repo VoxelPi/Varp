@@ -27,14 +27,14 @@ import net.voxelpi.varp.mod.server.message.placeholder.VarpServerInformationPlac
 import net.voxelpi.varp.mod.server.message.placeholder.VarpServerPlayerPlaceholderResolver
 import net.voxelpi.varp.mod.server.message.placeholder.WarpPlaceholderResolver
 import net.voxelpi.varp.mod.server.message.placeholder.WarpStatePlaceholderResolver
-import net.voxelpi.varp.warp.Folder
-import net.voxelpi.varp.warp.Root
-import net.voxelpi.varp.warp.Warp
-import net.voxelpi.varp.warp.path.FolderPath
-import net.voxelpi.varp.warp.path.NodePath
-import net.voxelpi.varp.warp.path.WarpPath
-import net.voxelpi.varp.warp.state.FolderState
-import net.voxelpi.varp.warp.state.WarpState
+import net.voxelpi.varp.tree.Folder
+import net.voxelpi.varp.tree.Root
+import net.voxelpi.varp.tree.Warp
+import net.voxelpi.varp.tree.path.FolderPath
+import net.voxelpi.varp.tree.path.NodePath
+import net.voxelpi.varp.tree.path.WarpPath
+import net.voxelpi.varp.tree.state.FolderState
+import net.voxelpi.varp.tree.state.WarpState
 import org.spongepowered.configurate.ConfigurationNode
 
 interface VarpMessages {

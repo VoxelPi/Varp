@@ -6,8 +6,8 @@ import net.kyori.adventure.text.format.NamedTextColor
 import net.voxelpi.event.annotation.Subscribe
 import net.voxelpi.varp.cli.command.CommandsRegistrationEvent
 import net.voxelpi.varp.extras.cloud.parser.tree.nodeParentParser
-import net.voxelpi.varp.warp.Node
-import net.voxelpi.varp.warp.NodeParent
+import net.voxelpi.varp.tree.Node
+import net.voxelpi.varp.tree.NodeParent
 import org.incendo.cloud.kotlin.extension.argumentDescription
 import org.incendo.cloud.kotlin.extension.buildAndRegister
 

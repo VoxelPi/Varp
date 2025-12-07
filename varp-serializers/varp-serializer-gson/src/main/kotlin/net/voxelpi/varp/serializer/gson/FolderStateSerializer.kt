@@ -8,7 +8,7 @@ import com.google.gson.JsonObject
 import com.google.gson.JsonSerializationContext
 import com.google.gson.JsonSerializer
 import net.kyori.adventure.text.Component
-import net.voxelpi.varp.warp.state.FolderState
+import net.voxelpi.varp.tree.state.FolderState
 import java.lang.reflect.Type
 
 public object FolderStateSerializer : JsonSerializer<FolderState>, JsonDeserializer<FolderState> {

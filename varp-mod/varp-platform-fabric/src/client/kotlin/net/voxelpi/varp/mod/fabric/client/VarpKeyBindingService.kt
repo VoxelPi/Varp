@@ -10,7 +10,7 @@ import net.voxelpi.varp.mod.fabric.FabricVarpMod
 import net.voxelpi.varp.mod.fabric.client.gui.screen.FabricVarpCreateFolderScreen
 import net.voxelpi.varp.mod.fabric.client.gui.screen.FabricVarpCreateWarpScreen
 import net.voxelpi.varp.mod.fabric.client.gui.screen.FabricVarpExplorerScreen
-import net.voxelpi.varp.warp.path.RootPath
+import net.voxelpi.varp.tree.path.RootPath
 import org.lwjgl.glfw.GLFW
 
 class VarpKeyBindingService(val client: FabricVarpClient) {

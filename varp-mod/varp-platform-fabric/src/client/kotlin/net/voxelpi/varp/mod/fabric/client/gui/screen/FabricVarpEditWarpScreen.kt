@@ -18,7 +18,7 @@ import net.minecraft.text.Text
 import net.minecraft.util.Identifier
 import net.voxelpi.varp.MinecraftLocation
 import net.voxelpi.varp.mod.fabric.client.FabricVarpClientMod
-import net.voxelpi.varp.warp.Warp
+import net.voxelpi.varp.tree.Warp
 import java.util.Locale
 
 class FabricVarpEditWarpScreen(

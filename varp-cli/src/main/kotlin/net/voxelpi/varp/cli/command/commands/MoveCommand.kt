@@ -7,8 +7,8 @@ import net.voxelpi.varp.extras.cloud.parser.path.nodeParentPathParser
 import net.voxelpi.varp.extras.cloud.parser.tree.nodeChildParser
 import net.voxelpi.varp.option.MoveMountsOptions
 import net.voxelpi.varp.option.assign
-import net.voxelpi.varp.warp.NodeChild
-import net.voxelpi.varp.warp.path.NodeParentPath
+import net.voxelpi.varp.tree.NodeChild
+import net.voxelpi.varp.tree.path.NodeParentPath
 import org.incendo.cloud.description.Description
 import org.incendo.cloud.kotlin.extension.buildAndRegister
 import org.incendo.cloud.parser.standard.StringParser.stringParser

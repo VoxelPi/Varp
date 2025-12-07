@@ -13,8 +13,8 @@ import net.voxelpi.varp.loader.VarpLoader
 import net.voxelpi.varp.repository.filetree.FileTreeRepositoryConfig
 import net.voxelpi.varp.repository.filetree.FileTreeRepositoryType
 import net.voxelpi.varp.repository.sql.SqlRepositoryType
-import net.voxelpi.varp.warp.Tree
-import net.voxelpi.varp.warp.path.RootPath
+import net.voxelpi.varp.tree.Tree
+import net.voxelpi.varp.tree.path.RootPath
 import org.slf4j.LoggerFactory
 import kotlin.io.path.Path
 import kotlin.system.exitProcess

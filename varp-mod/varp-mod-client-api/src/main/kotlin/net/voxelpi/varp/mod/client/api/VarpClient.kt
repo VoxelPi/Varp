@@ -3,10 +3,10 @@ package net.voxelpi.varp.mod.client.api
 import net.voxelpi.varp.mod.api.VarpClientInformation
 import net.voxelpi.varp.mod.api.VarpServerInformation
 import net.voxelpi.varp.mod.client.api.warp.ClientRepository
-import net.voxelpi.varp.warp.Tree
-import net.voxelpi.varp.warp.Warp
-import net.voxelpi.varp.warp.path.NodeParentPath
-import net.voxelpi.varp.warp.path.RootPath
+import net.voxelpi.varp.tree.Tree
+import net.voxelpi.varp.tree.Warp
+import net.voxelpi.varp.tree.path.NodeParentPath
+import net.voxelpi.varp.tree.path.RootPath
 import org.jetbrains.annotations.ApiStatus.Internal
 
 /**

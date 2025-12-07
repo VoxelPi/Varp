@@ -1,7 +1,7 @@
 package net.voxelpi.varp.mod.network.protocol.clientbound
 
 import net.voxelpi.varp.mod.network.protocol.PacketId
-import net.voxelpi.varp.warp.path.WarpPath
+import net.voxelpi.varp.tree.path.WarpPath
 
 /**
  * Send by the server to the client to inform the client about a change in the path of a warp.

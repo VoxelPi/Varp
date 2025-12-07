@@ -6,7 +6,7 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonPrimitive
 import com.google.gson.JsonSerializationContext
 import com.google.gson.JsonSerializer
-import net.voxelpi.varp.warp.path.FolderPath
+import net.voxelpi.varp.tree.path.FolderPath
 import java.lang.reflect.Type
 
 public object FolderPathSerializer : JsonSerializer<FolderPath>, JsonDeserializer<FolderPath> {

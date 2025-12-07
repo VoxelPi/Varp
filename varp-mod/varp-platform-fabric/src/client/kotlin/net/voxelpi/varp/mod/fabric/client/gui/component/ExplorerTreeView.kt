@@ -19,8 +19,8 @@ import net.minecraft.client.input.KeyInput
 import net.minecraft.text.Text
 import net.voxelpi.varp.mod.fabric.client.FabricVarpClientMod
 import net.voxelpi.varp.mod.fabric.client.util.clientNative
-import net.voxelpi.varp.warp.Folder
-import net.voxelpi.varp.warp.NodeParent
+import net.voxelpi.varp.tree.Folder
+import net.voxelpi.varp.tree.NodeParent
 import org.lwjgl.glfw.GLFW
 import kotlin.collections.sortedBy
 

@@ -1,12 +1,12 @@
 package net.voxelpi.varp.mod.network.protocol.clientbound
 
 import net.voxelpi.varp.mod.network.protocol.PacketId
-import net.voxelpi.varp.warp.Tree
-import net.voxelpi.varp.warp.path.FolderPath
-import net.voxelpi.varp.warp.path.WarpPath
-import net.voxelpi.varp.warp.state.FolderState
-import net.voxelpi.varp.warp.state.TreeStateRegistryView
-import net.voxelpi.varp.warp.state.WarpState
+import net.voxelpi.varp.tree.Tree
+import net.voxelpi.varp.tree.path.FolderPath
+import net.voxelpi.varp.tree.path.WarpPath
+import net.voxelpi.varp.tree.state.FolderState
+import net.voxelpi.varp.tree.state.TreeStateRegistryView
+import net.voxelpi.varp.tree.state.WarpState
 
 /**
  * Send by the server to the client to update the state of the root and all loaded warps and folders.

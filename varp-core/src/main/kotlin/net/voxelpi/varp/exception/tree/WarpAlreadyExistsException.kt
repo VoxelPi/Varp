@@ -1,6 +1,6 @@
 package net.voxelpi.varp.exception.tree
 
-import net.voxelpi.varp.warp.path.WarpPath
+import net.voxelpi.varp.tree.path.WarpPath
 
 public class WarpAlreadyExistsException(
     override val path: WarpPath,

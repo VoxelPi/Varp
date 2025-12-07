@@ -4,9 +4,9 @@ import kotlinx.coroutines.runBlocking
 import net.voxelpi.event.annotation.Subscribe
 import net.voxelpi.varp.cli.command.CommandsRegistrationEvent
 import net.voxelpi.varp.extras.cloud.parser.path.nodeParentPathParser
-import net.voxelpi.varp.warp.path.NodeParentPath
-import net.voxelpi.varp.warp.repository.Repository
-import net.voxelpi.varp.warp.repository.compositor.CompositorMount
+import net.voxelpi.varp.repository.Repository
+import net.voxelpi.varp.repository.compositor.CompositorMount
+import net.voxelpi.varp.tree.path.NodeParentPath
 import org.incendo.cloud.description.Description
 import org.incendo.cloud.kotlin.extension.buildAndRegister
 import org.incendo.cloud.kotlin.extension.suggestionProvider

@@ -1,9 +1,9 @@
 package net.voxelpi.varp.extras.cloud.parser.tree
 
 import net.voxelpi.varp.exception.tree.WarpNotFoundException
-import net.voxelpi.varp.warp.Tree
-import net.voxelpi.varp.warp.Warp
-import net.voxelpi.varp.warp.path.WarpPath
+import net.voxelpi.varp.tree.Tree
+import net.voxelpi.varp.tree.Warp
+import net.voxelpi.varp.tree.path.WarpPath
 import org.incendo.cloud.context.CommandContext
 import org.incendo.cloud.context.CommandInput
 import org.incendo.cloud.parser.ArgumentParseResult

@@ -4,7 +4,6 @@ import io.wispforest.owo.ui.component.ButtonComponent
 import io.wispforest.owo.ui.component.Components
 import io.wispforest.owo.ui.container.Containers
 import io.wispforest.owo.ui.container.FlowLayout
-import io.wispforest.owo.ui.container.FlowLayout.Algorithm
 import io.wispforest.owo.ui.core.Insets
 import io.wispforest.owo.ui.core.Positioning
 import io.wispforest.owo.ui.core.Size
@@ -14,9 +13,9 @@ import net.kyori.adventure.text.Component
 import net.minecraft.text.Text
 import net.minecraft.util.Identifier
 import net.voxelpi.varp.mod.fabric.client.util.clientNative
-import net.voxelpi.varp.warp.path.FolderPath
-import net.voxelpi.varp.warp.path.NodeParentPath
-import net.voxelpi.varp.warp.path.RootPath
+import net.voxelpi.varp.tree.path.FolderPath
+import net.voxelpi.varp.tree.path.NodeParentPath
+import net.voxelpi.varp.tree.path.RootPath
 
 /**
  * Menu bar of the explorer screen

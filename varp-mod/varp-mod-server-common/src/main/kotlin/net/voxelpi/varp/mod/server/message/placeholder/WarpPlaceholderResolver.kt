@@ -8,8 +8,8 @@ import net.kyori.moonshine.placeholder.ContinuanceValue
 import net.kyori.moonshine.placeholder.IPlaceholderResolver
 import net.kyori.moonshine.util.Either
 import net.voxelpi.varp.MinecraftLocation
-import net.voxelpi.varp.warp.Warp
-import net.voxelpi.varp.warp.path.WarpPath
+import net.voxelpi.varp.tree.Warp
+import net.voxelpi.varp.tree.path.WarpPath
 import java.lang.reflect.Method
 import java.lang.reflect.Type
 import kotlin.collections.joinToString

@@ -17,7 +17,7 @@ import net.voxelpi.varp.mod.server.api.VarpServer
 import net.voxelpi.varp.mod.server.warp.VarpServerNetworkBridge
 import net.voxelpi.varp.repository.filetree.FileTreeRepositoryConfig
 import net.voxelpi.varp.repository.filetree.FileTreeRepositoryType
-import net.voxelpi.varp.warp.path.RootPath
+import net.voxelpi.varp.tree.path.RootPath
 import org.bukkit.Server
 import org.bukkit.plugin.ServicePriority
 import java.nio.file.Files

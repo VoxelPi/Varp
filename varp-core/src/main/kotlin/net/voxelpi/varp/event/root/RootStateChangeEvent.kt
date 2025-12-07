@@ -1,8 +1,8 @@
 package net.voxelpi.varp.event.root
 
 import net.voxelpi.varp.event.node.NodeStateChangeEvent
-import net.voxelpi.varp.warp.Root
-import net.voxelpi.varp.warp.state.FolderState
+import net.voxelpi.varp.tree.Root
+import net.voxelpi.varp.tree.state.FolderState
 
 /**
  * Called when the state of the root is modified.

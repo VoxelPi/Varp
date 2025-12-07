@@ -19,10 +19,10 @@ import net.minecraft.text.Text
 import net.minecraft.util.Identifier
 import net.voxelpi.varp.mod.fabric.client.FabricVarpClientMod
 import net.voxelpi.varp.mod.fabric.client.util.clientNative
-import net.voxelpi.varp.warp.Folder
-import net.voxelpi.varp.warp.NodeChild
-import net.voxelpi.varp.warp.Warp
-import net.voxelpi.varp.warp.path.NodeParentPath
+import net.voxelpi.varp.tree.Folder
+import net.voxelpi.varp.tree.NodeChild
+import net.voxelpi.varp.tree.Warp
+import net.voxelpi.varp.tree.path.NodeParentPath
 
 class ExplorerContentList(
     path: NodeParentPath,

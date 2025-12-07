@@ -1,8 +1,8 @@
 package net.voxelpi.varp.event.warp
 
 import net.voxelpi.varp.event.node.NodePathChangeEvent
-import net.voxelpi.varp.warp.Warp
-import net.voxelpi.varp.warp.path.WarpPath
+import net.voxelpi.varp.tree.Warp
+import net.voxelpi.varp.tree.path.WarpPath
 
 /**
  * Called when the path of a warp is modified.

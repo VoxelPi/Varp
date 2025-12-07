@@ -1,7 +1,7 @@
 package net.voxelpi.varp.event.root
 
 import net.voxelpi.varp.event.node.NodeEvent
-import net.voxelpi.varp.warp.Root
+import net.voxelpi.varp.tree.Root
 
 /**
  * Base event for all root related events.

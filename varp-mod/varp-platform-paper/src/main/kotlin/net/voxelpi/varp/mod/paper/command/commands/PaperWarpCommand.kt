@@ -4,7 +4,7 @@ import net.voxelpi.varp.extras.cloud.parser.tree.warpParser
 import net.voxelpi.varp.mod.paper.PaperVarpServer
 import net.voxelpi.varp.mod.paper.command.PaperVarpCommand
 import net.voxelpi.varp.mod.paper.command.PaperVarpCommandSourceStack
-import net.voxelpi.varp.warp.Warp
+import net.voxelpi.varp.tree.Warp
 import org.incendo.cloud.bukkit.data.MultipleEntitySelector
 import org.incendo.cloud.bukkit.parser.selector.MultipleEntitySelectorParser.multipleEntitySelectorParser
 import org.incendo.cloud.kotlin.extension.buildAndRegister

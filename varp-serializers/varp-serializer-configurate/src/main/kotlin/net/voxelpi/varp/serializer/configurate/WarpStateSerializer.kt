@@ -2,7 +2,7 @@ package net.voxelpi.varp.serializer.configurate
 
 import net.kyori.adventure.text.Component
 import net.voxelpi.varp.MinecraftLocation
-import net.voxelpi.varp.warp.state.WarpState
+import net.voxelpi.varp.tree.state.WarpState
 import org.spongepowered.configurate.ConfigurationNode
 import org.spongepowered.configurate.kotlin.extensions.get
 import org.spongepowered.configurate.serialize.SerializationException

@@ -1,8 +1,8 @@
 package net.voxelpi.varp.event.folder
 
 import net.voxelpi.varp.event.node.NodeStateChangeEvent
-import net.voxelpi.varp.warp.Folder
-import net.voxelpi.varp.warp.state.FolderState
+import net.voxelpi.varp.tree.Folder
+import net.voxelpi.varp.tree.state.FolderState
 
 /**
  * Called when the state of a folder is modified.

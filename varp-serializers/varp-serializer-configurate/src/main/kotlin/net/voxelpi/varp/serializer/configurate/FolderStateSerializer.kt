@@ -1,7 +1,7 @@
 package net.voxelpi.varp.serializer.configurate
 
 import net.kyori.adventure.text.Component
-import net.voxelpi.varp.warp.state.FolderState
+import net.voxelpi.varp.tree.state.FolderState
 import org.spongepowered.configurate.ConfigurationNode
 import org.spongepowered.configurate.kotlin.extensions.get
 import org.spongepowered.configurate.serialize.SerializationException

@@ -14,8 +14,8 @@ import kotlinx.coroutines.runBlocking
 import net.minecraft.text.Text
 import net.voxelpi.varp.mod.fabric.client.FabricVarpClientMod
 import net.voxelpi.varp.mod.fabric.client.util.clientNative
-import net.voxelpi.varp.warp.NodeChild
-import net.voxelpi.varp.warp.Warp
+import net.voxelpi.varp.tree.NodeChild
+import net.voxelpi.varp.tree.Warp
 
 class FabricVarpDeleteNodeScreen(
     val node: NodeChild,

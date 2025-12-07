@@ -1,6 +1,6 @@
 package net.voxelpi.varp.event.node
 
-import net.voxelpi.varp.warp.path.NodePath
+import net.voxelpi.varp.tree.path.NodePath
 
 /**
  * Called when the path of a node is modified.

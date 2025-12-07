@@ -1,8 +1,8 @@
 package net.voxelpi.varp.event.folder
 
 import net.voxelpi.varp.event.node.NodePathChangeEvent
-import net.voxelpi.varp.warp.Folder
-import net.voxelpi.varp.warp.path.FolderPath
+import net.voxelpi.varp.tree.Folder
+import net.voxelpi.varp.tree.path.FolderPath
 
 /**
  * Called when the path of a folder is modified.

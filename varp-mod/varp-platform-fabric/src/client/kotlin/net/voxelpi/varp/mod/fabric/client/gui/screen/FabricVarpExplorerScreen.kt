@@ -14,9 +14,9 @@ import net.voxelpi.varp.mod.fabric.client.FabricVarpClientMod
 import net.voxelpi.varp.mod.fabric.client.gui.component.ExplorerContentList
 import net.voxelpi.varp.mod.fabric.client.gui.component.ExplorerMenuBar
 import net.voxelpi.varp.mod.fabric.client.gui.component.ExplorerTreeView
-import net.voxelpi.varp.warp.NodeParent
-import net.voxelpi.varp.warp.Tree
-import net.voxelpi.varp.warp.path.NodeParentPath
+import net.voxelpi.varp.tree.NodeParent
+import net.voxelpi.varp.tree.Tree
+import net.voxelpi.varp.tree.path.NodeParentPath
 
 class FabricVarpExplorerScreen(
     viewPath: NodeParentPath,

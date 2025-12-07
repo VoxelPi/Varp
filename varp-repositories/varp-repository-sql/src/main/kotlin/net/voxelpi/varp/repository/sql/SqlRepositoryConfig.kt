@@ -1,6 +1,6 @@
 package net.voxelpi.varp.repository.sql
 
-import net.voxelpi.varp.warp.repository.RepositoryConfig
+import net.voxelpi.varp.repository.RepositoryConfig
 
 data class SqlRepositoryConfig(
     val host: String,

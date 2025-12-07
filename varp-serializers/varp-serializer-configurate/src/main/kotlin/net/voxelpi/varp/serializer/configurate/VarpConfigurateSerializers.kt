@@ -1,8 +1,8 @@
 package net.voxelpi.varp.serializer.configurate
 
 import net.voxelpi.varp.MinecraftLocation
-import net.voxelpi.varp.warp.state.FolderState
-import net.voxelpi.varp.warp.state.WarpState
+import net.voxelpi.varp.tree.state.FolderState
+import net.voxelpi.varp.tree.state.WarpState
 import org.spongepowered.configurate.serialize.TypeSerializerCollection
 
 public object VarpConfigurateSerializers {

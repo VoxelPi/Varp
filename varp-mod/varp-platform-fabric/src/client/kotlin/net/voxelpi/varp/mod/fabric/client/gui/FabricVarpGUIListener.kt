@@ -9,11 +9,11 @@ import net.voxelpi.varp.event.node.NodeStateChangeEvent
 import net.voxelpi.varp.event.repository.RepositoryLoadEvent
 import net.voxelpi.varp.mod.fabric.client.FabricVarpClientMod
 import net.voxelpi.varp.mod.fabric.client.gui.screen.FabricVarpExplorerScreen
-import net.voxelpi.varp.warp.Tree
-import net.voxelpi.varp.warp.path.FolderPath
-import net.voxelpi.varp.warp.path.NodePath
-import net.voxelpi.varp.warp.path.RootPath
-import net.voxelpi.varp.warp.path.WarpPath
+import net.voxelpi.varp.tree.Tree
+import net.voxelpi.varp.tree.path.FolderPath
+import net.voxelpi.varp.tree.path.NodePath
+import net.voxelpi.varp.tree.path.RootPath
+import net.voxelpi.varp.tree.path.WarpPath
 
 class FabricVarpGUIListener(
     private val tree: Tree,

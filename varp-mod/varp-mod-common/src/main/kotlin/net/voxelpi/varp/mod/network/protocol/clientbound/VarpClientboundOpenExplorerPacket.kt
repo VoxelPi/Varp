@@ -1,7 +1,7 @@
 package net.voxelpi.varp.mod.network.protocol.clientbound
 
 import net.voxelpi.varp.mod.network.protocol.PacketId
-import net.voxelpi.varp.warp.path.NodeParentPath
+import net.voxelpi.varp.tree.path.NodeParentPath
 
 /**
  * Send by the server to the client, to signal the client that it should open the explorer gui.

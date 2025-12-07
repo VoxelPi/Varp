@@ -1,6 +1,6 @@
 package net.voxelpi.varp.serializer.configurate
 
-import net.voxelpi.varp.warp.path.RootPath
+import net.voxelpi.varp.tree.path.RootPath
 import org.spongepowered.configurate.serialize.ScalarSerializer
 import org.spongepowered.configurate.serialize.SerializationException
 import java.lang.reflect.Type

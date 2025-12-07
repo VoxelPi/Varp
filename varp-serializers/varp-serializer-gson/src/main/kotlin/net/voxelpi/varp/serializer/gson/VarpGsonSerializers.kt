@@ -2,14 +2,14 @@ package net.voxelpi.varp.serializer.gson
 
 import com.google.gson.GsonBuilder
 import net.voxelpi.varp.MinecraftLocation
-import net.voxelpi.varp.warp.path.FolderPath
-import net.voxelpi.varp.warp.path.NodeChildPath
-import net.voxelpi.varp.warp.path.NodeParentPath
-import net.voxelpi.varp.warp.path.NodePath
-import net.voxelpi.varp.warp.path.RootPath
-import net.voxelpi.varp.warp.path.WarpPath
-import net.voxelpi.varp.warp.state.FolderState
-import net.voxelpi.varp.warp.state.WarpState
+import net.voxelpi.varp.tree.path.FolderPath
+import net.voxelpi.varp.tree.path.NodeChildPath
+import net.voxelpi.varp.tree.path.NodeParentPath
+import net.voxelpi.varp.tree.path.NodePath
+import net.voxelpi.varp.tree.path.RootPath
+import net.voxelpi.varp.tree.path.WarpPath
+import net.voxelpi.varp.tree.state.FolderState
+import net.voxelpi.varp.tree.state.WarpState
 
 public fun GsonBuilder.varpSerializers(): GsonBuilder {
     registerTypeAdapter(MinecraftLocation::class.java, MinecraftLocationSerializer)

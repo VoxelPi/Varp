@@ -1,8 +1,8 @@
 package net.voxelpi.varp.event.warp
 
 import net.voxelpi.varp.event.node.NodePostDeleteEvent
-import net.voxelpi.varp.warp.path.WarpPath
-import net.voxelpi.varp.warp.state.WarpState
+import net.voxelpi.varp.tree.path.WarpPath
+import net.voxelpi.varp.tree.state.WarpState
 
 /**
  * Called when a warp is deleted.

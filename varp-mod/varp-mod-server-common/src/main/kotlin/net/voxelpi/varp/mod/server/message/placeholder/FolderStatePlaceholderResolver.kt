@@ -7,7 +7,7 @@ import net.kyori.moonshine.placeholder.ConclusionValue
 import net.kyori.moonshine.placeholder.ContinuanceValue
 import net.kyori.moonshine.placeholder.IPlaceholderResolver
 import net.kyori.moonshine.util.Either
-import net.voxelpi.varp.warp.state.FolderState
+import net.voxelpi.varp.tree.state.FolderState
 import java.lang.reflect.Method
 import java.lang.reflect.Type
 import kotlin.collections.joinToString

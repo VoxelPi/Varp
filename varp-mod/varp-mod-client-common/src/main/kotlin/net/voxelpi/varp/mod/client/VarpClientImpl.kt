@@ -10,7 +10,7 @@ import net.voxelpi.varp.mod.client.network.VarpClientNetworkHandler
 import net.voxelpi.varp.mod.client.warp.ClientRepositoryImpl
 import net.voxelpi.varp.mod.network.protocol.serverbound.VarpServerboundClientInfoPacket
 import net.voxelpi.varp.mod.network.protocol.serverbound.VarpServerboundTeleportWarpPacket
-import net.voxelpi.varp.warp.Warp
+import net.voxelpi.varp.tree.Warp
 
 abstract class VarpClientImpl() : VarpClient {
 
