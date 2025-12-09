@@ -31,8 +31,8 @@ dependencies {
     // Core library, required to use the varp api.
     implementation("net.voxelpi.varp:varp-core:<version>")
 
-    // Repository loader, provides ability to load repositories from disk.
-    implementation("net.voxelpi.varp:varp-loader:<version>") 
+    // Environment, provides ability to load and manage multiple repositories.
+    implementation("net.voxelpi.varp:varp-environment:<version>") 
     
     // Varp data serializers, provides way to serialize varp data to common formats.
     implementation("net.voxelpi.varp:varp-serializer-configurate:<version>")
