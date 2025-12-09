@@ -6,7 +6,9 @@ import net.kyori.adventure.text.logger.slf4j.ComponentLogger
 import net.voxelpi.event.EventScope
 import net.voxelpi.event.eventScope
 import net.voxelpi.varp.Varp
-import net.voxelpi.varp.loader.VarpLoader
+import net.voxelpi.varp.environment.VarpEnvironment
+import net.voxelpi.varp.environment.VarpEnvironmentLoader
+import net.voxelpi.varp.environment.model.EnvironmentDefinition
 import net.voxelpi.varp.mod.VarpModConstants
 import net.voxelpi.varp.mod.api.VarpServerInformation
 import net.voxelpi.varp.mod.paper.entity.PaperVarpServerEntityService
@@ -26,6 +28,7 @@ import java.nio.file.StandardCopyOption
 import java.util.UUID
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
+import kotlin.io.path.div
 
 class PaperVarpServer(
     val plugin: PaperVarpPlugin,
@@ -52,11 +55,19 @@ class PaperVarpServer(
         loadMessages()
     }
 
-    override val loader: VarpLoader = VarpLoader.loader(plugin.dataPath.resolve("data")) {
-        registerRepositoryType(FileTreeRepositoryType)
+    override val loader: VarpEnvironmentLoader = VarpEnvironmentLoader.withStandardTypes(
+        listOf(FileTreeRepositoryType)
+    )
 
-        addDefaultRepository("default", FileTreeRepositoryType, FileTreeRepositoryConfig(Path("./default/"), "json", false), listOf(RootPath to RootPath))
+    private val environmentFilePath = plugin.dataPath / "data" / "server.varp.json"
+
+    private val defaultEnvironment = EnvironmentDefinition.environmentDefinition {
+        repository("default", FileTreeRepositoryType, FileTreeRepositoryConfig(environmentFilePath.parent / "repositories" / "default", "json", false)) {
+            mountedAt(RootPath)
+        }
     }
+
+    override val environment: VarpEnvironment = VarpEnvironment.empty()
 
     override val serverNetworkHandler: PaperVarpServerNetworkHandler = PaperVarpServerNetworkHandler(this)
 
@@ -64,10 +75,12 @@ class PaperVarpServer(
 
     init {
         runBlocking {
-            loader.load().getOrThrow()
+            val definition = loader.load(environmentFilePath).getOrThrow() ?: defaultEnvironment
+            environment.load(definition).getOrThrow()
         }
-        plugin.componentLogger.info("Loaded ${loader.repositories().size} repositories")
+        plugin.componentLogger.info("Loaded ${environment.repositories.size} repositories")
         plugin.componentLogger.info("Loaded ${compositor.mounts().size} mounts")
+        plugin.componentLogger.info("Loaded ${environment.tree.warps().size} warps")
     }
 
     override val playerService: PaperVarpServerPlayerService = PaperVarpServerPlayerService(this)
@@ -83,8 +96,8 @@ class PaperVarpServer(
     fun cleanup() {
         serverNetworkBridge.cleanup()
         runBlocking {
-            loader.save()
-            loader.cleanup()
+            loader.save(environment.save(), environmentFilePath)
+            environment.deactivate()
         }
         coroutineScope.cancel()
 

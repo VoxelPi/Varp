@@ -9,8 +9,8 @@ plugins {
 dependencies {
     // Project
     api(projects.varpCore)
+    implementation(projects.varpEnvironment)
     implementation(projects.varpExtras.varpExtrasCloud)
-    implementation(projects.varpLoader)
     implementation(projects.varpRepositories.varpRepositoryFileTree)
     implementation(projects.varpRepositories.varpRepositorySql)
 

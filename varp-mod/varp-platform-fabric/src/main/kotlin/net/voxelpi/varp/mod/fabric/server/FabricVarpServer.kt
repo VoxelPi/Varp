@@ -13,7 +13,9 @@ import net.minecraft.util.WorldSavePath
 import net.voxelpi.event.EventScope
 import net.voxelpi.event.eventScope
 import net.voxelpi.varp.Varp
-import net.voxelpi.varp.loader.VarpLoader
+import net.voxelpi.varp.environment.VarpEnvironment
+import net.voxelpi.varp.environment.VarpEnvironmentLoader
+import net.voxelpi.varp.environment.model.EnvironmentDefinition
 import net.voxelpi.varp.mod.VarpModConstants
 import net.voxelpi.varp.mod.api.VarpServerInformation
 import net.voxelpi.varp.mod.fabric.FabricVarpMod
@@ -30,6 +32,7 @@ import net.voxelpi.varp.tree.path.RootPath
 import java.nio.file.Path
 import java.util.UUID
 import kotlin.io.path.Path
+import kotlin.io.path.div
 
 class FabricVarpServer(
     val server: MinecraftServer,
@@ -56,11 +59,19 @@ class FabricVarpServer(
         loadMessages()
     }
 
-    override val loader: VarpLoader = VarpLoader.loader(server.getSavePath(WorldSavePath.ROOT).resolve("data").resolve("varp")) {
-        registerRepositoryType(FileTreeRepositoryType)
+    override val loader: VarpEnvironmentLoader = VarpEnvironmentLoader.withStandardTypes(
+        listOf(FileTreeRepositoryType)
+    )
 
-        addDefaultRepository("default", FileTreeRepositoryType, FileTreeRepositoryConfig(Path("./default/"), "json", false), listOf(RootPath to RootPath))
+    private val environmentFilePath = server.getSavePath(WorldSavePath.ROOT) / "data" / "varp" / "server.varp.json"
+
+    private val defaultEnvironment = EnvironmentDefinition.environmentDefinition {
+        repository("default", FileTreeRepositoryType, FileTreeRepositoryConfig(environmentFilePath.parent / "repositories" / "default", "json", false)) {
+            mountedAt(RootPath)
+        }
     }
+
+    override val environment: VarpEnvironment = VarpEnvironment.empty()
 
     override val serverNetworkHandler: FabricVarpServerNetworkHandler = FabricVarpServerNetworkHandler(this)
 
@@ -68,10 +79,12 @@ class FabricVarpServer(
 
     init {
         runBlocking {
-            loader.load().getOrThrow()
+            val definition = loader.load(environmentFilePath).getOrThrow() ?: defaultEnvironment
+            environment.load(definition).getOrThrow()
         }
-        FabricVarpMod.logger.info("Loaded ${loader.repositories().size} repositories")
+        FabricVarpMod.logger.info("Loaded ${environment.repositories.size} repositories")
         FabricVarpMod.logger.info("Loaded ${compositor.mounts().size} mounts")
+        FabricVarpMod.logger.info("Loaded ${environment.tree.warps().size} warps")
     }
 
     override val playerService: FabricVarpServerPlayerService = FabricVarpServerPlayerService(this)
@@ -88,8 +101,8 @@ class FabricVarpServer(
         serverNetworkHandler.cleanup()
         playerService.handleShutdown()
         runBlocking {
-            loader.save()
-            loader.cleanup()
+            loader.save(environment.save(), environmentFilePath)
+            environment.deactivate()
         }
         coroutineScope.cancel()
 

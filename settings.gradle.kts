@@ -10,12 +10,12 @@ pluginManagement {
 }
 
 include("varp-core")
-include("varp-loader")
 include("varp-repositories:varp-repository-file-tree")
 include("varp-repositories:varp-repository-sql")
 include("varp-serializers:varp-serializer-configurate")
 include("varp-serializers:varp-serializer-gson")
 include("varp-extras:varp-extras-cloud")
+include("varp-environment")
 include("varp-cli")
 include("varp-mod:varp-mod-api")
 include("varp-mod:varp-mod-common")

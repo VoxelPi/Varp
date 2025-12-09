@@ -1,7 +1,8 @@
 package net.voxelpi.varp.mod.server.api
 
 import net.voxelpi.event.EventScope
-import net.voxelpi.varp.loader.VarpLoader
+import net.voxelpi.varp.environment.VarpEnvironment
+import net.voxelpi.varp.environment.VarpEnvironmentLoader
 import net.voxelpi.varp.mod.api.VarpServerInformation
 import net.voxelpi.varp.mod.server.api.entity.VarpServerEntityService
 import net.voxelpi.varp.mod.server.api.player.VarpServerPlayerService
@@ -35,21 +36,26 @@ public interface VarpServer {
     public val platform: ServerPlatform
 
     /**
-     * The varp loader used to load and store the varp tree.
+     * The varp loader used to load and store the varp environment.
      */
-    public val loader: VarpLoader
+    public val loader: VarpEnvironmentLoader
+
+    /**
+     * The varp environment of the server.
+     */
+    public val environment: VarpEnvironment
 
     /**
      * The varp compositor used to composite the varp tree.
      */
     public val compositor: Compositor
-        get() = loader.compositor
+        get() = environment.compositor
 
     /**
      * The varp tree.
      */
     public val tree: Tree
-        get() = loader.tree
+        get() = environment.tree
 
     /**
      * The server player service.

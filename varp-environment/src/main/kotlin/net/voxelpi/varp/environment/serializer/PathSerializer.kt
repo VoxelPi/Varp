@@ -1,4 +1,4 @@
-package net.voxelpi.varp.loader.serializer
+package net.voxelpi.varp.environment.serializer
 
 import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer

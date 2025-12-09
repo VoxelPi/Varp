@@ -16,6 +16,11 @@ dependencies {
 
     // Libraries
     compileOnlyApi(libs.gson)
+
+    testImplementation(libs.gson)
+    testImplementation(libs.kotlinx.coroutines.core)
+    testImplementation(libs.event)
+    testImplementation(libs.bundles.adventure)
 }
 
 kotlin {
