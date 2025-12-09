@@ -115,6 +115,10 @@ public class VarpEnvironment internal constructor() {
 
     public companion object {
 
+        public fun empty(): VarpEnvironment {
+            return VarpEnvironment()
+        }
+
         public suspend fun environment(definition: EnvironmentDefinition): Result<VarpEnvironment> {
             val environment = VarpEnvironment()
             environment.load(definition)

@@ -11,7 +11,7 @@ dependencies {
 
     // Project
     api(projects.varpMod.varpModApi)
-    api(projects.varpLoader)
+    api(projects.varpEnvironment)
 }
 
 kotlin {

@@ -17,8 +17,8 @@ object RepositoriesCommand : VarpCommand {
                 val server = serverProvider()
                 val sender = context.sender()
 
-                server.messages.sendRepositoryListHeader(sender, server.loader.repositories().size)
-                for (repository in server.loader.repositories()) {
+                server.messages.sendRepositoryListHeader(sender, server.environment.repositories.size)
+                for (repository in server.environment.repositories.values) {
                     val mounts = server.compositor.mounts().filter { it.repository.id == repository.id }
                     if (mounts.isEmpty()) {
                         server.messages.sendRepositoryListEntryWithoutMounts(sender, repository.id, repository.type.id)

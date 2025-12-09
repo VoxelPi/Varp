@@ -14,7 +14,7 @@ object MountsCommand : VarpCommand {
 
             handler { context ->
                 val server = serverProvider()
-                val mounts = server.loader.compositor.mounts()
+                val mounts = server.compositor.mounts()
 
                 server.messages.sendMountListHeader(context.sender(), mounts.size)
                 for (mount in mounts) {

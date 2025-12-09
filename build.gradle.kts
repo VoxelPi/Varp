@@ -17,7 +17,7 @@ allprojects {
 
 dependencies {
     dokka(projects.varpCore)
-    dokka(projects.varpLoader)
+    dokka(projects.varpEnvironment)
     dokka(projects.varpRepositories.varpRepositoryFileTree)
     dokka(projects.varpRepositories.varpRepositorySql)
     dokka(projects.varpSerializers.varpSerializerConfigurate)
