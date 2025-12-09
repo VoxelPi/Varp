@@ -4,7 +4,6 @@ import kotlinx.coroutines.runBlocking
 import net.voxelpi.event.annotation.Subscribe
 import net.voxelpi.varp.cli.command.CommandsRegistrationEvent
 import net.voxelpi.varp.extras.cloud.parser.path.nodeParentPathParser
-import net.voxelpi.varp.repository.Repository
 import net.voxelpi.varp.repository.compositor.CompositorMount
 import net.voxelpi.varp.tree.path.NodeParentPath
 import org.incendo.cloud.description.Description
@@ -22,8 +21,8 @@ object MountsCommand {
 
         commandManager.buildAndRegister("mounts", Description.description("Lists all loaded mounts")) {
             handler { context ->
-                val mountsList = cli.loader.compositor.mounts().joinToString(", ") { "${it.sourcePath} of \"${it.repository.id}\" at ${it.path}" }
-                context.sender().sendMessage("The following ${cli.loader.compositor.mounts().size} mounts are loaded: $mountsList")
+                val mountsList = cli.environment.compositor.mounts().joinToString(", ") { "${it.sourcePath} of \"${it.repository.id}\" at ${it.path}" }
+                context.sender().sendMessage("The following ${cli.environment.compositor.mounts().size} mounts are loaded: $mountsList")
             }
 
             registerCopy("list") {}
@@ -34,10 +33,10 @@ object MountsCommand {
 
             required("repository", stringParser()) {
                 suggestionProvider = SuggestionProvider.blockingStrings { context, input ->
-                    cli.loader.repositories().map(Repository::id)
+                    cli.environment.repositories.keys
                 }
             }
-            required("source_path", nodeParentPathParser { context -> cli.loader.repository(context["repository"])?.tree })
+            required("source_path", nodeParentPathParser { context -> cli.environment.repositories[context["repository"]]?.tree })
             required("mount_parent_path", nodeParentPathParser { cli.tree })
             required("mount_id", stringParser()) {}
 
@@ -47,7 +46,7 @@ object MountsCommand {
                 val mountParentPath: NodeParentPath = context["mount_parent_path"]
                 val mountId: String = context["mount_id"]
 
-                val repository = cli.loader.repository(repositoryId)
+                val repository = cli.environment.repositories[repositoryId]
                 if (repository == null) {
                     context.sender().sendMessage("Unknown repository \"$repositoryId\"")
                     return@handler
@@ -56,7 +55,7 @@ object MountsCommand {
                 val mountPath = mountParentPath.folder(mountId)
 
                 runBlocking {
-                    cli.loader.compositor.modifyMounts {
+                    cli.environment.compositor.modifyMounts {
                         register(mountPath, repository, repositoryPath)
                     }.getOrThrow()
                 }
@@ -68,21 +67,21 @@ object MountsCommand {
             literal("remove")
             required("mount_path", nodeParentPathParser { cli.tree }) {
                 suggestionProvider = SuggestionProvider.blockingStrings { context, input ->
-                    cli.loader.compositor.mounts().map(CompositorMount::path).map(NodeParentPath::toString)
+                    cli.environment.compositor.mounts().map(CompositorMount::path).map(NodeParentPath::toString)
                 }
             }
 
             handler { context ->
                 val mountPath: NodeParentPath = context["mount_path"]
 
-                val mount = cli.loader.compositor.mount(mountPath)
+                val mount = cli.environment.compositor.mount(mountPath)
                 if (mount == null) {
                     context.sender().sendMessage("There is no mount at $mountPath")
                     return@handler
                 }
 
                 runBlocking {
-                    cli.loader.compositor.modifyMounts {
+                    cli.environment.compositor.modifyMounts {
                         unregister(mount.path)
                     }
                 }

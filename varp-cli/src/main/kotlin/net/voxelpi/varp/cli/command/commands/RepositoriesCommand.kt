@@ -14,7 +14,7 @@ object RepositoriesCommand {
 
         commandManager.buildAndRegister("repositories", Description.description("Lists all loaded repositories"), arrayOf("repos")) {
             handler { context ->
-                context.sender().sendMessage("The following repositories are loaded: ${cli.loader.repositories().joinToString(", ") { it.id }}")
+                context.sender().sendMessage("The following repositories are loaded: ${cli.environment.repositories.keys.joinToString(", ")}")
             }
         }
     }

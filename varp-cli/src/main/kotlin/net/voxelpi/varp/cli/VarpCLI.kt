@@ -9,7 +9,9 @@ import net.voxelpi.event.eventScope
 import net.voxelpi.varp.cli.command.VarpCLICommandManager
 import net.voxelpi.varp.cli.console.VarpCLIConsole
 import net.voxelpi.varp.cli.coroutine.VarpCLIDispatcher
-import net.voxelpi.varp.loader.VarpLoader
+import net.voxelpi.varp.environment.VarpEnvironment
+import net.voxelpi.varp.environment.VarpEnvironmentLoader
+import net.voxelpi.varp.environment.model.EnvironmentDefinition
 import net.voxelpi.varp.repository.filetree.FileTreeRepositoryConfig
 import net.voxelpi.varp.repository.filetree.FileTreeRepositoryType
 import net.voxelpi.varp.repository.sql.SqlRepositoryType
@@ -32,28 +34,34 @@ object VarpCLI {
 
     val console = VarpCLIConsole(this, commandManager)
 
-    val loader = VarpLoader.loader(Path(".").toAbsolutePath().normalize()) {
-        registerRepositoryType(FileTreeRepositoryType)
-        registerRepositoryType(SqlRepositoryType.PostgreSql)
-        registerRepositoryType(SqlRepositoryType.MySql)
+    val environmentLoader = VarpEnvironmentLoader.withStandardTypes(
+        listOf(FileTreeRepositoryType, SqlRepositoryType.PostgreSql, SqlRepositoryType.MySql),
+    )
 
-        addDefaultRepository("default", FileTreeRepositoryType, FileTreeRepositoryConfig(Path("./default/"), "json", false), listOf(RootPath to RootPath))
+    val defaultEnvironment = EnvironmentDefinition.environmentDefinition {
+        repository("default", FileTreeRepositoryType, FileTreeRepositoryConfig(Path("./default/"), "json", false)) {
+            mountedAt(RootPath)
+        }
     }
 
-    var tree: Tree = loader.tree
+    val environment = runBlocking { VarpEnvironment.environment(defaultEnvironment).getOrThrow() }
+
+    val tree: Tree
+        get() = environment.tree
 
     fun start() {
         console.start()
         console.printHeader()
 
+        val definition = environmentLoader.load(Path("varp.json").toAbsolutePath().normalize()).getOrElse {
+            logger.error("Unable to load tree: ${it.message}", it)
+            stop()
+        } ?: defaultEnvironment
         runBlocking {
-            loader.load().getOrElse {
-                logger.error("Unable to load tree: ${it.message}", it)
-                stop()
-            }
+            environment.load(definition)
         }
-        logger.info("Loaded ${loader.repositories().size} repositories")
-        logger.info("Loaded ${loader.compositor.mounts().size} mounts")
+        logger.info("Loaded ${environment.repositories.size} repositories")
+        logger.info("Loaded ${environment.compositor.mounts().size} mounts")
 
         while (true) {
             coroutineDispatcher.executor.runTasks()
@@ -61,10 +69,11 @@ object VarpCLI {
         }
     }
 
-    fun stop() {
+    fun stop(): Nothing {
         runBlocking {
-            loader.save()
-            loader.cleanup()
+            val definition = environment.save()
+            environmentLoader.save(definition, Path("varp.json").toAbsolutePath().normalize())
+            environment.deactivate()
         }
         coroutineScope.cancel()
         exitProcess(0)
