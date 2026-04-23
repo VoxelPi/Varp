@@ -4,7 +4,7 @@ import kotlinx.coroutines.cancel
 import net.kyori.adventure.platform.modcommon.MinecraftClientAudiences
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger
-import net.minecraft.client.MinecraftClient
+import net.minecraft.client.Minecraft
 import net.voxelpi.varp.Varp
 import net.voxelpi.varp.mod.VarpModConstants
 import net.voxelpi.varp.mod.api.VarpClientInformation
@@ -44,7 +44,7 @@ class FabricVarpClient : VarpClientImpl() {
         if (!isBridgeEnabled()) {
             audience.sendMessage(Component.translatable("varp.bridge_not_active"))
         }
-        MinecraftClient.getInstance().setScreen(FabricVarpExplorerScreen(path))
+        Minecraft.getInstance().setScreen(FabricVarpExplorerScreen(path))
     }
 
     fun cleanup() {

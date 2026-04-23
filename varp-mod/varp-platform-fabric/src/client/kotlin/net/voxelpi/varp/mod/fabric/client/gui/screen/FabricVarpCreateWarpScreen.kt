@@ -1,9 +1,9 @@
 package net.voxelpi.varp.mod.fabric.client.gui.screen
 
 import io.wispforest.owo.ui.base.BaseOwoScreen
-import io.wispforest.owo.ui.component.Components
-import io.wispforest.owo.ui.container.Containers
+import io.wispforest.owo.ui.component.UIComponents
 import io.wispforest.owo.ui.container.FlowLayout
+import io.wispforest.owo.ui.container.UIContainers
 import io.wispforest.owo.ui.core.HorizontalAlignment
 import io.wispforest.owo.ui.core.Insets
 import io.wispforest.owo.ui.core.OwoUIAdapter
@@ -13,10 +13,9 @@ import io.wispforest.owo.ui.core.VerticalAlignment
 import kotlinx.coroutines.runBlocking
 import net.kyori.adventure.key.Key
 import net.kyori.adventure.text.minimessage.MiniMessage
-import net.minecraft.client.MinecraftClient
-import net.minecraft.client.gui.DrawContext
-import net.minecraft.text.Text
-import net.minecraft.util.Identifier
+import net.minecraft.client.Minecraft
+import net.minecraft.client.gui.GuiGraphicsExtractor
+import net.minecraft.resources.Identifier
 import net.voxelpi.varp.MinecraftLocation
 import net.voxelpi.varp.mod.fabric.client.FabricVarpClientMod
 import net.voxelpi.varp.tree.path.NodeParentPath
@@ -27,79 +26,79 @@ class FabricVarpCreateWarpScreen(
     private var parentPath: NodeParentPath,
 ) : BaseOwoScreen<FlowLayout>() {
 
-    override fun shouldPause(): Boolean = false
+    override fun isPauseScreen(): Boolean = false
 
     override fun createAdapter(): OwoUIAdapter<FlowLayout> {
-        return OwoUIAdapter.create(this, Containers::verticalFlow)
+        return OwoUIAdapter.create(this, UIContainers::verticalFlow)
     }
 
     // For some reason without this code, all labels are compressed.
     private var stupidFix: Boolean = false
     private lateinit var menuPlane: FlowLayout
 
-    override fun render(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
+    override fun extractRenderState(context: GuiGraphicsExtractor, mouseX: Int, mouseY: Int, delta: Float) {
         if (!stupidFix) {
             menuPlane.horizontalSizing(Sizing.fixed(1000))
             menuPlane.horizontalSizing(Sizing.fill(66))
             stupidFix = true
         }
-        super.render(context, mouseX, mouseY, delta)
+        super.extractRenderState(context, mouseX, mouseY, delta)
     }
 
     override fun build(rootComponent: FlowLayout) {
         rootComponent.surface(Surface.VANILLA_TRANSLUCENT)
         rootComponent.alignment(HorizontalAlignment.CENTER, VerticalAlignment.CENTER)
 
-        val idInput = Components.textBox(Sizing.fill(60), "warp").apply {
+        val idInput = UIComponents.textBox(Sizing.fill(60), "warp").apply {
             setMaxLength(256)
             margins(Insets.vertical(2))
         }
 
-        val nameInput = Components.textBox(Sizing.fill(60), "Warp").apply {
+        val nameInput = UIComponents.textBox(Sizing.fill(60), "Warp").apply {
             setMaxLength(1024)
             margins(Insets.vertical(2))
         }
 
-        val worldInput = Components.textBox(Sizing.fill(60), MinecraftClient.getInstance().world?.registryKey?.value?.asString()).apply {
+        val worldInput = UIComponents.textBox(Sizing.fill(60), Minecraft.getInstance().level?.dimension()?.key()?.asString()).apply {
             setMaxLength(256)
             margins(Insets.vertical(2))
         }
 
-        val xInput = Components.textBox(Sizing.fill(60), "%.3f".format(Locale.ENGLISH, MinecraftClient.getInstance().player?.x ?: 0.0)).apply {
+        val xInput = UIComponents.textBox(Sizing.fill(60), "%.3f".format(Locale.ENGLISH, Minecraft.getInstance().player?.x ?: 0.0)).apply {
             setMaxLength(256)
             margins(Insets.vertical(2))
         }
 
-        val yInput = Components.textBox(Sizing.fill(60), "%.3f".format(Locale.ENGLISH, MinecraftClient.getInstance().player?.y ?: 0.0)).apply {
+        val yInput = UIComponents.textBox(Sizing.fill(60), "%.3f".format(Locale.ENGLISH, Minecraft.getInstance().player?.y ?: 0.0)).apply {
             setMaxLength(256)
             margins(Insets.vertical(2))
         }
 
-        val zInput = Components.textBox(Sizing.fill(60), "%.3f".format(Locale.ENGLISH, MinecraftClient.getInstance().player?.z ?: 0.0)).apply {
+        val zInput = UIComponents.textBox(Sizing.fill(60), "%.3f".format(Locale.ENGLISH, Minecraft.getInstance().player?.z ?: 0.0)).apply {
             setMaxLength(256)
             margins(Insets.vertical(2))
         }
 
-        val yawInput = Components.textBox(Sizing.fill(60), "%.3f".format(Locale.ENGLISH, MinecraftClient.getInstance().player?.yaw ?: 0f)).apply {
+        val yawInput = UIComponents.textBox(Sizing.fill(60), "%.3f".format(Locale.ENGLISH, Minecraft.getInstance().player?.yRot ?: 0f)).apply {
             setMaxLength(256)
             margins(Insets.vertical(2))
         }
 
-        val pitchInput = Components.textBox(Sizing.fill(60), "%.3f".format(Locale.ENGLISH, MinecraftClient.getInstance().player?.pitch ?: 0f)).apply {
+        val pitchInput = UIComponents.textBox(Sizing.fill(60), "%.3f".format(Locale.ENGLISH, Minecraft.getInstance().player?.xRot ?: 0f)).apply {
             setMaxLength(256)
             margins(Insets.vertical(2))
         }
 
-        menuPlane = Containers.verticalFlow(Sizing.fill(66), Sizing.content())
+        menuPlane = UIContainers.verticalFlow(Sizing.fill(66), Sizing.content())
         menuPlane.child(
-            Containers.horizontalFlow(Sizing.fill(95), Sizing.fixed(20)).apply {
+            UIContainers.horizontalFlow(Sizing.fill(95), Sizing.fixed(20)).apply {
                 child(
-                    Components.texture(Identifier.of("varp:textures/gui/create_warp.png"), 0, 0, 16, 16, 16, 16).apply {
+                    UIComponents.texture(Identifier.parse("varp:textures/gui/create_warp.png"), 0, 0, 16, 16, 16, 16).apply {
                         margins(Insets.of(0, 0, 0, 8))
                     }
                 )
                 child(
-                    Components.label(Text.translatable("gui.varp.create_warp.message")).apply {
+                    UIComponents.label(net.minecraft.network.chat.Component.translatable("gui.varp.create_warp.message")).apply {
                         horizontalTextAlignment(HorizontalAlignment.CENTER)
                         margins(Insets.of(0, 0, 0, 0))
                     }
@@ -110,14 +109,14 @@ class FabricVarpCreateWarpScreen(
             }
         )
         menuPlane.child(
-            Containers.verticalScroll(
+            UIContainers.verticalScroll(
                 Sizing.fill(100),
                 Sizing.fill(60),
-                Containers.verticalFlow(Sizing.fill(100), Sizing.content()).apply {
+                UIContainers.verticalFlow(Sizing.fill(100), Sizing.content()).apply {
                     child(
-                        Containers.horizontalFlow(Sizing.content(), Sizing.content()).apply {
+                        UIContainers.horizontalFlow(Sizing.content(), Sizing.content()).apply {
                             child(
-                                Components.label(Text.translatable("gui.varp.create_warp.id")).apply {
+                                UIComponents.label(net.minecraft.network.chat.Component.translatable("gui.varp.create_warp.id")).apply {
                                     horizontalTextAlignment(HorizontalAlignment.RIGHT)
                                     verticalTextAlignment(VerticalAlignment.CENTER)
                                     sizing(Sizing.fill(25), Sizing.fixed(24))
@@ -128,9 +127,9 @@ class FabricVarpCreateWarpScreen(
                         }
                     )
                     child(
-                        Containers.horizontalFlow(Sizing.content(), Sizing.content()).apply {
+                        UIContainers.horizontalFlow(Sizing.content(), Sizing.content()).apply {
                             child(
-                                Components.label(Text.translatable("gui.varp.create_warp.name")).apply {
+                                UIComponents.label(net.minecraft.network.chat.Component.translatable("gui.varp.create_warp.name")).apply {
                                     horizontalTextAlignment(HorizontalAlignment.RIGHT)
                                     verticalTextAlignment(VerticalAlignment.CENTER)
                                     sizing(Sizing.fill(25), Sizing.fixed(24))
@@ -141,9 +140,9 @@ class FabricVarpCreateWarpScreen(
                         }
                     )
                     child(
-                        Containers.horizontalFlow(Sizing.content(), Sizing.content()).apply {
+                        UIContainers.horizontalFlow(Sizing.content(), Sizing.content()).apply {
                             child(
-                                Components.label(Text.translatable("gui.varp.create_warp.parent")).apply {
+                                UIComponents.label(net.minecraft.network.chat.Component.translatable("gui.varp.create_warp.parent")).apply {
                                     horizontalTextAlignment(HorizontalAlignment.RIGHT)
                                     verticalTextAlignment(VerticalAlignment.CENTER)
                                     sizing(Sizing.fill(25), Sizing.fixed(24))
@@ -151,7 +150,7 @@ class FabricVarpCreateWarpScreen(
                                 }
                             )
                             child(
-                                Components.button(Text.translatable("gui.varp.create_warp.select_parent")) {}.apply {
+                                UIComponents.button(net.minecraft.network.chat.Component.translatable("gui.varp.create_warp.select_parent")) {}.apply {
                                     horizontalSizing(Sizing.fill(60))
                                     margins(Insets.vertical(2))
                                 }
@@ -159,9 +158,9 @@ class FabricVarpCreateWarpScreen(
                         }
                     )
                     child(
-                        Containers.horizontalFlow(Sizing.content(), Sizing.content()).apply {
+                        UIContainers.horizontalFlow(Sizing.content(), Sizing.content()).apply {
                             child(
-                                Components.label(Text.translatable("gui.varp.create_warp.world")).apply {
+                                UIComponents.label(net.minecraft.network.chat.Component.translatable("gui.varp.create_warp.world")).apply {
                                     horizontalTextAlignment(HorizontalAlignment.RIGHT)
                                     verticalTextAlignment(VerticalAlignment.CENTER)
                                     sizing(Sizing.fill(25), Sizing.fixed(24))
@@ -172,9 +171,9 @@ class FabricVarpCreateWarpScreen(
                         }
                     )
                     child(
-                        Containers.horizontalFlow(Sizing.content(), Sizing.content()).apply {
+                        UIContainers.horizontalFlow(Sizing.content(), Sizing.content()).apply {
                             child(
-                                Components.label(Text.translatable("gui.varp.create_warp.x")).apply {
+                                UIComponents.label(net.minecraft.network.chat.Component.translatable("gui.varp.create_warp.x")).apply {
                                     horizontalTextAlignment(HorizontalAlignment.RIGHT)
                                     verticalTextAlignment(VerticalAlignment.CENTER)
                                     sizing(Sizing.fill(25), Sizing.fixed(24))
@@ -185,9 +184,9 @@ class FabricVarpCreateWarpScreen(
                         }
                     )
                     child(
-                        Containers.horizontalFlow(Sizing.content(), Sizing.content()).apply {
+                        UIContainers.horizontalFlow(Sizing.content(), Sizing.content()).apply {
                             child(
-                                Components.label(Text.translatable("gui.varp.create_warp.y")).apply {
+                                UIComponents.label(net.minecraft.network.chat.Component.translatable("gui.varp.create_warp.y")).apply {
                                     horizontalTextAlignment(HorizontalAlignment.RIGHT)
                                     verticalTextAlignment(VerticalAlignment.CENTER)
                                     sizing(Sizing.fill(25), Sizing.fixed(24))
@@ -198,9 +197,9 @@ class FabricVarpCreateWarpScreen(
                         }
                     )
                     child(
-                        Containers.horizontalFlow(Sizing.content(), Sizing.content()).apply {
+                        UIContainers.horizontalFlow(Sizing.content(), Sizing.content()).apply {
                             child(
-                                Components.label(Text.translatable("gui.varp.create_warp.z")).apply {
+                                UIComponents.label(net.minecraft.network.chat.Component.translatable("gui.varp.create_warp.z")).apply {
                                     horizontalTextAlignment(HorizontalAlignment.RIGHT)
                                     verticalTextAlignment(VerticalAlignment.CENTER)
                                     sizing(Sizing.fill(25), Sizing.fixed(24))
@@ -211,9 +210,9 @@ class FabricVarpCreateWarpScreen(
                         }
                     )
                     child(
-                        Containers.horizontalFlow(Sizing.content(), Sizing.content()).apply {
+                        UIContainers.horizontalFlow(Sizing.content(), Sizing.content()).apply {
                             child(
-                                Components.label(Text.translatable("gui.varp.create_warp.yaw")).apply {
+                                UIComponents.label(net.minecraft.network.chat.Component.translatable("gui.varp.create_warp.yaw")).apply {
                                     horizontalTextAlignment(HorizontalAlignment.RIGHT)
                                     verticalTextAlignment(VerticalAlignment.CENTER)
                                     sizing(Sizing.fill(25), Sizing.fixed(24))
@@ -224,9 +223,9 @@ class FabricVarpCreateWarpScreen(
                         }
                     )
                     child(
-                        Containers.horizontalFlow(Sizing.content(), Sizing.content()).apply {
+                        UIContainers.horizontalFlow(Sizing.content(), Sizing.content()).apply {
                             child(
-                                Components.label(Text.translatable("gui.varp.create_warp.pitch")).apply {
+                                UIComponents.label(net.minecraft.network.chat.Component.translatable("gui.varp.create_warp.pitch")).apply {
                                     horizontalTextAlignment(HorizontalAlignment.RIGHT)
                                     verticalTextAlignment(VerticalAlignment.CENTER)
                                     sizing(Sizing.fill(25), Sizing.fixed(24))
@@ -240,9 +239,9 @@ class FabricVarpCreateWarpScreen(
             )
         )
         menuPlane.child(
-            Containers.horizontalFlow(Sizing.fill(100), Sizing.content()).apply {
+            UIContainers.horizontalFlow(Sizing.fill(100), Sizing.content()).apply {
                 child(
-                    Components.button(Text.translatable("gui.varp.create_warp.cancel")) {
+                    UIComponents.button(net.minecraft.network.chat.Component.translatable("gui.varp.create_warp.cancel")) {
                         FabricVarpClientMod.client.openExplorer(parentPath)
                     }.apply {
                         margins(Insets.horizontal(4))
@@ -250,17 +249,17 @@ class FabricVarpCreateWarpScreen(
                     }
                 )
                 child(
-                    Components.button(Text.translatable("gui.varp.create_warp.confirm")) {
-                        val id = idInput.text
+                    UIComponents.button(net.minecraft.network.chat.Component.translatable("gui.varp.create_warp.confirm")) {
+                        val id = idInput.value
                         val path = parentPath.warp(id)
-                        val name = MiniMessage.miniMessage().deserialize(nameInput.text)
+                        val name = MiniMessage.miniMessage().deserialize(nameInput.value)
                         val location = MinecraftLocation(
-                            Key.key(worldInput.text),
-                            xInput.text.toDouble(),
-                            yInput.text.toDouble(),
-                            zInput.text.toDouble(),
-                            yawInput.text.toFloat(),
-                            pitchInput.text.toFloat(),
+                            Key.key(worldInput.value),
+                            xInput.value.toDouble(),
+                            yInput.value.toDouble(),
+                            zInput.value.toDouble(),
+                            yawInput.value.toFloat(),
+                            pitchInput.value.toFloat(),
                         )
                         runBlocking { FabricVarpClientMod.client.tree.createWarp(path, WarpState(location, name)) } // Only sends packet.
 

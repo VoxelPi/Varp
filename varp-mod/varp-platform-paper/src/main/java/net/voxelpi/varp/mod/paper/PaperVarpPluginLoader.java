@@ -15,11 +15,11 @@ import org.jetbrains.annotations.NotNull;
 @SuppressWarnings("UnstableApiUsage")
 public class PaperVarpPluginLoader implements PluginLoader {
 
-    private static final String ADVENTURE_VERSION = "4.25.0";
+    private static final String ADVENTURE_VERSION = "4.26.1";
     private static final String CLOUD_VERSION = "2.0.0";
-    private static final String CLOUD_MINECRAFT_VERSION = "2.0.0-beta.13";
+    private static final String CLOUD_MINECRAFT_VERSION = "2.0.0-beta.15";
     private static final String CONFIGURATE_VERSION = "4.2.0";
-    private static final String KOTLIN_VERSION = "2.2.21";
+    private static final String KOTLIN_VERSION = "2.3.20";
     private static final String MOONSHINE_VERSION = "2.0.4";
 
     @Override

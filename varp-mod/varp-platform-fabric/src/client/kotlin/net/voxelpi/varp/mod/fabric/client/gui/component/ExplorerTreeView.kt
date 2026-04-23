@@ -1,28 +1,26 @@
 package net.voxelpi.varp.mod.fabric.client.gui.component
 
-import io.wispforest.owo.ui.component.Components
 import io.wispforest.owo.ui.component.LabelComponent
-import io.wispforest.owo.ui.container.Containers
+import io.wispforest.owo.ui.component.UIComponents
 import io.wispforest.owo.ui.container.FlowLayout
-import io.wispforest.owo.ui.core.Component
-import io.wispforest.owo.ui.core.Component.FocusSource
+import io.wispforest.owo.ui.container.UIContainers
 import io.wispforest.owo.ui.core.CursorStyle
 import io.wispforest.owo.ui.core.Insets
-import io.wispforest.owo.ui.core.OwoUIDrawContext
-import io.wispforest.owo.ui.core.ParentComponent
+import io.wispforest.owo.ui.core.OwoUIGraphics
+import io.wispforest.owo.ui.core.ParentUIComponent
 import io.wispforest.owo.ui.core.Sizing
 import io.wispforest.owo.ui.core.Surface
+import io.wispforest.owo.ui.core.UIComponent
+import io.wispforest.owo.ui.core.UIComponent.FocusSource
 import io.wispforest.owo.ui.util.Delta
 import io.wispforest.owo.ui.util.UISounds
-import net.minecraft.client.gui.Click
-import net.minecraft.client.input.KeyInput
-import net.minecraft.text.Text
+import net.minecraft.client.input.KeyEvent
+import net.minecraft.client.input.MouseButtonEvent
 import net.voxelpi.varp.mod.fabric.client.FabricVarpClientMod
 import net.voxelpi.varp.mod.fabric.client.util.clientNative
 import net.voxelpi.varp.tree.Folder
 import net.voxelpi.varp.tree.NodeParent
 import org.lwjgl.glfw.GLFW
-import kotlin.collections.sortedBy
 
 class ExplorerTreeView(
     horizontalSizing: Sizing,
@@ -50,24 +48,24 @@ class ExplorerTreeView(
 
         var expanded: Boolean = true
 
-        private var content: MutableList<Component> = mutableListOf()
+        private var content: MutableList<UIComponent> = mutableListOf()
 
         init {
             spinnyBoiComponent = SpinnyBoiComponent()
             spinnyBoiComponent.targetRotation = if (expanded) 90f else 0f
             spinnyBoiComponent.rotation = spinnyBoiComponent.targetRotation
 
-            headerLayout = Containers.horizontalFlow(Sizing.content(), Sizing.content())
+            headerLayout = UIContainers.horizontalFlow(Sizing.content(), Sizing.content())
             headerLayout.padding(Insets.of(3, 3, 0, 0))
             headerLayout.child(
                 spinnyBoiComponent
             )
             headerLayout.child(
-                Components.label(node.name.clientNative())
+                UIComponents.label(node.name.clientNative())
             )
             super.child(headerLayout)
 
-            bodyLayout = Containers.verticalFlow(Sizing.content(), Sizing.content())
+            bodyLayout = UIContainers.verticalFlow(Sizing.content(), Sizing.content())
             bodyLayout.padding(Insets.left(8))
             bodyLayout.surface(SURFACE)
             super.child(bodyLayout)
@@ -96,7 +94,7 @@ class ExplorerTreeView(
             return source == FocusSource.KEYBOARD_CYCLE
         }
 
-        override fun onKeyPress(input: KeyInput?): Boolean {
+        override fun onKeyPress(input: KeyEvent?): Boolean {
             if (input != null && (input.key == GLFW.GLFW_KEY_SPACE || input.key == GLFW.GLFW_KEY_ENTER || input.key == GLFW.GLFW_KEY_KP_ENTER)) {
                 toggleExpansion()
                 super.onKeyPress(input)
@@ -106,7 +104,7 @@ class ExplorerTreeView(
             return super.onKeyPress(input)
         }
 
-        override fun onMouseDown(click: Click?, doubled: Boolean): Boolean {
+        override fun onMouseDown(click: MouseButtonEvent?, doubled: Boolean): Boolean {
             val superResult = super.onMouseDown(click, doubled)
 
             return if (click != null && click.y <= this.headerLayout.fullSize().height && !superResult) {
@@ -123,7 +121,7 @@ class ExplorerTreeView(
             }
         }
 
-        class SpinnyBoiComponent : LabelComponent(Text.literal(">")) {
+        class SpinnyBoiComponent : LabelComponent(net.minecraft.network.chat.Component.literal(">")) {
             var rotation: Float = 90f
             var targetRotation: Float = 90f
 
@@ -137,8 +135,8 @@ class ExplorerTreeView(
                 rotation += Delta.compute(rotation, targetRotation, delta * 0.65f)
             }
 
-            override fun draw(context: OwoUIDrawContext, mouseX: Int, mouseY: Int, partialTicks: Float, delta: Float) {
-                val matrices = context.matrices
+            override fun draw(context: OwoUIGraphics, mouseX: Int, mouseY: Int, partialTicks: Float, delta: Float) {
+                val matrices = context.matrixStack
 
                 matrices.pushMatrix()
                 matrices.translate(x + width / 2f - 1, y + height / 2f - 1)
@@ -151,7 +149,7 @@ class ExplorerTreeView(
         }
 
         companion object {
-            private val SURFACE = Surface { context: OwoUIDrawContext, component: ParentComponent ->
+            private val SURFACE = Surface { context: OwoUIGraphics, component: ParentUIComponent ->
                 context.fill(
                     component.x() + 4,
                     component.y(),

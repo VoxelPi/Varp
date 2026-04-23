@@ -1,8 +1,7 @@
 import org.gradle.accessors.dm.LibrariesForLibs
-import org.jetbrains.kotlin.gradle.dsl.JvmDefaultMode
+import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 
 val libs = the<LibrariesForLibs>()
-val javaVersion = JavaVersion.VERSION_21
 
 plugins {
     id("org.jetbrains.kotlin.jvm")
@@ -26,18 +25,11 @@ dependencies {
     testImplementation(libs.log4j.slf4j.impl)
 }
 
-kotlin {
-    jvmToolchain(21)
-    compilerOptions {
-        jvmDefault = JvmDefaultMode.NO_COMPATIBILITY
+plugins.withId("org.jetbrains.kotlin.jvm") {
+    extensions.configure<KotlinJvmProjectExtension>("kotlin") {
+        jvmToolchain(25)
+        compilerOptions {}
     }
-}
-
-java {
-    // Configure the java toolchain. This allows gradle to auto-provision JDK 21 on systems that only have JDK 8 installed for example.
-    toolchain.languageVersion.set(JavaLanguageVersion.of(javaVersion.toString()))
-    sourceCompatibility = javaVersion
-    targetCompatibility = javaVersion
 }
 
 dokka {
@@ -45,17 +37,6 @@ dokka {
 }
 
 tasks {
-    withType<JavaCompile> {
-        options.encoding = Charsets.UTF_8.name() // We want UTF-8 for everything
-
-        sourceCompatibility = javaVersion.toString()
-        targetCompatibility = javaVersion.toString()
-
-        // Set the release flag. This configures what version bytecode the compiler will emit, as well as what JDK APIs are usable.
-        // See https://openjdk.java.net/jeps/247 for more information.
-        options.release.set(javaVersion.toString().toInt())
-    }
-
     test {
         useJUnitPlatform()
     }

@@ -3,7 +3,7 @@ package net.voxelpi.varp.mod.paper.command
 import com.mojang.brigadier.arguments.ArgumentType
 import io.leangen.geantyref.TypeToken
 import io.papermc.paper.plugin.bootstrap.BootstrapContext
-import net.minecraft.commands.arguments.ResourceLocationArgument
+import net.minecraft.commands.arguments.IdentifierArgument
 import net.voxelpi.varp.extras.cloud.parser.KeyParser
 import net.voxelpi.varp.extras.cloud.parser.path.FolderPathParser
 import net.voxelpi.varp.extras.cloud.parser.path.NodeChildPathParser
@@ -48,17 +48,17 @@ class PaperVarpCommandService(
         commandManager.brigadierManager().setNativeNumberSuggestions(true)
 
         // Register native mappings.
-        registerArgumentMapping<WarpPathParser<PaperVarpCommandSourceStack>>(ResourceLocationArgument.id())
-        registerArgumentMapping<FolderPathParser<PaperVarpCommandSourceStack>>(ResourceLocationArgument.id())
-        registerArgumentMapping<NodeParentPathParser<PaperVarpCommandSourceStack>>(ResourceLocationArgument.id())
-        registerArgumentMapping<NodeChildPathParser<PaperVarpCommandSourceStack>>(ResourceLocationArgument.id())
-        registerArgumentMapping<NodePathParser<PaperVarpCommandSourceStack>>(ResourceLocationArgument.id())
-        registerArgumentMapping<WarpParser<PaperVarpCommandSourceStack>>(ResourceLocationArgument.id())
-        registerArgumentMapping<FolderParser<PaperVarpCommandSourceStack>>(ResourceLocationArgument.id())
-        registerArgumentMapping<NodeParentParser<PaperVarpCommandSourceStack>>(ResourceLocationArgument.id())
-        registerArgumentMapping<NodeChildParser<PaperVarpCommandSourceStack>>(ResourceLocationArgument.id())
-        registerArgumentMapping<NodeParser<PaperVarpCommandSourceStack>>(ResourceLocationArgument.id())
-        registerArgumentMapping<KeyParser<PaperVarpCommandSourceStack>>(ResourceLocationArgument.id())
+        registerArgumentMapping<WarpPathParser<PaperVarpCommandSourceStack>>(IdentifierArgument.id())
+        registerArgumentMapping<FolderPathParser<PaperVarpCommandSourceStack>>(IdentifierArgument.id())
+        registerArgumentMapping<NodeParentPathParser<PaperVarpCommandSourceStack>>(IdentifierArgument.id())
+        registerArgumentMapping<NodeChildPathParser<PaperVarpCommandSourceStack>>(IdentifierArgument.id())
+        registerArgumentMapping<NodePathParser<PaperVarpCommandSourceStack>>(IdentifierArgument.id())
+        registerArgumentMapping<WarpParser<PaperVarpCommandSourceStack>>(IdentifierArgument.id())
+        registerArgumentMapping<FolderParser<PaperVarpCommandSourceStack>>(IdentifierArgument.id())
+        registerArgumentMapping<NodeParentParser<PaperVarpCommandSourceStack>>(IdentifierArgument.id())
+        registerArgumentMapping<NodeChildParser<PaperVarpCommandSourceStack>>(IdentifierArgument.id())
+        registerArgumentMapping<NodeParser<PaperVarpCommandSourceStack>>(IdentifierArgument.id())
+        registerArgumentMapping<KeyParser<PaperVarpCommandSourceStack>>(IdentifierArgument.id())
 
         // Register common commands
         registerCommonCommands()

@@ -9,11 +9,6 @@ base {
     archivesName.set("varp-fabric")
 }
 
-fun DependencyHandlerScope.modImplementationAndInclude(dep: Any) {
-    modImplementation(dep)
-    include(dep)
-}
-
 fun DependencyHandlerScope.implementationAndInclude(dep: Any) {
     implementation(dep)
     include(dep)
@@ -27,6 +22,7 @@ fun DependencyHandlerScope.apiAndShadow(dep: Any) {
 repositories {
     maven { url = uri("https://maven.terraformersmc.com/") }
     maven { url = uri("https://maven.wispforest.io/releases/") }
+    maven { url = uri("https://jitpack.io") } // Needed for owo-lib
 }
 
 dependencies {
@@ -39,29 +35,29 @@ dependencies {
 
     // Fabric
     minecraft(libs.minecraft)
-    mappings(variantOf(libs.yarn) { classifier("v2") })
-    modImplementation(libs.fabric.loader)
-    modImplementation(libs.fabric.api)
-    modImplementation(libs.fabric.language.kotlin)
-    modImplementationAndInclude(libs.fabric.permission.api)
+    // mappings(variantOf(libs.yarn) { classifier("v2") })
+    implementation(libs.fabric.loader)
+    implementation(libs.fabric.api)
+    implementation(libs.fabric.language.kotlin)
+    implementationAndInclude(libs.fabric.permission.api)
 
     // Libraries
-    modImplementation(libs.adventure.platform.fabric)
+    implementation(libs.adventure.platform.fabric)
     implementationAndInclude(libs.adventure.serializer.configurate4)
     implementationAndInclude(libs.bundles.cloud)
-    modImplementationAndInclude(libs.cloud.fabric)
+    implementationAndInclude(libs.cloud.fabric)
     implementationAndInclude(libs.bundles.configurate.core)
     implementationAndInclude(libs.bundles.configurate.formats)
     implementationAndInclude(libs.bundles.moonshine)
     implementationAndInclude(libs.event)
 
     implementationAndInclude(libs.event)
-    modImplementation(libs.owo.lib) {
+    implementation(libs.owo.lib) {
         exclude("net.fabricmc.fabric-api")
     }
 
     // Runtime mods
-    modRuntimeOnly(libs.modmenu)
+    runtimeOnly(libs.modmenu)
 }
 
 loom {
@@ -87,12 +83,16 @@ loom {
 }
 
 tasks {
-    remapJar {
+    jar {
         dependsOn(shadowJar)
         mustRunAfter(shadowJar)
 
         // Set the input jar for the task. Here use the shadow Jar that include the .class of the transitive dependency
-        inputFile = file(shadowJar.get().archiveFile)
+        from({
+            zipTree(shadowJar.get().archiveFile.get().asFile)
+        })
+
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     }
 
     processResources {

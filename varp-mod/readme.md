@@ -11,5 +11,5 @@ The following platforms are currently supported:
 
 | Platform | Type            | MC Version | Module                 |
 |----------|-----------------|------------|------------------------|
-| Fabric   | Client & Server | 1.21.8     | `varp-platform-fabric` |
-| Paper    | Server          | 1.21.8     | `varp-platform-paper`  |
+| Fabric   | Client & Server | 26.1.2     | `varp-platform-fabric` |
+| Paper    | Server          | 26.1.2     | `varp-platform-paper`  |

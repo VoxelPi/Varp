@@ -1,16 +1,16 @@
 package net.voxelpi.varp.mod.fabric.util
 
-import net.minecraft.entity.EntityPosition
-import net.minecraft.server.world.ServerWorld
+import net.minecraft.server.level.ServerLevel
+import net.minecraft.world.entity.PositionMoveRotation
 import net.voxelpi.varp.MinecraftLocation
 
-fun minecraftLocation(world: ServerWorld, position: EntityPosition): MinecraftLocation {
+fun minecraftLocation(level: ServerLevel, position: PositionMoveRotation): MinecraftLocation {
     return MinecraftLocation(
-        world.registryKey.key(),
+        level.dimension().key(),
         position.position().x,
         position.position().y,
         position.position().z,
-        position.yaw(),
-        position.pitch()
+        position.xRot(),
+        position.yRot()
     )
 }

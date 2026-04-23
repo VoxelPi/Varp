@@ -1,10 +1,10 @@
 package net.voxelpi.varp.mod.fabric.util
 
 import net.kyori.adventure.key.Key
-import net.minecraft.util.Identifier
+import net.minecraft.resources.Identifier
 
 fun Key.toIdentifier(): Identifier {
-    return Identifier.of(namespace(), value())
+    return Identifier.fromNamespaceAndPath(namespace(), value())
 }
 
 fun Identifier.toKey(): Key {

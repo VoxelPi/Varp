@@ -1,9 +1,9 @@
 package net.voxelpi.varp.mod.fabric.client.gui.component
 
 import io.wispforest.owo.ui.component.ButtonComponent
-import io.wispforest.owo.ui.component.Components
-import io.wispforest.owo.ui.container.Containers
+import io.wispforest.owo.ui.component.UIComponents
 import io.wispforest.owo.ui.container.FlowLayout
+import io.wispforest.owo.ui.container.UIContainers
 import io.wispforest.owo.ui.core.HorizontalAlignment
 import io.wispforest.owo.ui.core.Insets
 import io.wispforest.owo.ui.core.Positioning
@@ -14,9 +14,8 @@ import io.wispforest.owo.ui.util.UISounds
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextDecoration
-import net.minecraft.client.gui.Click
-import net.minecraft.text.Text
-import net.minecraft.util.Identifier
+import net.minecraft.client.input.MouseButtonEvent
+import net.minecraft.resources.Identifier
 import net.voxelpi.varp.mod.fabric.client.FabricVarpClientMod
 import net.voxelpi.varp.mod.fabric.client.util.clientNative
 import net.voxelpi.varp.tree.Folder
@@ -75,36 +74,36 @@ class ExplorerContentList(
         var deleteAction: ((Folder) -> Unit),
     ) : FlowLayout(horizontalSizing, verticalSizing, Algorithm.HORIZONTAL) {
 
-        private val iconTexture = Components.texture(Identifier.of("varp:textures/gui/folder.png"), 0, 0, 16, 16, 16, 16).apply {
+        private val iconTexture = UIComponents.texture(Identifier.parse("varp:textures/gui/folder.png"), 0, 0, 16, 16, 16, 16).apply {
             margins(Insets.of(2, 0, 0, 4))
         }
 
-        private val nameLabel = Components.label(
+        private val nameLabel = UIComponents.label(
             folder.name.hoverEvent(Component.text(folder.path.value)).decorate(TextDecoration.BOLD).clientNative()
         ).apply {
             sizing(Sizing.fixed(160), Sizing.content())
             margins(Insets.top(5))
         }
 
-        private val editButton = Components.button(Text.literal("")) {
+        private val editButton = UIComponents.button(net.minecraft.network.chat.Component.literal("")) {
             editAction.invoke(folder)
         }.apply {
-            renderer(ButtonComponent.Renderer.texture(Identifier.of("varp:textures/gui/edit_button.png"), 0, 0, 16, 32))
-            tooltip(Text.literal("Edit the folder"))
+            renderer(ButtonComponent.Renderer.texture(Identifier.parse("varp:textures/gui/edit_button.png"), 0, 0, 16, 32))
+            tooltip(net.minecraft.network.chat.Component.literal("Edit the folder"))
             sizing(Sizing.fixed(16), Sizing.fixed(16))
             margins(Insets.of(2, 0, 0, 0))
         }
 
-        private val deleteButton = Components.button(Text.literal("")) {
+        private val deleteButton = UIComponents.button(net.minecraft.network.chat.Component.literal("")) {
             deleteAction.invoke(folder)
         }.apply {
-            renderer(ButtonComponent.Renderer.texture(Identifier.of("varp:textures/gui/delete_button.png"), 0, 0, 16, 32))
-            tooltip(Text.literal("Delete the folder"))
+            renderer(ButtonComponent.Renderer.texture(Identifier.parse("varp:textures/gui/delete_button.png"), 0, 0, 16, 32))
+            tooltip(net.minecraft.network.chat.Component.literal("Delete the folder"))
             sizing(Sizing.fixed(16), Sizing.fixed(16))
             margins(Insets.of(2, 0, 0, 0))
         }
 
-        private val rightSide = Containers.horizontalFlow(Sizing.content(), Sizing.content()).apply {
+        private val rightSide = UIContainers.horizontalFlow(Sizing.content(), Sizing.content()).apply {
             child(editButton)
             child(deleteButton)
 
@@ -132,7 +131,7 @@ class ExplorerContentList(
             super.layout(space)
         }
 
-        override fun onMouseDown(click: Click?, doubled: Boolean): Boolean {
+        override fun onMouseDown(click: MouseButtonEvent?, doubled: Boolean): Boolean {
             if (!super.onMouseDown(click, doubled)) {
                 UISounds.playButtonSound()
                 selectAction.invoke(folder)
@@ -152,20 +151,20 @@ class ExplorerContentList(
         var deleteAction: ((Warp) -> Unit),
     ) : FlowLayout(horizontalSizing, verticalSizing, Algorithm.HORIZONTAL) {
 
-        private val iconTexture = Components.texture(Identifier.of("varp:textures/gui/warp.png"), 0, 0, 16, 16, 16, 16).apply {
+        private val iconTexture = UIComponents.texture(Identifier.parse("varp:textures/gui/warp.png"), 0, 0, 16, 16, 16, 16).apply {
             margins(Insets.of(2, 0, 0, 4))
         }
 
-        private val nameLabel = Components.label(
+        private val nameLabel = UIComponents.label(
             warp.name.hoverEvent(Component.text(warp.path.value)).clientNative()
         ).apply {
             sizing(Sizing.fixed(160), Sizing.content())
             margins(Insets.top(5))
         }
 
-        private val infoLabel = Containers.horizontalFlow(Sizing.content(), Sizing.content()).apply {
+        private val infoLabel = UIContainers.horizontalFlow(Sizing.content(), Sizing.content()).apply {
             child(
-                Components.label(
+                UIComponents.label(
                     Component.text(warp.location.world.asString()).clientNative()
                 ).apply {
                     sizing(Sizing.fixed(120), Sizing.content())
@@ -173,7 +172,7 @@ class ExplorerContentList(
                 }
             )
             child(
-                Components.label(
+                UIComponents.label(
                     Component.text("%.2f".format(warp.location.x)).color(NamedTextColor.RED).clientNative()
                 ).apply {
                     horizontalTextAlignment(HorizontalAlignment.RIGHT)
@@ -182,7 +181,7 @@ class ExplorerContentList(
                 }
             )
             child(
-                Components.label(
+                UIComponents.label(
                     Component.text("%.2f".format(warp.location.y)).color(NamedTextColor.GREEN).clientNative()
                 ).apply {
                     horizontalTextAlignment(HorizontalAlignment.RIGHT)
@@ -191,7 +190,7 @@ class ExplorerContentList(
                 }
             )
             child(
-                Components.label(
+                UIComponents.label(
                     Component.text("%.2f".format(warp.location.z)).color(NamedTextColor.BLUE).clientNative()
                 ).apply {
                     horizontalTextAlignment(HorizontalAlignment.RIGHT)
@@ -201,25 +200,25 @@ class ExplorerContentList(
             )
         }
 
-        private val editButton = Components.button(Text.literal("")) {
+        private val editButton = UIComponents.button(net.minecraft.network.chat.Component.literal("")) {
             editAction.invoke(warp)
         }.apply {
-            renderer(ButtonComponent.Renderer.texture(Identifier.of("varp:textures/gui/edit_button.png"), 0, 0, 16, 32))
-            tooltip(Text.literal("Edit the warp"))
+            renderer(ButtonComponent.Renderer.texture(Identifier.parse("varp:textures/gui/edit_button.png"), 0, 0, 16, 32))
+            tooltip(net.minecraft.network.chat.Component.literal("Edit the warp"))
             sizing(Sizing.fixed(16), Sizing.fixed(16))
             margins(Insets.of(2, 0, 0, 0))
         }
 
-        private val deleteButton = Components.button(Text.literal("")) {
+        private val deleteButton = UIComponents.button(net.minecraft.network.chat.Component.literal("")) {
             deleteAction.invoke(warp)
         }.apply {
-            renderer(ButtonComponent.Renderer.texture(Identifier.of("varp:textures/gui/delete_button.png"), 0, 0, 16, 32))
-            tooltip(Text.literal("Delete the warp"))
+            renderer(ButtonComponent.Renderer.texture(Identifier.parse("varp:textures/gui/delete_button.png"), 0, 0, 16, 32))
+            tooltip(net.minecraft.network.chat.Component.literal("Delete the warp"))
             sizing(Sizing.fixed(16), Sizing.fixed(16))
             margins(Insets.of(2, 0, 0, 0))
         }
 
-        private val rightSide = Containers.horizontalFlow(Sizing.content(), Sizing.content()).apply {
+        private val rightSide = UIContainers.horizontalFlow(Sizing.content(), Sizing.content()).apply {
             child(editButton)
             child(deleteButton)
 
@@ -255,7 +254,7 @@ class ExplorerContentList(
             super.layout(space)
         }
 
-        override fun onMouseDown(click: Click?, doubled: Boolean): Boolean {
+        override fun onMouseDown(click: MouseButtonEvent?, doubled: Boolean): Boolean {
             if (!super.onMouseDown(click, doubled)) {
                 UISounds.playButtonSound()
                 selectAction.invoke(warp)

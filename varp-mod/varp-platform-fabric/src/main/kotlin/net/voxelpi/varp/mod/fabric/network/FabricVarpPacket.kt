@@ -1,26 +1,26 @@
 package net.voxelpi.varp.mod.fabric.network
 
-import net.minecraft.network.PacketByteBuf
-import net.minecraft.network.RegistryByteBuf
-import net.minecraft.network.codec.PacketCodec
-import net.minecraft.network.packet.CustomPayload
+import net.minecraft.network.FriendlyByteBuf
+import net.minecraft.network.RegistryFriendlyByteBuf
+import net.minecraft.network.codec.StreamCodec
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload
 import net.voxelpi.varp.mod.VarpModConstants
 import net.voxelpi.varp.mod.fabric.util.toIdentifier
 import java.nio.charset.StandardCharsets
 
 data class FabricVarpPacket(
     val payload: String,
-) : CustomPayload {
+) : CustomPacketPayload {
 
-    override fun getId(): CustomPayload.Id<FabricVarpPacket> = PACKET_ID
+    override fun type(): CustomPacketPayload.Type<FabricVarpPacket> = PACKET_ID
 
-    fun encode(buffer: PacketByteBuf) {
+    fun encode(buffer: FriendlyByteBuf) {
         buffer.writeBytes(payload.toByteArray(StandardCharsets.UTF_8))
     }
 
     companion object {
 
-        fun decode(buffer: PacketByteBuf): FabricVarpPacket {
+        fun decode(buffer: FriendlyByteBuf): FabricVarpPacket {
             val readableBytes = buffer.readableBytes()
             check(readableBytes > 0) { "Received invalid varp packet. Packet size is less or equal 0." }
 
@@ -30,8 +30,8 @@ data class FabricVarpPacket(
             return FabricVarpPacket(payload)
         }
 
-        val PACKET_ID = CustomPayload.Id<FabricVarpPacket>(VarpModConstants.VARP_PLUGIN_CHANNEL.toIdentifier())
+        val PACKET_ID = CustomPacketPayload.Type<FabricVarpPacket>(VarpModConstants.VARP_PLUGIN_CHANNEL.toIdentifier())
 
-        val PACKET_CODEC: PacketCodec<RegistryByteBuf, FabricVarpPacket> = CustomPayload.codecOf(FabricVarpPacket::encode, FabricVarpPacket::decode)
+        val PACKET_CODEC: StreamCodec<RegistryFriendlyByteBuf, FabricVarpPacket> = CustomPacketPayload.codec(FabricVarpPacket::encode, FabricVarpPacket::decode)
     }
 }

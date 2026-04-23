@@ -5,11 +5,11 @@ import kotlinx.coroutines.runBlocking
 import net.kyori.adventure.key.Key
 import net.kyori.adventure.platform.modcommon.MinecraftServerAudiences
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger
-import net.minecraft.registry.RegistryKey
-import net.minecraft.registry.RegistryKeys
+import net.minecraft.core.registries.Registries
+import net.minecraft.resources.ResourceKey
 import net.minecraft.server.MinecraftServer
-import net.minecraft.server.world.ServerWorld
-import net.minecraft.util.WorldSavePath
+import net.minecraft.server.level.ServerLevel
+import net.minecraft.world.level.storage.LevelResource
 import net.voxelpi.event.EventScope
 import net.voxelpi.event.eventScope
 import net.voxelpi.varp.Varp
@@ -31,7 +31,6 @@ import net.voxelpi.varp.repository.filetree.FileTreeRepositoryType
 import net.voxelpi.varp.tree.path.RootPath
 import java.nio.file.Path
 import java.util.UUID
-import kotlin.io.path.Path
 import kotlin.io.path.div
 
 class FabricVarpServer(
@@ -63,7 +62,7 @@ class FabricVarpServer(
         listOf(FileTreeRepositoryType)
     )
 
-    private val environmentFilePath = server.getSavePath(WorldSavePath.ROOT) / "data" / "varp" / "server.varp.json"
+    private val environmentFilePath = server.getWorldPath(LevelResource.ROOT) / "data" / "varp" / "server.varp.json"
 
     private val defaultEnvironment = EnvironmentDefinition.environmentDefinition {
         repository("default", FileTreeRepositoryType, FileTreeRepositoryConfig(environmentFilePath.parent / "repositories" / "default", "json", false)) {
@@ -114,7 +113,7 @@ class FabricVarpServer(
         FabricVarpMod.copyResourceTemplate(resource, destination)
     }
 
-    fun world(key: Key): ServerWorld? {
-        return server.getWorld(RegistryKey.of(RegistryKeys.WORLD, key.toIdentifier()))
+    fun world(key: Key): ServerLevel? {
+        return server.getLevel(ResourceKey.create(Registries.DIMENSION, key.toIdentifier()))
     }
 }

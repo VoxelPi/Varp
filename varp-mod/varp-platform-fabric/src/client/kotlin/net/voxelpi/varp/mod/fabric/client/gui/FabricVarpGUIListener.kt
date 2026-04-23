@@ -1,6 +1,6 @@
 package net.voxelpi.varp.mod.fabric.client.gui
 
-import net.minecraft.client.MinecraftClient
+import net.minecraft.client.Minecraft
 import net.voxelpi.event.annotation.Subscribe
 import net.voxelpi.varp.event.node.NodeCreateEvent
 import net.voxelpi.varp.event.node.NodePathChangeEvent
@@ -55,7 +55,7 @@ class FabricVarpGUIListener(
     }
 
     private fun refreshScreen() {
-        val screen = MinecraftClient.getInstance().currentScreen ?: return
+        val screen = Minecraft.getInstance().screen ?: return
         if (screen is FabricVarpExplorerScreen) {
             val node = tree.resolve(screen.viewPath)
             val newViewPath = node?.path ?: RootPath
@@ -64,7 +64,7 @@ class FabricVarpGUIListener(
     }
 
     private fun refreshScreenNode(path: NodePath) {
-        val screen = MinecraftClient.getInstance().currentScreen ?: return
+        val screen = Minecraft.getInstance().screen ?: return
         if (screen is FabricVarpExplorerScreen) {
             when (path) {
                 is FolderPath -> {

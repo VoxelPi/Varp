@@ -2,9 +2,9 @@ package net.voxelpi.varp.mod.fabric.event;
 
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.entity.EntityPosition;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.PositionMoveRotation;
 
 public final class ServerEntityTeleportEvents {
 
@@ -28,6 +28,6 @@ public final class ServerEntityTeleportEvents {
          * @param toWorld the world the player is teleported in.
          * @param toPosition the position the player teleports to.
          */
-        void beforeTeleport(ServerPlayerEntity player, ServerWorld fromWorld, EntityPosition fromPosition, ServerWorld toWorld, EntityPosition toPosition);
+        void beforeTeleport(ServerPlayer player, ServerLevel fromWorld, PositionMoveRotation fromPosition, ServerLevel toWorld, PositionMoveRotation toPosition);
     }
 }

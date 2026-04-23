@@ -2,7 +2,8 @@ package net.voxelpi.varp.mod.fabric.server.command
 
 import me.lucko.fabric.api.permissions.v0.Permissions
 import net.kyori.adventure.audience.Audience
-import net.minecraft.server.command.ServerCommandSource
+import net.minecraft.commands.CommandSourceStack
+import net.minecraft.server.permissions.PermissionLevel
 import net.voxelpi.varp.MinecraftLocation
 import net.voxelpi.varp.mod.fabric.FabricVarpMod
 import net.voxelpi.varp.mod.server.VarpServerImpl
@@ -12,12 +13,12 @@ import net.voxelpi.varp.mod.server.player.VarpServerPlayerImpl
 
 class FabricVarpCommandSourceStack(
     override val server: VarpServerImpl,
-    val sourceStack: ServerCommandSource,
+    val sourceStack: CommandSourceStack,
 ) : VarpCommandSourceStack {
 
     override val location: MinecraftLocation
         get() = MinecraftLocation(
-            sourceStack.world.registryKey.key(),
+            sourceStack.level.dimension().key(),
             sourceStack.position.x,
             sourceStack.position.y,
             sourceStack.position.z,
@@ -43,6 +44,6 @@ class FabricVarpCommandSourceStack(
             return true
         }
 
-        return Permissions.check(sourceStack, permission, 2)
+        return Permissions.check(sourceStack, permission, PermissionLevel.GAMEMASTERS)
     }
 }

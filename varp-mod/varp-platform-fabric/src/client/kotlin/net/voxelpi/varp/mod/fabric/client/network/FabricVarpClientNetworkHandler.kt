@@ -13,8 +13,8 @@ class FabricVarpClientNetworkHandler(
 ) : VarpClientNetworkHandler(client) {
 
     init {
-        PayloadTypeRegistry.playC2S().register(FabricVarpPacket.PACKET_ID, FabricVarpPacket.PACKET_CODEC)
-        PayloadTypeRegistry.playS2C().register(FabricVarpPacket.PACKET_ID, FabricVarpPacket.PACKET_CODEC)
+        PayloadTypeRegistry.serverboundPlay().register(FabricVarpPacket.PACKET_ID, FabricVarpPacket.PACKET_CODEC)
+        PayloadTypeRegistry.clientboundPlay().register(FabricVarpPacket.PACKET_ID, FabricVarpPacket.PACKET_CODEC)
         ClientPlayNetworking.registerGlobalReceiver(FabricVarpPacket.PACKET_ID, this::onPluginMessageReceived)
         client.logger.info("Registered varp channel ${VarpModConstants.VARP_PLUGIN_CHANNEL.toIdentifier()}")
     }

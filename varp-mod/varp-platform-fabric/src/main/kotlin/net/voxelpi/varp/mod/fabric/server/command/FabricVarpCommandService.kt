@@ -2,7 +2,7 @@ package net.voxelpi.varp.mod.fabric.server.command
 
 import com.mojang.brigadier.arguments.ArgumentType
 import io.leangen.geantyref.TypeToken
-import net.minecraft.command.argument.IdentifierArgumentType
+import net.minecraft.commands.arguments.IdentifierArgument
 import net.voxelpi.varp.extras.cloud.parser.KeyParser
 import net.voxelpi.varp.extras.cloud.parser.path.FolderPathParser
 import net.voxelpi.varp.extras.cloud.parser.path.NodeChildPathParser
@@ -42,17 +42,17 @@ class FabricVarpCommandService : VarpCommandService {
         commandManager.brigadierManager().setNativeNumberSuggestions(true)
 
         // Register native mappings.
-        registerArgumentMapping<WarpPathParser<FabricVarpCommandSourceStack>>(IdentifierArgumentType.identifier())
-        registerArgumentMapping<FolderPathParser<FabricVarpCommandSourceStack>>(IdentifierArgumentType.identifier())
-        registerArgumentMapping<NodeParentPathParser<FabricVarpCommandSourceStack>>(IdentifierArgumentType.identifier())
-        registerArgumentMapping<NodeChildPathParser<FabricVarpCommandSourceStack>>(IdentifierArgumentType.identifier())
-        registerArgumentMapping<NodePathParser<FabricVarpCommandSourceStack>>(IdentifierArgumentType.identifier())
-        registerArgumentMapping<WarpParser<FabricVarpCommandSourceStack>>(IdentifierArgumentType.identifier())
-        registerArgumentMapping<FolderParser<FabricVarpCommandSourceStack>>(IdentifierArgumentType.identifier())
-        registerArgumentMapping<NodeParentParser<FabricVarpCommandSourceStack>>(IdentifierArgumentType.identifier())
-        registerArgumentMapping<NodeChildParser<FabricVarpCommandSourceStack>>(IdentifierArgumentType.identifier())
-        registerArgumentMapping<NodeParser<FabricVarpCommandSourceStack>>(IdentifierArgumentType.identifier())
-        registerArgumentMapping<KeyParser<FabricVarpCommandSourceStack>>(IdentifierArgumentType.identifier())
+        registerArgumentMapping<WarpPathParser<FabricVarpCommandSourceStack>>(IdentifierArgument.id())
+        registerArgumentMapping<FolderPathParser<FabricVarpCommandSourceStack>>(IdentifierArgument.id())
+        registerArgumentMapping<NodeParentPathParser<FabricVarpCommandSourceStack>>(IdentifierArgument.id())
+        registerArgumentMapping<NodeChildPathParser<FabricVarpCommandSourceStack>>(IdentifierArgument.id())
+        registerArgumentMapping<NodePathParser<FabricVarpCommandSourceStack>>(IdentifierArgument.id())
+        registerArgumentMapping<WarpParser<FabricVarpCommandSourceStack>>(IdentifierArgument.id())
+        registerArgumentMapping<FolderParser<FabricVarpCommandSourceStack>>(IdentifierArgument.id())
+        registerArgumentMapping<NodeParentParser<FabricVarpCommandSourceStack>>(IdentifierArgument.id())
+        registerArgumentMapping<NodeChildParser<FabricVarpCommandSourceStack>>(IdentifierArgument.id())
+        registerArgumentMapping<NodeParser<FabricVarpCommandSourceStack>>(IdentifierArgument.id())
+        registerArgumentMapping<KeyParser<FabricVarpCommandSourceStack>>(IdentifierArgument.id())
 
         // Register common commands.
         registerCommonCommands()

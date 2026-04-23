@@ -1,17 +1,16 @@
 package net.voxelpi.varp.mod.fabric.client.gui.component
 
 import io.wispforest.owo.ui.component.ButtonComponent
-import io.wispforest.owo.ui.component.Components
-import io.wispforest.owo.ui.container.Containers
+import io.wispforest.owo.ui.component.UIComponents
 import io.wispforest.owo.ui.container.FlowLayout
+import io.wispforest.owo.ui.container.UIContainers
 import io.wispforest.owo.ui.core.Insets
 import io.wispforest.owo.ui.core.Positioning
 import io.wispforest.owo.ui.core.Size
 import io.wispforest.owo.ui.core.Sizing
 import io.wispforest.owo.ui.core.Surface
 import net.kyori.adventure.text.Component
-import net.minecraft.text.Text
-import net.minecraft.util.Identifier
+import net.minecraft.resources.Identifier
 import net.voxelpi.varp.mod.fabric.client.util.clientNative
 import net.voxelpi.varp.tree.path.FolderPath
 import net.voxelpi.varp.tree.path.NodeParentPath
@@ -41,48 +40,48 @@ class ExplorerMenuBar(
     var createFolderAction: ((path: NodeParentPath) -> Unit) = {}
 
     val rootButton =
-        Components.button(Text.literal("")) {
+        UIComponents.button(net.minecraft.network.chat.Component.literal("")) {
             selectPathAction(RootPath)
         }.apply {
-            renderer(ButtonComponent.Renderer.texture(Identifier.of("varp:textures/gui/home_button.png"), 0, 0, 16, 32))
+            renderer(ButtonComponent.Renderer.texture(Identifier.parse("varp:textures/gui/home_button.png"), 0, 0, 16, 32))
             sizing(Sizing.fixed(16), Sizing.fixed(16))
             margins(Insets.of(1))
         }
 
-    val parentButton = Components.button(Text.literal("")) {
+    val parentButton = UIComponents.button(net.minecraft.network.chat.Component.literal("")) {
         val tempPath = path
         if (tempPath is FolderPath) {
             selectPathAction(tempPath.parent)
         }
     }.apply {
-        renderer(ButtonComponent.Renderer.texture(Identifier.of("varp:textures/gui/up_button.png"), 0, 0, 16, 32))
+        renderer(ButtonComponent.Renderer.texture(Identifier.parse("varp:textures/gui/up_button.png"), 0, 0, 16, 32))
         sizing(Sizing.fixed(16), Sizing.fixed(16))
         margins(Insets.of(1))
     }
 
-    val pathComponent = Components.label(Component.text(path.toString()).clientNative()).apply {
+    val pathComponent = UIComponents.label(Component.text(path.toString()).clientNative()).apply {
         margins(Insets.of(5, 0, 8, 0))
     }
 
-    val createWarpButton = Components.button(Text.literal("")) {
+    val createWarpButton = UIComponents.button(net.minecraft.network.chat.Component.literal("")) {
         createWarpAction(path)
     }.apply {
-        renderer(ButtonComponent.Renderer.texture(Identifier.of("varp:textures/gui/create_warp_button.png"), 0, 0, 16, 32))
-        tooltip(Text.literal("Create a new warp"))
+        renderer(ButtonComponent.Renderer.texture(Identifier.parse("varp:textures/gui/create_warp_button.png"), 0, 0, 16, 32))
+        tooltip(net.minecraft.network.chat.Component.literal("Create a new warp"))
         sizing(Sizing.fixed(16), Sizing.fixed(16))
         margins(Insets.vertical(1))
     }
 
-    val createFolderButton = Components.button(Text.literal("")) {
+    val createFolderButton = UIComponents.button(net.minecraft.network.chat.Component.literal("")) {
         createFolderAction(path)
     }.apply {
-        renderer(ButtonComponent.Renderer.texture(Identifier.of("varp:textures/gui/create_folder_button.png"), 0, 0, 16, 32))
-        tooltip(Text.literal("Create a new folder"))
+        renderer(ButtonComponent.Renderer.texture(Identifier.parse("varp:textures/gui/create_folder_button.png"), 0, 0, 16, 32))
+        tooltip(net.minecraft.network.chat.Component.literal("Create a new folder"))
         sizing(Sizing.fixed(16), Sizing.fixed(16))
         margins(Insets.vertical(1))
     }
 
-    val rightSide = Containers.horizontalFlow(Sizing.content(), Sizing.content()).apply {
+    val rightSide = UIContainers.horizontalFlow(Sizing.content(), Sizing.content()).apply {
         child(createWarpButton)
         child(createFolderButton)
 

@@ -1,11 +1,11 @@
 package net.voxelpi.varp.mod.fabric.client
 
+import com.mojang.blaze3d.platform.InputConstants
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper
-import net.minecraft.client.MinecraftClient
-import net.minecraft.client.option.KeyBinding
-import net.minecraft.client.util.InputUtil
-import net.minecraft.util.Identifier
+import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper
+import net.minecraft.client.KeyMapping
+import net.minecraft.client.Minecraft
+import net.minecraft.resources.Identifier
 import net.voxelpi.varp.mod.fabric.FabricVarpMod
 import net.voxelpi.varp.mod.fabric.client.gui.screen.FabricVarpCreateFolderScreen
 import net.voxelpi.varp.mod.fabric.client.gui.screen.FabricVarpCreateWarpScreen
@@ -15,30 +15,30 @@ import org.lwjgl.glfw.GLFW
 
 class VarpKeyBindingService(val client: FabricVarpClient) {
 
-    val keyBindingCategory = KeyBinding.Category.create(Identifier.of(VARP_KEY_BINDING_CATEGORY))
+    val keyBindingCategory = KeyMapping.Category.register(Identifier.fromNamespaceAndPath(FabricVarpMod.MOD_ID, VARP_KEY_BINDING_CATEGORY))
 
-    val keyBindingOpenExplorer: KeyBinding = KeyBindingHelper.registerKeyBinding(
-        KeyBinding(
+    val keyBindingOpenExplorer: KeyMapping = KeyMappingHelper.registerKeyMapping(
+        KeyMapping(
             "key.${FabricVarpMod.MOD_ID}.open_explorer",
-            InputUtil.Type.KEYSYM,
+            InputConstants.Type.KEYSYM,
             GLFW.GLFW_KEY_V,
             keyBindingCategory,
         )
     )
 
-    val keyBindingCreateWarp = KeyBindingHelper.registerKeyBinding(
-        KeyBinding(
+    val keyBindingCreateWarp = KeyMappingHelper.registerKeyMapping(
+        KeyMapping(
             "key.${FabricVarpMod.MOD_ID}.create_warp",
-            InputUtil.Type.KEYSYM,
+            InputConstants.Type.KEYSYM,
             GLFW.GLFW_KEY_UNKNOWN,
             keyBindingCategory
         )
     )
 
-    val keyBindingCreateFolder = KeyBindingHelper.registerKeyBinding(
-        KeyBinding(
+    val keyBindingCreateFolder = KeyMappingHelper.registerKeyMapping(
+        KeyMapping(
             "key.${FabricVarpMod.MOD_ID}.create_folder",
-            InputUtil.Type.KEYSYM,
+            InputConstants.Type.KEYSYM,
             GLFW.GLFW_KEY_UNKNOWN,
             keyBindingCategory
         )
@@ -48,17 +48,17 @@ class VarpKeyBindingService(val client: FabricVarpClient) {
         ClientTickEvents.END_CLIENT_TICK.register(this::onTick)
     }
 
-    private fun onTick(client: MinecraftClient) {
-        while (keyBindingOpenExplorer.wasPressed()) {
+    private fun onTick(client: Minecraft) {
+        while (keyBindingOpenExplorer.consumeClick()) {
             this.client.openExplorer(RootPath)
         }
-        while (keyBindingCreateWarp.wasPressed()) {
-            val screen = client.currentScreen
+        while (keyBindingCreateWarp.consumeClick()) {
+            val screen = client.screen
             val parentPath = if (screen is FabricVarpExplorerScreen) screen.viewPath else RootPath
             client.setScreen(FabricVarpCreateWarpScreen(parentPath))
         }
-        while (keyBindingCreateFolder.wasPressed()) {
-            val screen = client.currentScreen
+        while (keyBindingCreateFolder.consumeClick()) {
+            val screen = client.screen
             val parentPath = if (screen is FabricVarpExplorerScreen) screen.viewPath else RootPath
             client.setScreen(FabricVarpCreateFolderScreen(parentPath))
         }
