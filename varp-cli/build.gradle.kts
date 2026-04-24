@@ -67,7 +67,7 @@ tasks {
     jar {
         manifest {
             attributes(
-                "Main-Class" to "net.voxelpi.voxcloud.cloud.MainKt",
+                "Main-Class" to "net.voxelpi.varp.cli.MainKt",
                 "Multi-Release" to true
             )
         }
