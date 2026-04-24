@@ -96,9 +96,10 @@ tasks {
     }
 
     processResources {
-        inputs.property("version", version)
+        val modVersion = version
+        inputs.property("version", modVersion)
         filesMatching("fabric.mod.json") {
-            expand(mutableMapOf("version" to version))
+            expand(mapOf("version" to modVersion))
         }
     }
 

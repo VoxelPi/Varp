@@ -46,10 +46,12 @@ tasks {
     }
 
     processResources {
+        val pluginVersion = version
+        val apiVersion = paperApiVersion
         filesMatching("paper-plugin.yml") {
             expand(
-                "version" to version,
-                "api_version" to paperApiVersion
+                "version" to pluginVersion,
+                "api_version" to apiVersion
             )
         }
     }
