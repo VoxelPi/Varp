@@ -3,6 +3,7 @@ package net.voxelpi.varp.mod.server.actor
 import net.kyori.adventure.audience.Audience
 import net.voxelpi.varp.exception.tree.FolderAlreadyExistsException
 import net.voxelpi.varp.exception.tree.FolderNotFoundException
+import net.voxelpi.varp.exception.tree.NodeParentNotFoundException
 import net.voxelpi.varp.exception.tree.WarpAlreadyExistsException
 import net.voxelpi.varp.exception.tree.WarpNotFoundException
 import net.voxelpi.varp.mod.server.VarpServerImpl
@@ -15,6 +16,7 @@ import net.voxelpi.varp.tree.path.FolderPath
 import net.voxelpi.varp.tree.path.WarpPath
 import net.voxelpi.varp.tree.state.FolderState
 import net.voxelpi.varp.tree.state.WarpState
+import org.incendo.cloud.exception.NoPermissionException
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
@@ -308,6 +310,62 @@ interface VarpServerActor : Audience {
 
         // Send confirmation message.
         server.messages.sendWarpMove(this, warp, src, dst)
+    }
+
+    suspend fun copyWarp(warp: Warp, dst: WarpPath) {
+        // Check if the player has the required permissions.
+        requirePermissionOrElse(VarpPermissions.WARP_COPY) {
+            server.messages.sendErrorNoPermission(this)
+            return
+        }
+
+        // Get the previous path.
+        val src = warp.path
+
+        // Copy the warp.
+        val copy = warp.copy(dst).getOrElse { exception ->
+            when (exception) {
+                is MissingMountException -> server.messages.sendErrorMissingMount(this, exception.path)
+                is WarpNotFoundException -> server.messages.sendErrorWarpPathUnresolved(this, exception.path)
+                is WarpAlreadyExistsException -> server.messages.sendErrorWarpAlreadyExists(this, exception.path)
+                else -> {
+                    server.messages.sendErrorGeneric(this)
+                    server.logger.error("An unknown error occurred", exception)
+                }
+            }
+            return
+        }
+
+        // Send confirmation message.
+        server.messages.sendWarpCopy(this, copy, src, dst)
+    }
+
+    suspend fun copyFolder(folder: Folder, dst: FolderPath, recursive: Boolean) {
+        // Check if the player has the required permissions.
+        requirePermissionOrElse(VarpPermissions.FOLDER_COPY) {
+            server.messages.sendErrorNoPermission(this)
+            return
+        }
+
+        // Get the previous path.
+        val src = folder.path
+
+        // Copy the folder.
+        val copy = folder.copy(dst, recursive).getOrElse { exception ->
+            when (exception) {
+                is MissingMountException -> server.messages.sendErrorMissingMount(this, exception.path)
+                is FolderNotFoundException -> server.messages.sendErrorFolderPathUnresolved(this, exception.path)
+                is WarpAlreadyExistsException -> server.messages.sendErrorWarpAlreadyExists(this, exception.path)
+                else -> {
+                    server.messages.sendErrorGeneric(this)
+                    server.logger.error("An unknown error occurred", exception)
+                }
+            }
+            return
+        }
+
+        // Send confirmation message.
+        server.messages.sendFolderCopy(this, copy, src, dst)
     }
 
     suspend fun modifyWarp(path: WarpPath, state: WarpState) {
