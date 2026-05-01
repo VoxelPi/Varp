@@ -1,6 +1,7 @@
 package net.voxelpi.varp.mod.server.command
 
 import net.voxelpi.varp.mod.server.command.commands.ClientCommand
+import net.voxelpi.varp.mod.server.command.commands.CopyCommand
 import net.voxelpi.varp.mod.server.command.commands.CreateCommand
 import net.voxelpi.varp.mod.server.command.commands.DeleteCommand
 import net.voxelpi.varp.mod.server.command.commands.InfoCommand
@@ -19,6 +20,7 @@ interface VarpCommandService {
 
     fun registerCommonCommands() {
         ClientCommand.register(commandManager)
+        CopyCommand.register(commandManager)
         CreateCommand.register(commandManager)
         DeleteCommand.register(commandManager)
         InfoCommand.register(commandManager)
