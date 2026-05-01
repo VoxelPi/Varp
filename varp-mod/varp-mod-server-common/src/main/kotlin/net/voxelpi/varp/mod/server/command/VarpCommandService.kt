@@ -1,6 +1,5 @@
 package net.voxelpi.varp.mod.server.command
 
-import net.voxelpi.varp.mod.server.VarpServerImpl
 import net.voxelpi.varp.mod.server.command.commands.ClientCommand
 import net.voxelpi.varp.mod.server.command.commands.CreateCommand
 import net.voxelpi.varp.mod.server.command.commands.DeleteCommand
@@ -18,19 +17,17 @@ interface VarpCommandService {
 
     val commandManager: CommandManager<out VarpCommandSourceStack>
 
-    val serverProvider: () -> VarpServerImpl
-
     fun registerCommonCommands() {
-        ClientCommand.register(commandManager, serverProvider)
-        CreateCommand.register(commandManager, serverProvider)
-        DeleteCommand.register(commandManager, serverProvider)
-        InfoCommand.register(commandManager, serverProvider)
-        ListCommand.register(commandManager, serverProvider)
-        MountsCommand.register(commandManager, serverProvider)
-        MoveCommand.register(commandManager, serverProvider)
-        ReloadCommand.register(commandManager, serverProvider)
-        RepositoriesCommand.register(commandManager, serverProvider)
-        TeleportationLogCommand.register(commandManager, serverProvider)
-        WarpCommand.register(commandManager, serverProvider)
+        ClientCommand.register(commandManager)
+        CreateCommand.register(commandManager)
+        DeleteCommand.register(commandManager)
+        InfoCommand.register(commandManager)
+        ListCommand.register(commandManager)
+        MountsCommand.register(commandManager)
+        MoveCommand.register(commandManager)
+        ReloadCommand.register(commandManager)
+        RepositoriesCommand.register(commandManager)
+        TeleportationLogCommand.register(commandManager)
+        WarpCommand.register(commandManager)
     }
 }

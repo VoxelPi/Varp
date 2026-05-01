@@ -19,7 +19,7 @@ object ListCommand {
         val commandManager = event.commandManager
 
         commandManager.buildAndRegister("list", argumentDescription("Lists the tree"), arrayOf("ls")) {
-            optional("path", nodeParentParser { cli.tree })
+            optional("path", nodeParentParser())
 
             handler { context ->
                 val tree = cli.tree

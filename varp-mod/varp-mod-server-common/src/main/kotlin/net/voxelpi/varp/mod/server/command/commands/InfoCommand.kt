@@ -1,19 +1,20 @@
 package net.voxelpi.varp.mod.server.command.commands
 
-import net.voxelpi.varp.mod.server.VarpServerImpl
 import net.voxelpi.varp.mod.server.command.VarpCommand
 import net.voxelpi.varp.mod.server.command.VarpCommandSourceStack
+import net.voxelpi.varp.mod.server.command.VarpModCommandArguments
 import org.incendo.cloud.CommandManager
 import org.incendo.cloud.kotlin.extension.buildAndRegister
 
 object InfoCommand : VarpCommand {
 
-    override fun register(manager: CommandManager<out VarpCommandSourceStack>, serverProvider: () -> VarpServerImpl) {
+    override fun register(manager: CommandManager<out VarpCommandSourceStack>) {
         manager.buildAndRegister("varp", aliases = arrayOf("warpmanager", "wm")) {
             handler { context ->
-                val server = serverProvider()
+                val messages = context[VarpModCommandArguments.MESSAGE_SERVICE]
+                val server = context[VarpModCommandArguments.SERVER]
 
-                server.messages.sendVarpInfo(
+                messages.sendVarpInfo(
                     context.sender().sender,
                     server.version,
                     server.platform.name,

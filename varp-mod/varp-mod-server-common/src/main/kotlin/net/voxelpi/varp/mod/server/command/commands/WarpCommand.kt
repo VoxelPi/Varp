@@ -1,7 +1,6 @@
 package net.voxelpi.varp.mod.server.command.commands
 
 import net.voxelpi.varp.extras.cloud.parser.tree.warpParser
-import net.voxelpi.varp.mod.server.VarpServerImpl
 import net.voxelpi.varp.mod.server.command.VarpCommand
 import net.voxelpi.varp.mod.server.command.VarpCommandSourceStack
 import net.voxelpi.varp.tree.Warp
@@ -10,11 +9,11 @@ import org.incendo.cloud.kotlin.extension.buildAndRegister
 
 object WarpCommand : VarpCommand {
 
-    override fun register(manager: CommandManager<out VarpCommandSourceStack>, serverProvider: () -> VarpServerImpl) {
+    override fun register(manager: CommandManager<out VarpCommandSourceStack>) {
         manager.buildAndRegister("warp") {
             permission("varp.self")
 
-            required("warp", warpParser { serverProvider().tree })
+            required("warp", warpParser())
 
             handler { context ->
                 val warp: Warp = context["warp"]

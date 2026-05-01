@@ -1,5 +1,6 @@
 package net.voxelpi.varp.extras.cloud.parser.path
 
+import net.voxelpi.varp.extras.cloud.VarpCommandArguments
 import net.voxelpi.varp.tree.Tree
 import net.voxelpi.varp.tree.path.WarpPath
 import org.incendo.cloud.context.CommandContext
@@ -8,9 +9,6 @@ import org.incendo.cloud.parser.ArgumentParseResult
 import org.incendo.cloud.parser.ArgumentParser
 import org.incendo.cloud.parser.ParserDescriptor
 import org.incendo.cloud.suggestion.BlockingSuggestionProvider
-import kotlin.collections.map
-import kotlin.getOrElse
-import kotlin.jvm.java
 
 public class WarpPathParser<C : Any>(
     public val treeSource: ((context: CommandContext<C>) -> Tree?)?,
@@ -35,9 +33,16 @@ public class WarpPathParser<C : Any>(
     }
 }
 
-public fun <C : Any> warpPathParser(treeSource: ((context: CommandContext<C>) -> Tree?)?): ParserDescriptor<C, WarpPath> {
+public fun <C : Any> warpPathParser(treeProvider: (context: CommandContext<C>) -> Tree?): ParserDescriptor<C, WarpPath> {
     return ParserDescriptor.of(
-        WarpPathParser(treeSource),
+        WarpPathParser(treeProvider),
+        WarpPath::class.java,
+    )
+}
+
+public fun <C : Any> warpPathParser(): ParserDescriptor<C, WarpPath> {
+    return ParserDescriptor.of(
+        WarpPathParser { it[VarpCommandArguments.TREE] },
         WarpPath::class.java,
     )
 }

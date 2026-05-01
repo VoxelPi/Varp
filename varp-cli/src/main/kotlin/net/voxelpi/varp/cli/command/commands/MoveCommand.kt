@@ -18,12 +18,11 @@ object MoveCommand {
 
     @Subscribe
     fun handle(event: CommandsRegistrationEvent) {
-        val cli = event.cli
         val commandManager = event.commandManager
 
         commandManager.buildAndRegister("move", Description.description("Moves tree elements"), arrayOf("mv")) {
-            required("node", nodeChildParser { cli.tree })
-            required("destination", nodeParentPathParser { cli.tree })
+            required("node", nodeChildParser())
+            required("destination", nodeParentPathParser())
             optional("id", stringParser())
 
 //            flag("direct", aliases = arrayOf("direct"))

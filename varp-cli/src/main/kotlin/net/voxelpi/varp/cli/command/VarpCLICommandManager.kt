@@ -15,13 +15,14 @@ import net.voxelpi.varp.cli.command.commands.RemoveCommand
 import net.voxelpi.varp.cli.command.commands.RepositoriesCommand
 import net.voxelpi.varp.cli.command.commands.StopCommand
 import net.voxelpi.varp.cli.command.commands.TagsCommand
+import net.voxelpi.varp.extras.cloud.VarpCommandArguments
 import net.voxelpi.varp.extras.cloud.parser.KeyParser
-import net.voxelpi.varp.extras.cloud.parser.path.FolderPathParser
-import net.voxelpi.varp.extras.cloud.parser.path.NodeParentPathParser
-import net.voxelpi.varp.extras.cloud.parser.path.WarpPathParser
-import net.voxelpi.varp.extras.cloud.parser.tree.FolderParser
-import net.voxelpi.varp.extras.cloud.parser.tree.NodeParentParser
-import net.voxelpi.varp.extras.cloud.parser.tree.WarpParser
+import net.voxelpi.varp.extras.cloud.parser.path.folderPathParser
+import net.voxelpi.varp.extras.cloud.parser.path.nodeParentPathParser
+import net.voxelpi.varp.extras.cloud.parser.path.warpPathParser
+import net.voxelpi.varp.extras.cloud.parser.tree.folderParser
+import net.voxelpi.varp.extras.cloud.parser.tree.nodeParentParser
+import net.voxelpi.varp.extras.cloud.parser.tree.warpParser
 import net.voxelpi.varp.tree.Folder
 import net.voxelpi.varp.tree.NodeParent
 import net.voxelpi.varp.tree.Warp
@@ -43,6 +44,15 @@ class VarpCLICommandManager(
         // Register parsers
         registerParsers()
 
+        // Register preprocessor for shared arguments.
+        registerCommandPreProcessor { context ->
+            context.commandContext().apply {
+                store(VarpCommandArguments.TREE, cli.tree)
+                store(VarpCommandArguments.COMPOSITOR, cli.environment.compositor)
+                store(VarpCommandArguments.ENVIRONMENT, cli.environment)
+            }
+        }
+
         // Register all internal commands.
         registerCommands()
 
@@ -56,14 +66,14 @@ class VarpCLICommandManager(
 
     private fun registerParsers() {
         // Path parsers.
-        parserRegistry().registerParserSupplier(TypeToken.get(NodeParentPath::class.java)) { NodeParentPathParser { cli.tree } }
-        parserRegistry().registerParserSupplier(TypeToken.get(FolderPath::class.java)) { FolderPathParser { cli.tree } }
-        parserRegistry().registerParserSupplier(TypeToken.get(WarpPath::class.java)) { WarpPathParser { cli.tree } }
+        parserRegistry().registerParserSupplier(TypeToken.get(NodeParentPath::class.java)) { nodeParentPathParser<VarpCLICommandSender>().parser() }
+        parserRegistry().registerParserSupplier(TypeToken.get(FolderPath::class.java)) { folderPathParser<VarpCLICommandSender>().parser() }
+        parserRegistry().registerParserSupplier(TypeToken.get(WarpPath::class.java)) { warpPathParser<VarpCLICommandSender>().parser() }
 
         // Node parsers.
-        parserRegistry().registerParserSupplier(TypeToken.get(NodeParent::class.java)) { NodeParentParser { cli.tree } }
-        parserRegistry().registerParserSupplier(TypeToken.get(Folder::class.java)) { FolderParser { cli.tree } }
-        parserRegistry().registerParserSupplier(TypeToken.get(Warp::class.java)) { WarpParser { cli.tree } }
+        parserRegistry().registerParserSupplier(TypeToken.get(NodeParent::class.java)) { nodeParentParser<VarpCLICommandSender>().parser() }
+        parserRegistry().registerParserSupplier(TypeToken.get(Folder::class.java)) { folderParser<VarpCLICommandSender>().parser() }
+        parserRegistry().registerParserSupplier(TypeToken.get(Warp::class.java)) { warpParser<VarpCLICommandSender>().parser() }
 
         // Other parsers
         parserRegistry().registerParserSupplier(TypeToken.get(Key::class.java)) { KeyParser() }

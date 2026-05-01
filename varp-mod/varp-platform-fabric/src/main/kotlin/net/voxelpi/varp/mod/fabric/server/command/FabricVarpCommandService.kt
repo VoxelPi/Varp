@@ -3,6 +3,7 @@ package net.voxelpi.varp.mod.fabric.server.command
 import com.mojang.brigadier.arguments.ArgumentType
 import io.leangen.geantyref.TypeToken
 import net.minecraft.commands.arguments.IdentifierArgument
+import net.voxelpi.varp.extras.cloud.VarpCommandArguments
 import net.voxelpi.varp.extras.cloud.parser.KeyParser
 import net.voxelpi.varp.extras.cloud.parser.path.FolderPathParser
 import net.voxelpi.varp.extras.cloud.parser.path.NodeChildPathParser
@@ -15,9 +16,9 @@ import net.voxelpi.varp.extras.cloud.parser.tree.NodeParentParser
 import net.voxelpi.varp.extras.cloud.parser.tree.NodeParser
 import net.voxelpi.varp.extras.cloud.parser.tree.WarpParser
 import net.voxelpi.varp.mod.fabric.FabricVarpMod
-import net.voxelpi.varp.mod.fabric.server.FabricVarpServer
 import net.voxelpi.varp.mod.fabric.server.command.commands.FabricWarpCommand
 import net.voxelpi.varp.mod.server.command.VarpCommandService
+import net.voxelpi.varp.mod.server.command.VarpModCommandArguments
 import org.incendo.cloud.SenderMapper
 import org.incendo.cloud.execution.ExecutionCoordinator
 import org.incendo.cloud.fabric.FabricServerCommandManager
@@ -25,14 +26,10 @@ import org.incendo.cloud.parser.ArgumentParser
 
 class FabricVarpCommandService : VarpCommandService {
 
-    override val serverProvider: () -> FabricVarpServer = {
-        FabricVarpMod.varpServer!!
-    }
-
     override val commandManager: FabricServerCommandManager<FabricVarpCommandSourceStack> = FabricServerCommandManager(
         ExecutionCoordinator.simpleCoordinator(),
         SenderMapper.create(
-            { FabricVarpCommandSourceStack(serverProvider(), it) },
+            { FabricVarpCommandSourceStack(FabricVarpMod.varpServer!!, it) },
             FabricVarpCommandSourceStack::sourceStack,
         )
     )
@@ -54,9 +51,23 @@ class FabricVarpCommandService : VarpCommandService {
         registerArgumentMapping<NodeParser<FabricVarpCommandSourceStack>>(IdentifierArgument.id())
         registerArgumentMapping<KeyParser<FabricVarpCommandSourceStack>>(IdentifierArgument.id())
 
+        // Register preprocessor for shared arguments.
+        commandManager.registerCommandPreProcessor { context ->
+            context.commandContext().apply {
+                FabricVarpMod.varpServer?.let { server ->
+                    store(VarpCommandArguments.TREE, server.tree)
+                    store(VarpCommandArguments.COMPOSITOR, server.compositor)
+                    store(VarpCommandArguments.ENVIRONMENT, server.environment)
+                    store(VarpModCommandArguments.MESSAGE_SERVICE, server.messages)
+                    store(VarpModCommandArguments.COROUTINE_SCOPE, server.coroutineScope)
+                    store(FabricVarpCommandArguments.SERVER, server)
+                }
+            }
+        }
+
         // Register common commands.
         registerCommonCommands()
-        FabricWarpCommand.register(commandManager, serverProvider)
+        FabricWarpCommand.register(commandManager)
     }
 
     private inline fun <reified T : ArgumentParser<FabricVarpCommandSourceStack, *>> registerArgumentMapping(mapping: ArgumentType<*>) {

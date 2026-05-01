@@ -1,6 +1,6 @@
 package net.voxelpi.varp.mod.server.command.commands
 
-import net.voxelpi.varp.mod.server.VarpServerImpl
+import net.voxelpi.varp.extras.cloud.VarpCommandArguments
 import net.voxelpi.varp.mod.server.command.VarpCommand
 import net.voxelpi.varp.mod.server.command.VarpCommandSourceStack
 import net.voxelpi.varp.tree.path.NodeParentPath
@@ -14,7 +14,7 @@ import kotlin.jvm.optionals.getOrNull
 
 object ListCommand : VarpCommand {
 
-    override fun register(manager: CommandManager<out VarpCommandSourceStack>, serverProvider: () -> VarpServerImpl) {
+    override fun register(manager: CommandManager<out VarpCommandSourceStack>) {
         manager.buildAndRegister("varp", aliases = arrayOf("warpmanager", "wm")) {
             permission("varp.list")
 
@@ -25,8 +25,7 @@ object ListCommand : VarpCommand {
             flag("tag", arrayOf("t"), argumentDescription("Tag predicate"), quotedStringParser())
 
             handler { context ->
-                val server = serverProvider()
-                val tree = server.tree
+                val tree = context[VarpCommandArguments.TREE]
 
                 val pathString: String = context.flags().getValue<String>("path").getOrNull() ?: "/"
                 val path = NodeParentPath.parse(pathString).getOrThrow()

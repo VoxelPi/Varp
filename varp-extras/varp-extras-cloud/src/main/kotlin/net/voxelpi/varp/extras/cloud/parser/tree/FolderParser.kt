@@ -1,6 +1,7 @@
 package net.voxelpi.varp.extras.cloud.parser.tree
 
 import net.voxelpi.varp.exception.tree.FolderNotFoundException
+import net.voxelpi.varp.extras.cloud.VarpCommandArguments
 import net.voxelpi.varp.tree.Folder
 import net.voxelpi.varp.tree.Tree
 import net.voxelpi.varp.tree.path.FolderPath
@@ -15,7 +16,7 @@ import kotlin.getOrElse
 import kotlin.jvm.java
 
 public class FolderParser<C : Any>(
-    public val treeSource: (context: CommandContext<C>) -> Tree,
+    public val treeProvider: (context: CommandContext<C>) -> Tree,
 ) : ArgumentParser<C, Folder>, BlockingSuggestionProvider.Strings<C> {
 
     override fun parse(
@@ -25,7 +26,7 @@ public class FolderParser<C : Any>(
         val input = commandInput.peekString()
         val path = FolderPath.parse(input).getOrElse { return ArgumentParseResult.failure(it) }
 
-        val tree = treeSource(commandContext)
+        val tree = treeProvider(commandContext)
         val folder = tree.resolve(path)
             ?: return ArgumentParseResult.failure(FolderNotFoundException(path))
 
@@ -34,14 +35,21 @@ public class FolderParser<C : Any>(
     }
 
     override fun stringSuggestions(commandContext: CommandContext<C>, input: CommandInput): List<String> {
-        val tree = treeSource(commandContext)
+        val tree = treeProvider(commandContext)
         return tree.folders().map { it.path.toString() }
     }
 }
 
-public fun <C : Any> folderParser(treeSource: (context: CommandContext<C>) -> Tree): ParserDescriptor<C, Folder> {
+public fun <C : Any> folderParser(treeProvider: (context: CommandContext<C>) -> Tree): ParserDescriptor<C, Folder> {
     return ParserDescriptor.of(
-        FolderParser(treeSource),
+        FolderParser(treeProvider),
+        Folder::class.java,
+    )
+}
+
+public fun <C : Any> folderParser(): ParserDescriptor<C, Folder> {
+    return ParserDescriptor.of(
+        FolderParser { it[VarpCommandArguments.TREE] },
         Folder::class.java,
     )
 }

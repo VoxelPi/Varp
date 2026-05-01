@@ -18,11 +18,10 @@ object PropertiesCommand {
 
     @Subscribe
     fun handle(event: CommandsRegistrationEvent) {
-        val cli = event.cli
         val commandManager = event.commandManager
 
         commandManager.buildAndRegister("properties", Description.description("Lists the properties of a node"), arrayOf("prop")) {
-            required("node", nodeParser { cli.tree })
+            required("node", nodeParser())
 
             handler { context ->
                 val node: Node = context["node"]
@@ -35,7 +34,7 @@ object PropertiesCommand {
         }
 
         commandManager.buildAndRegister("properties", Description.description("Checks if a node has a given property set"), arrayOf("prop")) {
-            required("node", nodeParser { cli.tree })
+            required("node", nodeParser())
             literal("has")
             required("key", quotedStringParser()) {
                 suggestionProvider = SuggestionProvider.blockingStrings { context, input ->
@@ -58,7 +57,7 @@ object PropertiesCommand {
         }
 
         commandManager.buildAndRegister("properties", Description.description("Gets the value of a given property of a node"), arrayOf("prop")) {
-            required("node", nodeParser { cli.tree })
+            required("node", nodeParser())
             literal("get")
             required("key", quotedStringParser()) {
                 suggestionProvider = SuggestionProvider.blockingStrings { context, input ->
@@ -83,7 +82,7 @@ object PropertiesCommand {
         }
 
         commandManager.buildAndRegister("properties", Description.description("Sets the given property of a node to the given value"), arrayOf("prop")) {
-            required("node", nodeParser { cli.tree })
+            required("node", nodeParser())
             literal("set")
             required("key", quotedStringParser())
             required("value", greedyStringParser())
@@ -108,7 +107,7 @@ object PropertiesCommand {
         }
 
         commandManager.buildAndRegister("properties", Description.description("Removes the given property from a node"), arrayOf("prop")) {
-            required("node", nodeParser { cli.tree })
+            required("node", nodeParser())
             literal("remove")
             required("key", quotedStringParser()) {
                 suggestionProvider = SuggestionProvider.blockingStrings { context, input ->

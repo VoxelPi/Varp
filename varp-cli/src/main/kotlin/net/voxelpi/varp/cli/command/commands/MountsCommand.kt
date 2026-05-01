@@ -37,7 +37,7 @@ object MountsCommand {
                 }
             }
             required("source_path", nodeParentPathParser { context -> cli.environment.repositories[context["repository"]]?.tree })
-            required("mount_parent_path", nodeParentPathParser { cli.tree })
+            required("mount_parent_path", nodeParentPathParser())
             required("mount_id", stringParser()) {}
 
             handler { context ->
@@ -65,7 +65,7 @@ object MountsCommand {
 
         commandManager.buildAndRegister("mounts", Description.description("Removes a mount from the compositor")) {
             literal("remove")
-            required("mount_path", nodeParentPathParser { cli.tree }) {
+            required("mount_path", nodeParentPathParser()) {
                 suggestionProvider = SuggestionProvider.blockingStrings { context, input ->
                     cli.environment.compositor.mounts().map(CompositorMount::path).map(NodeParentPath::toString)
                 }

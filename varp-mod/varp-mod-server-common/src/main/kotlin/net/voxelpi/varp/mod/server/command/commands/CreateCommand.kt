@@ -3,10 +3,11 @@ package net.voxelpi.varp.mod.server.command.commands
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.kyori.adventure.text.minimessage.MiniMessage.miniMessage
+import net.voxelpi.varp.extras.cloud.VarpCommandArguments
 import net.voxelpi.varp.extras.cloud.parser.tree.nodeParentParser
-import net.voxelpi.varp.mod.server.VarpServerImpl
 import net.voxelpi.varp.mod.server.command.VarpCommand
 import net.voxelpi.varp.mod.server.command.VarpCommandSourceStack
+import net.voxelpi.varp.mod.server.command.VarpModCommandArguments
 import net.voxelpi.varp.tree.NodeParent
 import net.voxelpi.varp.tree.state.FolderState
 import net.voxelpi.varp.tree.state.WarpState
@@ -18,7 +19,7 @@ import org.incendo.cloud.parser.standard.StringParser.stringParser
 
 object CreateCommand : VarpCommand {
 
-    override fun register(manager: CommandManager<out VarpCommandSourceStack>, serverProvider: () -> VarpServerImpl) {
+    override fun register(manager: CommandManager<out VarpCommandSourceStack>) {
         manager.buildAndRegister("varp", aliases = arrayOf("warpmanager", "wm")) {
             permission("varp.create.folder")
 
@@ -26,15 +27,16 @@ object CreateCommand : VarpCommand {
             literal("folder")
 
             required("id", stringParser())
-            optional("parent", nodeParentParser { serverProvider().tree })
+            optional("parent", nodeParentParser())
 
             flag("name", arrayOf("n"), argumentDescription("The name of the folder"), quotedStringParser())
 
             handler { context ->
-                val server = serverProvider()
+                val tree = context[VarpCommandArguments.TREE]
+                val coroutineScope = context[VarpModCommandArguments.COROUTINE_SCOPE]
 
                 // Construct the folder path.
-                val parent: NodeParent = context.getOrDefault("parent", server.tree.root)
+                val parent: NodeParent = context.getOrDefault("parent", tree.root)
                 val id: String = context["id"]
                 val path = parent.path.folder(id)
 
@@ -45,7 +47,7 @@ object CreateCommand : VarpCommand {
                 )
 
                 // Create the folder.
-                server.coroutineScope.launch(Dispatchers.IO) {
+                coroutineScope.launch(Dispatchers.IO) {
                     context.sender().createFolder(path, state)
                 }
             }
@@ -58,15 +60,16 @@ object CreateCommand : VarpCommand {
             literal("warp")
 
             required("id", stringParser())
-            optional("parent", nodeParentParser { serverProvider().tree })
+            optional("parent", nodeParentParser())
 
             flag("name", arrayOf("n"), argumentDescription("The name of the warp"), quotedStringParser())
 
             handler { context ->
-                val server = serverProvider()
+                val tree = context[VarpCommandArguments.TREE]
+                val coroutineScope = context[VarpModCommandArguments.COROUTINE_SCOPE]
 
                 // Construct the warp path.
-                val parent: NodeParent = context.getOrDefault("parent", server.tree.root)
+                val parent: NodeParent = context.getOrDefault("parent", tree.root)
                 val id: String = context["id"]
                 val path = parent.path.warp(id)
 
@@ -78,7 +81,7 @@ object CreateCommand : VarpCommand {
                 )
 
                 // Create the warp.
-                server.coroutineScope.launch(Dispatchers.IO) {
+                coroutineScope.launch(Dispatchers.IO) {
                     context.sender().createWarp(path, state)
                 }
             }

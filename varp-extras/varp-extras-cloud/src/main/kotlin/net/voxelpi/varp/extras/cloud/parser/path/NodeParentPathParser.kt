@@ -1,5 +1,6 @@
 package net.voxelpi.varp.extras.cloud.parser.path
 
+import net.voxelpi.varp.extras.cloud.VarpCommandArguments
 import net.voxelpi.varp.tree.Tree
 import net.voxelpi.varp.tree.path.NodeParentPath
 import org.incendo.cloud.context.CommandContext
@@ -10,7 +11,7 @@ import org.incendo.cloud.parser.ParserDescriptor
 import org.incendo.cloud.suggestion.BlockingSuggestionProvider
 
 public class NodeParentPathParser<C : Any>(
-    public val treeSource: ((context: CommandContext<C>) -> Tree?)?,
+    public val treeProvider: ((context: CommandContext<C>) -> Tree?)?,
 ) : ArgumentParser<C, NodeParentPath>, BlockingSuggestionProvider.Strings<C> {
 
     override fun parse(commandContext: CommandContext<C>, commandInput: CommandInput): ArgumentParseResult<NodeParentPath> {
@@ -24,14 +25,21 @@ public class NodeParentPathParser<C : Any>(
     }
 
     override fun stringSuggestions(commandContext: CommandContext<C>, input: CommandInput): List<String> {
-        val tree = treeSource?.invoke(commandContext) ?: return emptyList()
+        val tree = treeProvider?.invoke(commandContext) ?: return emptyList()
         return tree.containers().map { it.path.toString() }
     }
 }
 
-public fun <C : Any> nodeParentPathParser(treeSource: ((context: CommandContext<C>) -> Tree?)?): ParserDescriptor<C, NodeParentPath> {
+public fun <C : Any> nodeParentPathParser(treeProvider: (context: CommandContext<C>) -> Tree?): ParserDescriptor<C, NodeParentPath> {
     return ParserDescriptor.of(
-        NodeParentPathParser(treeSource),
+        NodeParentPathParser(treeProvider),
+        NodeParentPath::class.java,
+    )
+}
+
+public fun <C : Any> nodeParentPathParser(): ParserDescriptor<C, NodeParentPath> {
+    return ParserDescriptor.of(
+        NodeParentPathParser { it[VarpCommandArguments.TREE] },
         NodeParentPath::class.java,
     )
 }

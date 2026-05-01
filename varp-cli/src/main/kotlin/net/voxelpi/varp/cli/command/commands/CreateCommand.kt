@@ -26,7 +26,7 @@ object CreateCommand {
     fun handle(event: CommandsRegistrationEvent) {
         event.commandManager.buildAndRegister("create") {
             literal("warp")
-            required("parent", nodeParentParser { event.cli.tree })
+            required("parent", nodeParentParser())
             required("id", stringParser())
 
             required("world", keyParser())
@@ -72,7 +72,7 @@ object CreateCommand {
 
         event.commandManager.buildAndRegister("create") {
             literal("folder")
-            required("parent", nodeParentParser { event.cli.tree })
+            required("parent", nodeParentParser())
             required("id", stringParser())
 
             valueFlag<VarpCLICommandSender, String>("name", aliases = arrayOf("n")) {

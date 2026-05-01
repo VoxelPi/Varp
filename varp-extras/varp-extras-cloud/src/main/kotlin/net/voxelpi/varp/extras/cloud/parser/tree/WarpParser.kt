@@ -1,6 +1,7 @@
 package net.voxelpi.varp.extras.cloud.parser.tree
 
 import net.voxelpi.varp.exception.tree.WarpNotFoundException
+import net.voxelpi.varp.extras.cloud.VarpCommandArguments
 import net.voxelpi.varp.tree.Tree
 import net.voxelpi.varp.tree.Warp
 import net.voxelpi.varp.tree.path.WarpPath
@@ -15,7 +16,7 @@ import kotlin.getOrElse
 import kotlin.jvm.java
 
 public class WarpParser<C : Any>(
-    public val treeSource: (context: CommandContext<C>) -> Tree,
+    public val treeProvider: (context: CommandContext<C>) -> Tree,
 ) : ArgumentParser<C, Warp>, BlockingSuggestionProvider.Strings<C> {
 
     override fun parse(
@@ -25,7 +26,7 @@ public class WarpParser<C : Any>(
         val input = commandInput.peekString()
         val path = WarpPath.Companion.parse(input).getOrElse { return ArgumentParseResult.failure(it) }
 
-        val tree = treeSource(commandContext)
+        val tree = treeProvider(commandContext)
         val warp = tree.resolve(path)
             ?: return ArgumentParseResult.failure(WarpNotFoundException(path))
 
@@ -34,14 +35,21 @@ public class WarpParser<C : Any>(
     }
 
     override fun stringSuggestions(commandContext: CommandContext<C>, input: CommandInput): List<String> {
-        val tree = treeSource(commandContext)
+        val tree = treeProvider(commandContext)
         return tree.warps().map { it.path.toString() }
     }
 }
 
-public fun <C : Any> warpParser(treeSource: (context: CommandContext<C>) -> Tree): ParserDescriptor<C, Warp> {
+public fun <C : Any> warpParser(treeProvider: (context: CommandContext<C>) -> Tree): ParserDescriptor<C, Warp> {
     return ParserDescriptor.of(
-        WarpParser(treeSource),
+        WarpParser(treeProvider),
+        Warp::class.java,
+    )
+}
+
+public fun <C : Any> warpParser(): ParserDescriptor<C, Warp> {
+    return ParserDescriptor.of(
+        WarpParser { it[VarpCommandArguments.TREE] },
         Warp::class.java,
     )
 }

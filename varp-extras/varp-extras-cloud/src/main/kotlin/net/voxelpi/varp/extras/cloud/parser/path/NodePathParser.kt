@@ -1,5 +1,6 @@
 package net.voxelpi.varp.extras.cloud.parser.path
 
+import net.voxelpi.varp.extras.cloud.VarpCommandArguments
 import net.voxelpi.varp.tree.Tree
 import net.voxelpi.varp.tree.path.NodePath
 import org.incendo.cloud.context.CommandContext
@@ -29,9 +30,16 @@ public class NodePathParser<C : Any>(
     }
 }
 
-public fun <C : Any> nodePathParser(treeSource: ((context: CommandContext<C>) -> Tree?)?): ParserDescriptor<C, NodePath> {
+public fun <C : Any> nodePathParser(treeProvider: (context: CommandContext<C>) -> Tree?): ParserDescriptor<C, NodePath> {
     return ParserDescriptor.of(
-        NodePathParser(treeSource),
+        NodePathParser(treeProvider),
+        NodePath::class.java,
+    )
+}
+
+public fun <C : Any> nodePathParser(): ParserDescriptor<C, NodePath> {
+    return ParserDescriptor.of(
+        NodePathParser { it[VarpCommandArguments.TREE] },
         NodePath::class.java,
     )
 }

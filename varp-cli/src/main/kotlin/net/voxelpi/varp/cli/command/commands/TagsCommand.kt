@@ -17,11 +17,10 @@ object TagsCommand {
 
     @Subscribe
     fun handle(event: CommandsRegistrationEvent) {
-        val cli = event.cli
         val commandManager = event.commandManager
 
         commandManager.buildAndRegister("tags", Description.description("Lists the tags of a node"), arrayOf("tag")) {
-            required("node", nodeParser { cli.tree })
+            required("node", nodeParser())
 
             handler { context ->
                 val node: Node = context["node"]
@@ -34,7 +33,7 @@ object TagsCommand {
         }
 
         commandManager.buildAndRegister("tags", Description.description("Checks for a tag on a node"), arrayOf("tag")) {
-            required("node", nodeParser { cli.tree })
+            required("node", nodeParser())
             literal("has")
             required("tag", quotedStringParser()) {
                 suggestionProvider = SuggestionProvider.blockingStrings { context, input ->
@@ -57,7 +56,7 @@ object TagsCommand {
         }
 
         commandManager.buildAndRegister("tags", Description.description("Adds a tag to a node"), arrayOf("tag")) {
-            required("node", nodeParser { cli.tree })
+            required("node", nodeParser())
             literal("add")
             required("tag", quotedStringParser())
 
@@ -80,7 +79,7 @@ object TagsCommand {
         }
 
         commandManager.buildAndRegister("tags", Description.description("Removes a tag from a node"), arrayOf("tag")) {
-            required("node", nodeParser { cli.tree })
+            required("node", nodeParser())
             literal("remove")
             required("tag", quotedStringParser()) {
                 suggestionProvider = SuggestionProvider.blockingStrings { context, input ->

@@ -12,11 +12,10 @@ object RemoveCommand {
 
     @Subscribe
     fun handle(event: CommandsRegistrationEvent) {
-        val cli = event.cli
         val commandManager = event.commandManager
 
         commandManager.buildAndRegister("remove", Description.description("Remvoes tree elements"), arrayOf("rm")) {
-            required("node", nodeChildParser { cli.tree })
+            required("node", nodeChildParser())
 
             handler { context ->
                 val node: NodeChild = context["node"]

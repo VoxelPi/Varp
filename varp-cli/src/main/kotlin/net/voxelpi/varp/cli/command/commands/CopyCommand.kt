@@ -16,12 +16,11 @@ object CopyCommand {
 
     @Subscribe
     fun handle(event: CommandsRegistrationEvent) {
-        val cli = event.cli
         val commandManager = event.commandManager
 
         commandManager.buildAndRegister("copy", Description.description("Copy tree elements"), arrayOf("cp")) {
-            required("node", nodeChildParser { cli.tree })
-            required("destination", nodeParentPathParser { cli.tree })
+            required("node", nodeChildParser())
+            required("destination", nodeParentPathParser())
             optional("id", stringParser())
 
             handler { context ->
