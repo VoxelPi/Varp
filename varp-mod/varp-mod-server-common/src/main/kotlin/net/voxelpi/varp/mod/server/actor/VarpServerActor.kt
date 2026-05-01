@@ -110,6 +110,7 @@ interface VarpServerActor : Audience {
                     server.logger.error("An unknown error occurred", exception)
                 }
             }
+            return
         }
 
         // Send confirmation message.
@@ -153,6 +154,7 @@ interface VarpServerActor : Audience {
                     server.logger.error("An unknown error occurred", exception)
                 }
             }
+            return
         }
 
         // Send confirmation message.
@@ -198,6 +200,7 @@ interface VarpServerActor : Audience {
                     server.logger.error("An unknown error occurred", exception)
                 }
             }
+            return
         }
 
         // Send confirmation message.
@@ -228,6 +231,7 @@ interface VarpServerActor : Audience {
                     server.logger.error("An unknown error occurred", exception)
                 }
             }
+            return
         }
 
         // Send confirmation message.
@@ -253,6 +257,7 @@ interface VarpServerActor : Audience {
                     server.logger.error("An unknown error occurred", exception)
                 }
             }
+            return
         }
 
         // Send confirmation message.
@@ -298,6 +303,7 @@ interface VarpServerActor : Audience {
                     server.logger.error("An unknown error occurred", exception)
                 }
             }
+            return
         }
 
         // Send confirmation message.
@@ -328,6 +334,7 @@ interface VarpServerActor : Audience {
                     server.logger.error("An unknown error occurred", exception)
                 }
             }
+            return
         }
 
         // Send confirmation message.
