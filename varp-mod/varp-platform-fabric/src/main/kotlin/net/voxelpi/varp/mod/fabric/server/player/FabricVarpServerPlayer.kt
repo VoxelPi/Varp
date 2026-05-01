@@ -25,7 +25,7 @@ class FabricVarpServerPlayer(
         get() = player.gameProfile.name
 
     override val displayName: Component
-        get() = server.serverAudiences.nonWrappingSerializer().deserialize(player.displayName ?: player.name)
+        get() = server.serverAudiences.nonWrappingSerializer().deserialize(player.displayName)
 
     override val location: MinecraftLocation
         get() = MinecraftLocation(player.level().dimension().key(), player.x, player.y, player.z, player.yRot, player.xRot)
