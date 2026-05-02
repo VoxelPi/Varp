@@ -34,7 +34,7 @@ object CopyCommand : VarpCommand {
                 val destinationParent: NodeParent = context["destination"]
                 val recursive = context.flags().isPresent("recursive")
 
-                // Delete the node.
+                // Copy the node.
                 coroutineScope.launch(Dispatchers.IO) {
                     when (node) {
                         is Folder -> context.sender().copyFolder(node, destinationParent.path.folder(node.id), recursive)

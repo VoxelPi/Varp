@@ -353,7 +353,7 @@ interface VarpServerActor : Audience {
             when (exception) {
                 is MissingMountException -> server.messages.sendErrorMissingMount(this, exception.path)
                 is FolderNotFoundException -> server.messages.sendErrorFolderPathUnresolved(this, exception.path)
-                is WarpAlreadyExistsException -> server.messages.sendErrorWarpAlreadyExists(this, exception.path)
+                is FolderAlreadyExistsException -> server.messages.sendErrorFolderAlreadyExists(this, exception.path)
                 else -> {
                     server.messages.sendErrorGeneric(this)
                     server.logger.error("An unknown error occurred", exception)
