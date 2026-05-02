@@ -2,6 +2,7 @@ package net.voxelpi.varp.mod.server.command.commands
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import net.kyori.adventure.text.minimessage.MiniMessage.miniMessage
 import net.voxelpi.varp.extras.cloud.VarpCommandArguments
 import net.voxelpi.varp.extras.cloud.parser.path.nodeParentPathParser
 import net.voxelpi.varp.extras.cloud.parser.repositoryParser
@@ -15,7 +16,6 @@ import org.incendo.cloud.CommandManager
 import org.incendo.cloud.description.Description
 import org.incendo.cloud.kotlin.extension.argumentDescription
 import org.incendo.cloud.kotlin.extension.buildAndRegister
-import org.incendo.cloud.parser.standard.StringParser
 import org.incendo.cloud.parser.standard.StringParser.quotedStringParser
 import org.incendo.cloud.parser.standard.StringParser.stringParser
 import kotlin.jvm.optionals.getOrNull
@@ -55,7 +55,10 @@ object RepositoryCommand : VarpCommand {
             required("mount_location", nodeParentPathParser())
             required("mount_id", stringParser())
 
+            flag("name", arrayOf("n"), argumentDescription("The name of the mount"), quotedStringParser())
+
             handler { context ->
+                val server = context[VarpModCommandArguments.SERVER]
                 val environment = context[VarpCommandArguments.ENVIRONMENT]
                 val coroutineScope = context[VarpModCommandArguments.COROUTINE_SCOPE]
                 val messages = context[VarpModCommandArguments.MESSAGE_SERVICE]
@@ -64,17 +67,24 @@ object RepositoryCommand : VarpCommand {
                 val repositoryPath: NodeParentPath = context.getOrDefault("repository_path", RootPath)
                 val mountLocation: NodeParentPath = context["mount_location"]
                 val mountId: String = context["mount_id"]
-
                 val mountPath = mountLocation.folder(mountId)
 
-                coroutineScope.launch(Dispatchers.IO)  {
+                val name = context.flags().getValue<String>("name").getOrNull()?.let(miniMessage()::deserialize)
 
+                coroutineScope.launch(Dispatchers.IO) {
                     environment.compositor.modifyMounts {
-                        register(mountPath, repository, repositoryPath)
+                        register(mountPath, repository, repositoryPath) {
+                            this.name = name
+                        }
                     }.onFailure {
                         messages.sendErrorGeneric(context.sender())
+                        return@launch
                     }
-                    // TODO: Write new compositor state to disk.
+                    server.saveVarpEnvironment().onFailure {
+                        messages.sendErrorGeneric(context.sender())
+                        server.logger.warn("Failed to save varp environment", it)
+                        return@launch
+                    }
                     messages.sendRepositoryMounted(context.sender(), mountPath, repository, repositoryPath)
                 }
             }

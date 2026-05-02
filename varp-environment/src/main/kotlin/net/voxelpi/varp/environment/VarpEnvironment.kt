@@ -83,7 +83,7 @@ public class VarpEnvironment internal constructor() {
                 logger.error("Unable to create mount, unknown repository \"${definition.repository}\"")
                 return@mapNotNull null
             }
-            CompositorMount(location, repository, definition.path)
+            CompositorMount(location, repository, definition.path, definition.overlay)
         }
         compositor.modifyMounts(mounts).getOrThrow()
     }
@@ -109,7 +109,7 @@ public class VarpEnvironment internal constructor() {
     public fun save(): EnvironmentDefinition {
         return EnvironmentDefinition(
             repositories.mapValues { RepositoryDefinition.repositoryDefinition(it.value) },
-            compositor.mounts().associate { it.path to MountDefinition(it.repository.id, it.sourcePath) },
+            compositor.mounts().associate { it.path to MountDefinition(it.repository.id, it.sourcePath, it.overlay) },
         )
     }
 

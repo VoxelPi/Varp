@@ -13,11 +13,11 @@ class VarpEnvironmentTest {
     fun `test load from definition`() {
         val definition = EnvironmentDefinition.environmentDefinition {
             repository("main", EphemeralRepositoryType, EphemeralRepositoryConfig) {
-                mountedAt("/")
+                mountedAt("/") {}
             }
             repository("unused", EphemeralRepositoryType, EphemeralRepositoryConfig)
             repository("games_repo", EphemeralRepositoryType, EphemeralRepositoryConfig) {
-                mountedAt("/games/")
+                mountedAt("/games/") {}
             }
         }
         val environment = runBlocking {

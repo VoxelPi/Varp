@@ -10,12 +10,14 @@ import java.lang.reflect.Type
 import java.nio.file.Path
 
 internal class PathSerializer(
-    val rootPath: Path,
+    rootPath: Path,
 ) : JsonSerializer<Path>, JsonDeserializer<Path> {
+
+    val rootPath = rootPath.normalize()
 
     override fun serialize(src: Path, typeOfSrc: Type, context: JsonSerializationContext): JsonElement {
         if (src.isAbsolute) {
-            require(src.normalize().startsWith(rootPath)) { "Path not inside \"$rootPath\"" }
+            require(src.normalize().startsWith(rootPath)) { "Path \"$src\" not inside \"$rootPath\"" }
             return JsonPrimitive(rootPath.relativize(src).toString())
         } else {
             return JsonPrimitive(src.toString())

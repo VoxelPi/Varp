@@ -62,11 +62,11 @@ class FabricVarpServer(
         listOf(FileTreeRepositoryType)
     )
 
-    private val environmentFilePath = server.getWorldPath(LevelResource.ROOT) / "data" / "varp" / "server.varp.json"
+    override val environmentFilePath = (server.getWorldPath(LevelResource.ROOT) / "data" / "varp" / "server.varp.json").normalize()
 
     private val defaultEnvironment = EnvironmentDefinition.environmentDefinition {
         repository("default", FileTreeRepositoryType, FileTreeRepositoryConfig(environmentFilePath.parent / "repositories" / "default", "json", false)) {
-            mountedAt(RootPath)
+            mountedAt(RootPath) {}
         }
     }
 
@@ -78,7 +78,11 @@ class FabricVarpServer(
 
     init {
         runBlocking {
-            val definition = loader.load(environmentFilePath).getOrThrow() ?: defaultEnvironment
+            val definition = loader.load(environmentFilePath).getOrElse {
+                logger.error("Failed to load environment file '$environmentFilePath'", it)
+                server.close()
+                return@runBlocking
+            } ?: defaultEnvironment
             environment.load(definition).getOrThrow()
         }
         FabricVarpMod.logger.info("Loaded ${environment.repositories.size} repositories")

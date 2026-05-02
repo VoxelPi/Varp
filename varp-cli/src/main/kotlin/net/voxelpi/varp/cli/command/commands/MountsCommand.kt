@@ -56,7 +56,7 @@ object MountsCommand {
 
                 runBlocking {
                     cli.environment.compositor.modifyMounts {
-                        register(mountPath, repository, repositoryPath)
+                        register(mountPath, repository, repositoryPath) {}
                     }.getOrThrow()
                 }
                 context.sender().sendMessage("Added mount to $repositoryPath of repository \"$repositoryId\" at $mountPath")

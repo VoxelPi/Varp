@@ -36,6 +36,8 @@ abstract class VarpServerImpl : VarpServer {
 
     abstract val serverNetworkBridge: VarpServerNetworkBridge
 
+    protected abstract val environmentFilePath: Path
+
     fun loadMessages(): VarpMessages {
         val localeFile = globalConfigDirectory.resolve("locale").resolve("en_us.json")
 
@@ -55,6 +57,10 @@ abstract class VarpServerImpl : VarpServer {
         val messages = VarpMessages.create(node)
         this.messages = messages
         return messages
+    }
+
+    fun saveVarpEnvironment(): Result<Unit> {
+        return loader.save(environment.save(), environmentFilePath)
     }
 
     protected abstract fun copyResourceTemplate(resource: String, destination: Path)

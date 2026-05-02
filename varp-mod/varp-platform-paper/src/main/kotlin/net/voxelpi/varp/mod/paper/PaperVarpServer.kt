@@ -59,11 +59,11 @@ class PaperVarpServer(
         listOf(FileTreeRepositoryType)
     )
 
-    private val environmentFilePath = plugin.dataPath / "data" / "server.varp.json"
+    override val environmentFilePath = plugin.dataPath / "data" / "server.varp.json"
 
     private val defaultEnvironment = EnvironmentDefinition.environmentDefinition {
         repository("default", FileTreeRepositoryType, FileTreeRepositoryConfig(environmentFilePath.parent / "repositories" / "default", "json", false)) {
-            mountedAt(RootPath)
+            mountedAt(RootPath) {}
         }
     }
 

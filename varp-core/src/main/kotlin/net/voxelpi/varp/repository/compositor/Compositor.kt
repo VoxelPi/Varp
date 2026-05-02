@@ -95,9 +95,13 @@ public class Compositor(
             }
 
             // Copy the root folder of the mount.
-            registry[mountPath] = mount.repository.registryView[mount.sourcePath] ?: run {
+            val mountRootFolder = mount.repository.registryView[mount.sourcePath] ?: run {
                 registry.clear()
                 throw NodeParentNotFoundException(mount.sourcePath)
+            }
+            registry[mountPath] = mountRootFolder.modifiedCopy {
+                // Use the overlay name if available.
+                mount.overlay.name?.let { name = it }
             }
 
             // Copy all folders that lie in the repository path.
@@ -276,7 +280,10 @@ public class Compositor(
         mount.repository.save(repositoryPath, state).getOrElse { return Result.failure(it) }
 
         // Update registry.
-        registry[path] = state
+        registry[path] = state.modifiedCopy {
+            // Use the overlay name if available.
+            mount.overlay.name?.let { name = it }
+        }
 
         // Post event.
         tree.eventScope.post(FolderStateChangeEvent(tree.resolve(path)!!, state, previousState))
@@ -295,7 +302,10 @@ public class Compositor(
         mount.repository.save(repositoryPath, state).getOrElse { return Result.failure(it) }
 
         // Update registry.
-        registry.root = state
+        registry.root = state.modifiedCopy {
+            // Use the overlay name if available.
+            mount.overlay.name?.let { name = it }
+        }
 
         // Post event.
         tree.eventScope.post(RootStateChangeEvent(tree.root, state, previousState))
@@ -601,8 +611,13 @@ public class Compositor(
          * Adds a mount for the given [repository] at the given [path].
          * @return The previous mount or null if there was no mount at the given [path].
          */
-        public fun register(path: NodeParentPath, repository: Repository, repositoryPath: NodeParentPath): CompositorMount? {
-            return mounts.put(path, CompositorMount(path, repository, repositoryPath))
+        public fun register(
+            path: NodeParentPath,
+            repository: Repository,
+            repositoryPath: NodeParentPath,
+            overlayBuilder: CompositorMount.Overlay.Builder.() -> Unit,
+        ): CompositorMount? {
+            return mounts.put(path, CompositorMount(path, repository, repositoryPath, overlayBuilder))
         }
 
         /**

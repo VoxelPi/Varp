@@ -17,6 +17,10 @@ public data class FolderState(
     override val properties: Map<String, String> = emptyMap(),
 ) : NodeState {
 
+    public fun modifiedCopy(action: Builder.() -> Unit): FolderState {
+        return Builder(this).apply(action).build()
+    }
+
     public data class Builder(
         override var name: Component,
         override var description: MutableList<Component>,

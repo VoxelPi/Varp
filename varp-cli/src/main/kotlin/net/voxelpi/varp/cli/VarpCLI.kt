@@ -40,7 +40,7 @@ object VarpCLI {
 
     val defaultEnvironment = EnvironmentDefinition.environmentDefinition {
         repository("default", FileTreeRepositoryType, FileTreeRepositoryConfig(Path("./default/"), "json", false)) {
-            mountedAt(RootPath)
+            mountedAt(RootPath) {}
         }
     }
 

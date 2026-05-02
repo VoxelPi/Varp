@@ -3,6 +3,7 @@ package net.voxelpi.varp.environment.model
 import net.voxelpi.varp.repository.Repository
 import net.voxelpi.varp.repository.RepositoryConfig
 import net.voxelpi.varp.repository.RepositoryType
+import net.voxelpi.varp.repository.compositor.CompositorMount
 import net.voxelpi.varp.tree.path.NodeParentPath
 import net.voxelpi.varp.tree.path.RootPath
 
@@ -41,14 +42,14 @@ public data class EnvironmentDefinition(
         ) {
             public val mounts: MutableMap<NodeParentPath, MountDefinition> = mutableMapOf()
 
-            public fun mountedAt(location: NodeParentPath, path: NodeParentPath = RootPath) {
-                mounts[location] = MountDefinition(repositoryId, path)
+            public fun mountedAt(location: NodeParentPath, path: NodeParentPath = RootPath, overlayBuilder: CompositorMount.Overlay.Builder.() -> Unit) {
+                mounts[location] = MountDefinition(repositoryId, path, overlayBuilder)
             }
 
-            public fun mountedAt(location: String, path: String = RootPath.toString()) {
+            public fun mountedAt(location: String, path: String = RootPath.toString(), overlayBuilder: CompositorMount.Overlay.Builder.() -> Unit) {
                 val locationPath = NodeParentPath.parse(location).getOrThrow()
                 val pathPath = NodeParentPath.parse(path).getOrThrow()
-                return mountedAt(locationPath, pathPath)
+                return mountedAt(locationPath, pathPath, overlayBuilder)
             }
 
             internal fun build(): Map<NodeParentPath, MountDefinition> {

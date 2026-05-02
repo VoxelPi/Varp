@@ -20,6 +20,10 @@ public data class WarpState(
     override val properties: Map<String, String> = emptyMap(),
 ) : NodeState {
 
+    public fun modifiedCopy(action: Builder.() -> Unit): WarpState {
+        return Builder(this).apply(action).build()
+    }
+
     public data class Builder(
         var location: MinecraftLocation,
         override var name: Component,
