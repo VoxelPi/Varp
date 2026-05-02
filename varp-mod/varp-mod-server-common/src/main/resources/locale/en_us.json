@@ -92,6 +92,9 @@
 
     "warp_path_unresolved": "<prefix> <red>No warp</red> exists at the path <yellow><path></yellow>",
     "folder_path_unresolved": "<prefix> <red>No folder</red> exists at the path <yellow><path></yellow>",
+    "node_path_unresolved": "<prefix> <red>No container</red> exists at the path <yellow><path></yellow>",
+    "node_parent_path_unresolved": "<prefix> <red>No node</red> exists at the path <yellow><path></yellow>",
+    "node_child_path_unresolved": "<prefix> <red>No child node</red> exists at the path <yellow><path></yellow>",
 
     "warp_already_exists": "<prefix> A warp with the path <yellow><path></yellow> <red>already</red> exists",
     "folder_already_exists": "<prefix> A folder with the path <yellow><path></yellow> <red>already</red> exists",

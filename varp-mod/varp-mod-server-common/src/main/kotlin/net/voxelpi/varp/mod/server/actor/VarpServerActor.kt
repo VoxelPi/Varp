@@ -3,6 +3,7 @@ package net.voxelpi.varp.mod.server.actor
 import net.kyori.adventure.audience.Audience
 import net.voxelpi.varp.exception.tree.FolderAlreadyExistsException
 import net.voxelpi.varp.exception.tree.FolderNotFoundException
+import net.voxelpi.varp.exception.tree.NodeParentNotFoundException
 import net.voxelpi.varp.exception.tree.WarpAlreadyExistsException
 import net.voxelpi.varp.exception.tree.WarpNotFoundException
 import net.voxelpi.varp.mod.server.VarpServerImpl
@@ -326,6 +327,7 @@ interface VarpServerActor : Audience {
                 is MissingMountException -> server.messages.sendErrorMissingMount(this, exception.path)
                 is WarpNotFoundException -> server.messages.sendErrorWarpPathUnresolved(this, exception.path)
                 is WarpAlreadyExistsException -> server.messages.sendErrorWarpAlreadyExists(this, exception.path)
+                is NodeParentNotFoundException -> server.messages.sendErrorNodeParentPathUnresolved(this, exception.path)
                 else -> {
                     server.messages.sendErrorGeneric(this)
                     server.logger.error("An unknown error occurred", exception)
@@ -354,6 +356,7 @@ interface VarpServerActor : Audience {
                 is MissingMountException -> server.messages.sendErrorMissingMount(this, exception.path)
                 is FolderNotFoundException -> server.messages.sendErrorFolderPathUnresolved(this, exception.path)
                 is FolderAlreadyExistsException -> server.messages.sendErrorFolderAlreadyExists(this, exception.path)
+                is NodeParentNotFoundException -> server.messages.sendErrorNodeParentPathUnresolved(this, exception.path)
                 else -> {
                     server.messages.sendErrorGeneric(this)
                     server.logger.error("An unknown error occurred", exception)

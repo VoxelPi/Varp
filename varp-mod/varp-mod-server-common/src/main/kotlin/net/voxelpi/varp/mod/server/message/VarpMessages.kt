@@ -31,6 +31,8 @@ import net.voxelpi.varp.tree.Folder
 import net.voxelpi.varp.tree.Root
 import net.voxelpi.varp.tree.Warp
 import net.voxelpi.varp.tree.path.FolderPath
+import net.voxelpi.varp.tree.path.NodeChildPath
+import net.voxelpi.varp.tree.path.NodeParentPath
 import net.voxelpi.varp.tree.path.NodePath
 import net.voxelpi.varp.tree.path.WarpPath
 import net.voxelpi.varp.tree.state.FolderState
@@ -283,6 +285,24 @@ interface VarpMessages {
     fun sendErrorFolderPathUnresolved(
         @Receiver receiver: Audience,
         @Placeholder("path") path: FolderPath,
+    )
+
+    @Message("error.node_path_unresolved")
+    fun sendErrorNodePathUnresolved(
+        @Receiver receiver: Audience,
+        @Placeholder("path") path: NodePath,
+    )
+
+    @Message("error.node_parent_path_unresolved")
+    fun sendErrorNodeParentPathUnresolved(
+        @Receiver receiver: Audience,
+        @Placeholder("path") path: NodeParentPath,
+    )
+
+    @Message("error.node_child_path_unresolved")
+    fun sendErrorNodeChildPathUnresolved(
+        @Receiver receiver: Audience,
+        @Placeholder("path") path: NodeChildPath,
     )
 
     @Message("error.warp_already_exists")
