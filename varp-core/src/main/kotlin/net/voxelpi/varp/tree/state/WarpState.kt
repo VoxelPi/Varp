@@ -1,6 +1,6 @@
 package net.voxelpi.varp.tree.state
 
-import net.kyori.adventure.text.Component
+import net.voxelpi.varp.ComponentTemplate
 import net.voxelpi.varp.MinecraftLocation
 
 /**
@@ -14,8 +14,8 @@ import net.voxelpi.varp.MinecraftLocation
 @JvmRecord
 public data class WarpState(
     val location: MinecraftLocation,
-    override val name: Component,
-    override val description: List<Component> = emptyList(),
+    override val name: ComponentTemplate,
+    override val description: List<ComponentTemplate> = emptyList(),
     override val tags: Set<String> = emptySet(),
     override val properties: Map<String, String> = emptyMap(),
 ) : NodeState {
@@ -26,8 +26,8 @@ public data class WarpState(
 
     public data class Builder(
         var location: MinecraftLocation,
-        override var name: Component,
-        override var description: MutableList<Component>,
+        override var name: ComponentTemplate,
+        override var description: MutableList<ComponentTemplate>,
         override var tags: MutableSet<String>,
         override var properties: MutableMap<String, String>,
     ) : NodeState.Builder {

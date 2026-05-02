@@ -3,7 +3,7 @@ package net.voxelpi.varp.repository.sql
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import net.kyori.adventure.key.Key
-import net.kyori.adventure.text.minimessage.MiniMessage.miniMessage
+import net.voxelpi.varp.ComponentTemplate
 import net.voxelpi.varp.MinecraftLocation
 import net.voxelpi.varp.option.OptionsContext
 import net.voxelpi.varp.repository.RepositoryConfig
@@ -62,8 +62,8 @@ class SqlRepository(
                 val defaultRootState = FolderState.defaultRootState()
                 FolderTable.insertIgnore { entry ->
                     entry[path] = RootPath.toString()
-                    entry[name] = miniMessage().serialize(defaultRootState.name)
-                    entry[description] = defaultRootState.description.joinToString("\n") { miniMessage().serialize(it) }
+                    entry[name] = defaultRootState.name.originalMessage
+                    entry[description] = defaultRootState.description.joinToString("\n") { it.originalMessage }
                     entry[tags] = defaultRootState.tags.joinToString(",")
                     entry[properties] = defaultRootState.properties.map { "${it.key}=${it.value}" }.joinToString("\n")
                 }
@@ -100,8 +100,8 @@ class SqlRepository(
             FolderTable.selectAll().forEach { entry ->
                 val path = NodeParentPath.parse(entry[FolderTable.path]).getOrThrow()
                 val state = FolderState(
-                    miniMessage().deserialize(entry[FolderTable.name]),
-                    entry[FolderTable.description].split("\n").filter { it.isNotBlank() }.map { miniMessage().deserialize(it) },
+                    ComponentTemplate(entry[FolderTable.name]),
+                    entry[FolderTable.description].split("\n").filter { it.isNotBlank() }.map { ComponentTemplate(it) },
                     entry[FolderTable.tags].split(",").filter { it.isNotBlank() }.toSet(),
                     entry[FolderTable.properties].split(",").filter { it.contains("=") }.associate {
                         val parts = it.split("=")
@@ -123,8 +123,8 @@ class SqlRepository(
                         entry[WarpTable.yaw],
                         entry[WarpTable.pitch],
                     ),
-                    miniMessage().deserialize(entry[WarpTable.name]),
-                    entry[WarpTable.description].split("\n").filter { it.isNotBlank() }.map { miniMessage().deserialize(it) },
+                    ComponentTemplate(entry[WarpTable.name]),
+                    entry[WarpTable.description].split("\n").filter { it.isNotBlank() }.map { ComponentTemplate(it) },
                     entry[WarpTable.tags].split(",").filter { it.isNotBlank() }.toSet(),
                     entry[WarpTable.properties].split(",").filter { it.contains("=") }.associate {
                         val parts = it.split("=")
@@ -141,8 +141,8 @@ class SqlRepository(
         transaction {
             WarpTable.insert { entry ->
                 entry[WarpTable.path] = path.toString()
-                entry[name] = miniMessage().serialize(state.name)
-                entry[description] = state.description.joinToString("\n") { miniMessage().serialize(it) }
+                entry[name] = state.name.originalMessage
+                entry[description] = state.description.joinToString("\n") { it.originalMessage }
                 entry[tags] = state.tags.joinToString(",")
                 entry[properties] = state.properties.map { "${it.key}=${it.value}" }.joinToString("\n")
                 entry[world] = state.location.world.toString()
@@ -159,8 +159,8 @@ class SqlRepository(
         transaction {
             FolderTable.insert { entry ->
                 entry[FolderTable.path] = path.toString()
-                entry[name] = miniMessage().serialize(state.name)
-                entry[description] = state.description.joinToString("\n") { miniMessage().serialize(it) }
+                entry[name] = state.name.originalMessage
+                entry[description] = state.description.joinToString("\n") { it.originalMessage }
                 entry[tags] = state.tags.joinToString(",")
                 entry[properties] = state.properties.map { "${it.key}=${it.value}" }.joinToString("\n")
             }
@@ -170,8 +170,8 @@ class SqlRepository(
     override suspend fun handleSave(path: WarpPath, state: WarpState): Result<Unit> = runCatching {
         transaction {
             WarpTable.update({ WarpTable.path eq path.toString() }) { entry ->
-                entry[name] = miniMessage().serialize(state.name)
-                entry[description] = state.description.joinToString("\n") { miniMessage().serialize(it) }
+                entry[name] = state.name.originalMessage
+                entry[description] = state.description.joinToString("\n") { it.originalMessage }
                 entry[tags] = state.tags.joinToString(",")
                 entry[properties] = state.properties.map { "${it.key}=${it.value}" }.joinToString("\n")
                 entry[world] = state.location.world.toString()
@@ -187,8 +187,8 @@ class SqlRepository(
     override suspend fun handleSave(path: FolderPath, state: FolderState): Result<Unit> = runCatching {
         transaction {
             FolderTable.update({ FolderTable.path eq path.toString() }) { entry ->
-                entry[name] = miniMessage().serialize(state.name)
-                entry[description] = state.description.joinToString("\n") { miniMessage().serialize(it) }
+                entry[name] = state.name.originalMessage
+                entry[description] = state.description.joinToString("\n") { it.originalMessage }
                 entry[tags] = state.tags.joinToString(",")
                 entry[properties] = state.properties.map { "${it.key}=${it.value}" }.joinToString("\n")
             }
@@ -198,8 +198,8 @@ class SqlRepository(
     override suspend fun handleSave(state: FolderState): Result<Unit> = runCatching {
         transaction {
             FolderTable.update({ FolderTable.path eq RootPath.toString() }) { entry ->
-                entry[name] = miniMessage().serialize(state.name)
-                entry[description] = state.description.joinToString("\n") { miniMessage().serialize(it) }
+                entry[name] = state.name.originalMessage
+                entry[description] = state.description.joinToString("\n") { it.originalMessage }
                 entry[tags] = state.tags.joinToString(",")
                 entry[properties] = state.properties.map { "${it.key}=${it.value}" }.joinToString("\n")
             }

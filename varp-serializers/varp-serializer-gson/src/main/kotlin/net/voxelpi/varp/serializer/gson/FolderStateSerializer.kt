@@ -7,7 +7,7 @@ import com.google.gson.JsonNull
 import com.google.gson.JsonObject
 import com.google.gson.JsonSerializationContext
 import com.google.gson.JsonSerializer
-import net.kyori.adventure.text.Component
+import net.voxelpi.varp.ComponentTemplate
 import net.voxelpi.varp.tree.state.FolderState
 import java.lang.reflect.Type
 
@@ -32,8 +32,8 @@ public object FolderStateSerializer : JsonSerializer<FolderState>, JsonDeseriali
         }
         require(json is JsonObject) { "Expected warp state to be an json object." }
 
-        val name = context.deserialize<Component>(json.get("name"), Component::class.java)
-        val description = context.deserialize<List<Component>>(json.get("description"), typeOf<List<Component>>())
+        val name = context.deserialize<ComponentTemplate>(json.get("name"), ComponentTemplate::class.java)
+        val description = context.deserialize<List<ComponentTemplate>>(json.get("description"), typeOf<List<ComponentTemplate>>())
         val tags = context.deserialize<Set<String>>(json.get("tags"), typeOf<Set<String>>())
         val properties = context.deserialize<Map<String, String>>(json.get("properties"), typeOf<Map<String, String>>())
 

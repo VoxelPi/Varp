@@ -1,5 +1,6 @@
 package net.voxelpi.varp.serializer.configurate
 
+import net.voxelpi.varp.ComponentTemplate
 import net.voxelpi.varp.MinecraftLocation
 import net.voxelpi.varp.tree.state.FolderState
 import net.voxelpi.varp.tree.state.WarpState
@@ -8,6 +9,7 @@ import org.spongepowered.configurate.serialize.TypeSerializerCollection
 public object VarpConfigurateSerializers {
 
     public val serializers: TypeSerializerCollection = TypeSerializerCollection.defaults().childBuilder().apply {
+        register(ComponentTemplate::class.java, ComponentTemplateSerializer)
         register(MinecraftLocation::class.java, MinecraftLocationSerializer)
 
         register(WarpState::class.java, WarpStateSerializer)

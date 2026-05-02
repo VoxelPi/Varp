@@ -11,9 +11,9 @@ import io.wispforest.owo.ui.core.Sizing
 import io.wispforest.owo.ui.core.Surface
 import io.wispforest.owo.ui.core.VerticalAlignment
 import kotlinx.coroutines.runBlocking
-import net.kyori.adventure.text.minimessage.MiniMessage
 import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.resources.Identifier
+import net.voxelpi.varp.ComponentTemplate
 import net.voxelpi.varp.mod.fabric.client.FabricVarpClientMod
 import net.voxelpi.varp.tree.path.NodeParentPath
 import net.voxelpi.varp.tree.state.FolderState
@@ -136,7 +136,7 @@ class FabricVarpCreateFolderScreen(
                     UIComponents.button(net.minecraft.network.chat.Component.translatable("gui.varp.create_folder.confirm")) {
                         val id = idInput.value
                         val path = parentPath.folder(id)
-                        val name = MiniMessage.miniMessage().deserialize(nameInput.value)
+                        val name = ComponentTemplate(nameInput.value)
                         runBlocking { FabricVarpClientMod.client.tree.createFolder(path, FolderState(name)) } // Only sends packet.
 
                         // Open parent in explorer gui.

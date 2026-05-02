@@ -61,7 +61,7 @@ class ExplorerTreeView(
                 spinnyBoiComponent
             )
             headerLayout.child(
-                UIComponents.label(node.name.clientNative())
+                UIComponents.label(node.name.asComponent().clientNative())
             )
             super.child(headerLayout)
 

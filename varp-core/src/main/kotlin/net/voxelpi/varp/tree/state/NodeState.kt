@@ -1,6 +1,6 @@
 package net.voxelpi.varp.tree.state
 
-import net.kyori.adventure.text.Component
+import net.voxelpi.varp.ComponentTemplate
 
 /**
  * The state of a node.
@@ -10,12 +10,12 @@ public sealed interface NodeState {
     /**
      * The name of the node.
      */
-    public val name: Component
+    public val name: ComponentTemplate
 
     /**
      * The description of the node.
      */
-    public val description: List<Component>
+    public val description: List<ComponentTemplate>
 
     /**
      * A set of all tags of the node.
@@ -44,9 +44,9 @@ public sealed interface NodeState {
 
     public sealed interface Builder {
 
-        public var name: Component
+        public var name: ComponentTemplate
 
-        public var description: MutableList<Component>
+        public var description: MutableList<ComponentTemplate>
 
         public var tags: MutableSet<String>
 

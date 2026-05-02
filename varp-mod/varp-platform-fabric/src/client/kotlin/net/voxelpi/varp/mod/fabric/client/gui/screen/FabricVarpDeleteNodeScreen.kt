@@ -40,7 +40,7 @@ class FabricVarpDeleteNodeScreen(
                     }
                 )
                 child(
-                    UIComponents.label(node.name.clientNative()).apply {
+                    UIComponents.label(node.name.asComponent().clientNative()).apply {
                         margins(Insets.bottom(8))
                     }
                 )

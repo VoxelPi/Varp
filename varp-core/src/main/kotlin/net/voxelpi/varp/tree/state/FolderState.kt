@@ -1,6 +1,6 @@
 package net.voxelpi.varp.tree.state
 
-import net.kyori.adventure.text.Component
+import net.voxelpi.varp.ComponentTemplate
 
 /**
  * The state of a folder.
@@ -11,8 +11,8 @@ import net.kyori.adventure.text.Component
  */
 @JvmRecord
 public data class FolderState(
-    override val name: Component,
-    override val description: List<Component> = emptyList(),
+    override val name: ComponentTemplate,
+    override val description: List<ComponentTemplate> = emptyList(),
     override val tags: Set<String> = emptySet(),
     override val properties: Map<String, String> = emptyMap(),
 ) : NodeState {
@@ -22,8 +22,8 @@ public data class FolderState(
     }
 
     public data class Builder(
-        override var name: Component,
-        override var description: MutableList<Component>,
+        override var name: ComponentTemplate,
+        override var description: MutableList<ComponentTemplate>,
         override var tags: MutableSet<String>,
         override var properties: MutableMap<String, String>,
     ) : NodeState.Builder {
@@ -42,7 +42,7 @@ public data class FolderState(
     public companion object {
 
         public fun defaultRootState(): FolderState {
-            return FolderState(Component.text("root"), emptyList(), setOf("varp:root"), emptyMap())
+            return FolderState(ComponentTemplate("root"), emptyList(), setOf("varp:root"), emptyMap())
         }
     }
 }

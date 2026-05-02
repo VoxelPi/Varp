@@ -2,7 +2,7 @@ package net.voxelpi.varp.mod.server.command.commands
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import net.kyori.adventure.text.minimessage.MiniMessage.miniMessage
+import net.voxelpi.varp.ComponentTemplate
 import net.voxelpi.varp.extras.cloud.VarpCommandArguments
 import net.voxelpi.varp.extras.cloud.parser.path.nodeParentPathParser
 import net.voxelpi.varp.extras.cloud.parser.repositoryParser
@@ -69,7 +69,7 @@ object RepositoryCommand : VarpCommand {
                 val mountId: String = context["mount_id"]
                 val mountPath = mountLocation.folder(mountId)
 
-                val name = context.flags().getValue<String>("name").getOrNull()?.let(miniMessage()::deserialize)
+                val name = context.flags().getValue<String>("name").getOrNull()?.let(::ComponentTemplate)
 
                 coroutineScope.launch(Dispatchers.IO) {
                     environment.compositor.modifyMounts {

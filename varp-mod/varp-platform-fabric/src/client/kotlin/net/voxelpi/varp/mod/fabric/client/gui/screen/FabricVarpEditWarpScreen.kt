@@ -12,9 +12,9 @@ import io.wispforest.owo.ui.core.Surface
 import io.wispforest.owo.ui.core.VerticalAlignment
 import kotlinx.coroutines.runBlocking
 import net.kyori.adventure.key.Key
-import net.kyori.adventure.text.minimessage.MiniMessage
 import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.resources.Identifier
+import net.voxelpi.varp.ComponentTemplate
 import net.voxelpi.varp.MinecraftLocation
 import net.voxelpi.varp.mod.fabric.client.FabricVarpClientMod
 import net.voxelpi.varp.tree.Warp
@@ -53,7 +53,7 @@ class FabricVarpEditWarpScreen(
             margins(Insets.vertical(2))
         }
 
-        val nameInput = UIComponents.textBox(Sizing.fill(60), MiniMessage.miniMessage().serialize(warp.name)).apply {
+        val nameInput = UIComponents.textBox(Sizing.fill(60), warp.name.originalMessage).apply {
             setMaxLength(1024)
             margins(Insets.vertical(2))
         }
@@ -249,7 +249,7 @@ class FabricVarpEditWarpScreen(
                 .child(
                     UIComponents.button(net.minecraft.network.chat.Component.translatable("gui.varp.edit_warp.confirm")) {
                         val id = idInput.value
-                        val name = MiniMessage.miniMessage().deserialize(nameInput.value)
+                        val name = ComponentTemplate(nameInput.value)
                         val location = MinecraftLocation(
                             Key.key(worldInput.value),
                             xInput.value.toDouble(),

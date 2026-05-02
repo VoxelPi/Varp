@@ -1,6 +1,6 @@
 package net.voxelpi.varp.tree
 
-import net.kyori.adventure.text.Component
+import net.voxelpi.varp.ComponentTemplate
 import net.voxelpi.varp.tree.path.NodePath
 import net.voxelpi.varp.tree.state.NodeState
 
@@ -24,13 +24,13 @@ public sealed interface Node {
     /**
      * The name of the node.
      */
-    public val name: Component
+    public val name: ComponentTemplate
         get() = state.name
 
     /**
      * The description of the node.
      */
-    public val description: List<Component>
+    public val description: List<ComponentTemplate>
         get() = state.description
 
     /**

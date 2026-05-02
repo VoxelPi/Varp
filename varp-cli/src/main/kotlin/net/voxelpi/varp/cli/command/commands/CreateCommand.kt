@@ -2,8 +2,8 @@ package net.voxelpi.varp.cli.command.commands
 
 import kotlinx.coroutines.runBlocking
 import net.kyori.adventure.key.Key
-import net.kyori.adventure.text.minimessage.MiniMessage.miniMessage
 import net.voxelpi.event.annotation.Subscribe
+import net.voxelpi.varp.ComponentTemplate
 import net.voxelpi.varp.MinecraftLocation
 import net.voxelpi.varp.cli.command.CommandsRegistrationEvent
 import net.voxelpi.varp.cli.command.VarpCLICommandSender
@@ -51,7 +51,7 @@ object CreateCommand {
                 val yaw: Float = context["yaw"]
                 val pitch: Float = context["pitch"]
 
-                val name = miniMessage().deserialize(context.flags().getValue<String>("name").orElse(id))
+                val name = ComponentTemplate(context.flags().getValue<String>("name").orElse(id))
 
                 val state = WarpState(
                     MinecraftLocation(
@@ -83,7 +83,7 @@ object CreateCommand {
                 val parent: NodeParent = context["parent"]
                 val id: String = context["id"]
 
-                val name = miniMessage().deserialize(context.flags().getValue<String>("name").orElse(id))
+                val name = ComponentTemplate(context.flags().getValue<String>("name").orElse(id))
 
                 val state = FolderState(
                     name,

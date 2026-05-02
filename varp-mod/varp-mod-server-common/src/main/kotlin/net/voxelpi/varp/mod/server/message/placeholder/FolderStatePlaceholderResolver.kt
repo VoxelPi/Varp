@@ -25,8 +25,8 @@ object FolderStatePlaceholderResolver : IPlaceholderResolver<Audience, FolderSta
         parameters: Array<out Any?>,
     ): MutableMap<String, Either<ConclusionValue<out Component>, ContinuanceValue<*>>> {
         return mutableMapOf(
-            placeholderName to Either.left(ConclusionValue.conclusionValue(value.name)),
-            "${placeholderName}_name" to Either.left(ConclusionValue.conclusionValue(value.name)),
+            placeholderName to Either.left(ConclusionValue.conclusionValue(value.name.asComponent())),
+            "${placeholderName}_name" to Either.left(ConclusionValue.conclusionValue(value.name.asComponent())),
             "${placeholderName}_description" to Either.left(ConclusionValue.conclusionValue(Component.join(JoinConfiguration.newlines(), value.description))),
             "${placeholderName}_tags" to Either.left(ConclusionValue.conclusionValue(Component.text(value.tags.joinToString(", ", "[", "]")))),
             "${placeholderName}_properties" to Either.left(ConclusionValue.conclusionValue(Component.text(value.properties.map { "${it.key}: ${it.value}" }.joinToString(", ", "{", "}")))),

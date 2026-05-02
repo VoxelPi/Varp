@@ -79,7 +79,7 @@ class ExplorerContentList(
         }
 
         private val nameLabel = UIComponents.label(
-            folder.name.hoverEvent(Component.text(folder.path.value)).decorate(TextDecoration.BOLD).clientNative()
+            folder.name.asComponent().hoverEvent(Component.text(folder.path.value)).decorate(TextDecoration.BOLD).clientNative()
         ).apply {
             sizing(Sizing.fixed(160), Sizing.content())
             margins(Insets.top(5))
@@ -156,7 +156,7 @@ class ExplorerContentList(
         }
 
         private val nameLabel = UIComponents.label(
-            warp.name.hoverEvent(Component.text(warp.path.value)).clientNative()
+            warp.name.asComponent().hoverEvent(Component.text(warp.path.value)).clientNative()
         ).apply {
             sizing(Sizing.fixed(160), Sizing.content())
             margins(Insets.top(5))

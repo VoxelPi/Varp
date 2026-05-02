@@ -4,6 +4,7 @@ import io.leangen.geantyref.TypeToken
 import net.kyori.adventure.audience.Audience
 import net.kyori.adventure.key.Key
 import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.ComponentLike
 import net.kyori.moonshine.Moonshine
 import net.kyori.moonshine.annotation.Message
 import net.kyori.moonshine.annotation.Placeholder
@@ -13,6 +14,7 @@ import net.voxelpi.varp.MinecraftLocation
 import net.voxelpi.varp.mod.api.VarpClientInformation
 import net.voxelpi.varp.mod.api.VarpServerInformation
 import net.voxelpi.varp.mod.server.api.player.VarpServerPlayer
+import net.voxelpi.varp.mod.server.message.placeholder.ComponentLikePlaceholderResolver
 import net.voxelpi.varp.mod.server.message.placeholder.ComponentPlaceholderResolver
 import net.voxelpi.varp.mod.server.message.placeholder.FolderPlaceholderResolver
 import net.voxelpi.varp.mod.server.message.placeholder.FolderStatePlaceholderResolver
@@ -373,6 +375,7 @@ interface VarpMessages {
                 .resolvingWithStrategy(StandardPlaceholderResolverStrategy(StandardSupertypeThenInterfaceSupertypeStrategy(true)))
                 .apply {
                     weightedPlaceholderResolver(Component::class.java, ComponentPlaceholderResolver, 1)
+                    weightedPlaceholderResolver(ComponentLike::class.java, ComponentLikePlaceholderResolver, 0)
                     weightedPlaceholderResolver(String::class.java, StringPlaceholderResolver, 1)
                     weightedPlaceholderResolver(Number::class.java, NumberPlaceholderResolver, 1)
 

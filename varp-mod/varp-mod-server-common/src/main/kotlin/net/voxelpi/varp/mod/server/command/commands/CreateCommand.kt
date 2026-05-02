@@ -2,7 +2,7 @@ package net.voxelpi.varp.mod.server.command.commands
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import net.kyori.adventure.text.minimessage.MiniMessage.miniMessage
+import net.voxelpi.varp.ComponentTemplate
 import net.voxelpi.varp.extras.cloud.VarpCommandArguments
 import net.voxelpi.varp.extras.cloud.parser.tree.nodeParentParser
 import net.voxelpi.varp.mod.server.command.VarpCommand
@@ -41,7 +41,7 @@ object CreateCommand : VarpCommand {
                 val path = parent.path.folder(id)
 
                 // Construct the folder state.
-                val name = miniMessage().deserialize(context.flags().getValue<String>("name").orElse(id))
+                val name = ComponentTemplate(context.flags().getValue<String>("name").orElse(id))
                 val state = FolderState(
                     name,
                 )
@@ -74,7 +74,7 @@ object CreateCommand : VarpCommand {
                 val path = parent.path.warp(id)
 
                 // Construct the warp state.
-                val name = miniMessage().deserialize(context.flags().getValue<String>("name").orElse(id))
+                val name = ComponentTemplate(context.flags().getValue<String>("name").orElse(id))
                 val state = WarpState(
                     context.sender().location,
                     name,

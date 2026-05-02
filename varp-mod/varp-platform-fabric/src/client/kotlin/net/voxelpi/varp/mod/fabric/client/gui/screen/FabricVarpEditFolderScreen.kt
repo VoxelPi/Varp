@@ -11,9 +11,9 @@ import io.wispforest.owo.ui.core.Sizing
 import io.wispforest.owo.ui.core.Surface
 import io.wispforest.owo.ui.core.VerticalAlignment
 import kotlinx.coroutines.runBlocking
-import net.kyori.adventure.text.minimessage.MiniMessage
 import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.resources.Identifier
+import net.voxelpi.varp.ComponentTemplate
 import net.voxelpi.varp.mod.fabric.client.FabricVarpClientMod
 import net.voxelpi.varp.tree.Folder
 
@@ -50,7 +50,7 @@ class FabricVarpEditFolderScreen(
             margins(Insets.vertical(2))
         }
 
-        val nameInput = UIComponents.textBox(Sizing.fill(60), MiniMessage.miniMessage().serialize(folder.name)).apply {
+        val nameInput = UIComponents.textBox(Sizing.fill(60), folder.name.originalMessage).apply {
             setMaxLength(1024)
             margins(Insets.vertical(2))
         }
@@ -135,7 +135,7 @@ class FabricVarpEditFolderScreen(
                 child(
                     UIComponents.button(net.minecraft.network.chat.Component.translatable("gui.varp.edit_folder.confirm")) {
                         val id = idInput.value
-                        val name = MiniMessage.miniMessage().deserialize(nameInput.value)
+                        val name = ComponentTemplate(nameInput.value)
                         runBlocking {
                             folder.modify {
                                 this.name = name

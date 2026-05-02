@@ -1,6 +1,6 @@
 package net.voxelpi.varp.serializer.configurate
 
-import net.kyori.adventure.text.Component
+import net.voxelpi.varp.ComponentTemplate
 import net.voxelpi.varp.tree.state.FolderState
 import org.spongepowered.configurate.ConfigurationNode
 import org.spongepowered.configurate.kotlin.extensions.get
@@ -17,7 +17,7 @@ public object FolderStateSerializer : TypeSerializer<FolderState> {
         }
 
         node.node("name").set(obj.name)
-        node.node("description").setList(Component::class.java, obj.description)
+        node.node("description").setList(ComponentTemplate::class.java, obj.description)
         node.node("tags").setList(String::class.java, obj.tags.toList())
         obj.properties.forEach { (key, value) ->
             node.node("properties", key).set(value)
@@ -29,8 +29,8 @@ public object FolderStateSerializer : TypeSerializer<FolderState> {
             return null
         }
 
-        val name = node.node("name").get<Component>() ?: throw SerializationException("Folder has no name")
-        val description = node.node("description").getList(Component::class.java, mutableListOf())
+        val name = node.node("name").get<ComponentTemplate>() ?: throw SerializationException("Folder has no name")
+        val description = node.node("description").getList(ComponentTemplate::class.java, mutableListOf())
         val tags = node.node("tags").getList(String::class.java, mutableListOf()).toSet()
         val properties = node.node("properties").childrenMap().map { (key, value) ->
             (key as String) to value.getString("")

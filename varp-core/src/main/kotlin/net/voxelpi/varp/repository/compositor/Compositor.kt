@@ -193,7 +193,7 @@ public class Compositor(
         mounts.putAll(newMounts.associateBy { it.path })
 
         // Rebuild tree
-        load()
+        load().onFailure { return Result.failure(it) }
 
         // Post the mount event for every new mount.
         for (mount in this.mounts.values) {

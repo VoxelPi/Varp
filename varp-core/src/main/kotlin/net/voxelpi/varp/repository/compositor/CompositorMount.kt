@@ -1,6 +1,6 @@
 package net.voxelpi.varp.repository.compositor
 
-import net.kyori.adventure.text.Component
+import net.voxelpi.varp.ComponentTemplate
 import net.voxelpi.varp.repository.Repository
 import net.voxelpi.varp.tree.path.NodeParentPath
 
@@ -25,11 +25,11 @@ public data class CompositorMount(
     ) : this(path, repository, sourcePath, Overlay.Builder().apply(overlayBuilder).build())
 
     public data class Overlay(
-        val name: Component?,
+        val name: ComponentTemplate?,
     ) {
 
         public data class Builder(
-            var name: Component? = null,
+            var name: ComponentTemplate? = null,
         ) {
 
             public fun build(): Overlay {
