@@ -4,15 +4,19 @@
 [![Sonatype Nexus (Releases)](https://img.shields.io/nexus/r/net.voxelpi.varp/varp-api?server=https%3A%2F%2Frepo.voxelpi.net&nexusVersion=3&style=for-the-badge&label=stable&color=blue)](https://repo.voxelpi.net/#browse/search=keyword%3Dvarp)
 [![Sonatype Nexus (Snapshots)](https://img.shields.io/nexus/s/net.voxelpi.varp/varp-api?server=https%3A%2F%2Frepo.voxelpi.net&nexusVersion=3&style=for-the-badge&label=dev)](https://repo.voxelpi.net/#browse/search=keyword%3Dvarp)
 
-A powerful tree-based warp management system for minecraft.
+A flexible and modular warp management system for Minecraft that combines powerful organization with a smooth user experience.
 
-## Minecraft Mod / Plugin
+Designed for both server administrators and players, it brings a filesystem-like structure to warps, 
+supports multiple storage backends, and offers a rich client interface for intuitive interaction.
 
-The project contains an implementation for the minecraft server.
+Key features:
 
-In addition to the server mod, there is also a client mod that provides an easy, gui-based way to manage warps.
+- **Hierarchical warp tree** - Organize warps in folders and subfolders, just like a filesystem.
+- **Pluggable storage backends** - Use SQL, JSON, or other storage solutions interchangeably.
+- **Mount-like storage system** - Mix and integrate multiple storage types seamlessly within the same tree.
+- **Rich client GUI** - Provide players with a modern, intuitive interface for browsing and managing warps.
 
-For more information about the minecraft mod see [varp-mod](./varp-mod)
+For more information about the minecraft mod see [varp-mod](./varp-mod).
 
 ## Developers
 
@@ -34,7 +38,7 @@ dependencies {
     // Environment, provides ability to load and manage multiple repositories.
     implementation("net.voxelpi.varp:varp-environment:<version>") 
     
-    // Varp data serializers, provides way to serialize varp data to common formats.
+    // Varp data serializers, provides ways to serialize varp data to common formats.
     implementation("net.voxelpi.varp:varp-serializer-configurate:<version>")
     implementation("net.voxelpi.varp:varp-serializer-gson:<version>")
     
