@@ -68,7 +68,7 @@ public class VarpEnvironmentLoader internal constructor(
         val gson = gsonBuilder(environmentFilePath.parent).create()
         val serializedDefinition = gson.toJsonTree(environment) as JsonObject
         serializedDefinition.addProperty("version", 1)
-        environmentFilePath.writeText(gson.toJson(environment))
+        environmentFilePath.writeText(gson.toJson(serializedDefinition))
     }
 
     public fun saveToJson(
