@@ -20,6 +20,7 @@ import net.voxelpi.varp.mod.server.message.placeholder.KeyPlaceholderResolver
 import net.voxelpi.varp.mod.server.message.placeholder.MinecraftLocationPlaceholderResolver
 import net.voxelpi.varp.mod.server.message.placeholder.NodePathPlaceholderResolver
 import net.voxelpi.varp.mod.server.message.placeholder.NumberPlaceholderResolver
+import net.voxelpi.varp.mod.server.message.placeholder.RepositoryPlaceholderResolver
 import net.voxelpi.varp.mod.server.message.placeholder.RootPlaceholderResolver
 import net.voxelpi.varp.mod.server.message.placeholder.StringPlaceholderResolver
 import net.voxelpi.varp.mod.server.message.placeholder.VarpClientInformationPlaceholderResolver
@@ -27,6 +28,7 @@ import net.voxelpi.varp.mod.server.message.placeholder.VarpServerInformationPlac
 import net.voxelpi.varp.mod.server.message.placeholder.VarpServerPlayerPlaceholderResolver
 import net.voxelpi.varp.mod.server.message.placeholder.WarpPlaceholderResolver
 import net.voxelpi.varp.mod.server.message.placeholder.WarpStatePlaceholderResolver
+import net.voxelpi.varp.repository.Repository
 import net.voxelpi.varp.tree.Folder
 import net.voxelpi.varp.tree.Root
 import net.voxelpi.varp.tree.Warp
@@ -128,6 +130,14 @@ interface VarpMessages {
         @Receiver receiver: Audience,
         @Placeholder("repository_id") repositoryId: String,
         @Placeholder("repository_type") repositoryType: String,
+    )
+
+    @Message("repository.mounted")
+    fun sendRepositoryMounted(
+        @Receiver receiver: Audience,
+        @Placeholder("mount_location") mountLocation: NodeParentPath,
+        @Placeholder("repository") repository: Repository,
+        @Placeholder("repository_path") repositoryPath: NodeParentPath,
     )
 
     // endregion
@@ -381,6 +391,8 @@ interface VarpMessages {
                     weightedPlaceholderResolver(Warp::class.java, WarpPlaceholderResolver, 1)
                     weightedPlaceholderResolver(Folder::class.java, FolderPlaceholderResolver, 1)
                     weightedPlaceholderResolver(Root::class.java, RootPlaceholderResolver, 1)
+
+                    weightedPlaceholderResolver(Repository::class.java, RepositoryPlaceholderResolver, 1)
                 }
                 .create(this::class.java.classLoader)
         }

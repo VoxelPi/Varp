@@ -7,11 +7,11 @@ import net.voxelpi.varp.mod.server.command.VarpModCommandArguments
 import org.incendo.cloud.CommandManager
 import org.incendo.cloud.kotlin.extension.buildAndRegister
 
-object MountsCommand : VarpCommand {
+object MountCommand : VarpCommand {
 
     override fun register(manager: CommandManager<out VarpCommandSourceStack>) {
         manager.buildAndRegister("varp", aliases = arrayOf("warpmanager", "wm")) {
-            literal("mounts")
+            literal("mount")
 
             handler { context ->
                 val messages = context[VarpModCommandArguments.MESSAGE_SERVICE]

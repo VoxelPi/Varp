@@ -6,10 +6,10 @@ import net.voxelpi.varp.mod.server.command.commands.CreateCommand
 import net.voxelpi.varp.mod.server.command.commands.DeleteCommand
 import net.voxelpi.varp.mod.server.command.commands.InfoCommand
 import net.voxelpi.varp.mod.server.command.commands.ListCommand
-import net.voxelpi.varp.mod.server.command.commands.MountsCommand
+import net.voxelpi.varp.mod.server.command.commands.MountCommand
 import net.voxelpi.varp.mod.server.command.commands.MoveCommand
 import net.voxelpi.varp.mod.server.command.commands.ReloadCommand
-import net.voxelpi.varp.mod.server.command.commands.RepositoriesCommand
+import net.voxelpi.varp.mod.server.command.commands.RepositoryCommand
 import net.voxelpi.varp.mod.server.command.commands.TeleportationLogCommand
 import net.voxelpi.varp.mod.server.command.commands.WarpCommand
 import org.incendo.cloud.CommandManager
@@ -25,10 +25,10 @@ interface VarpCommandService {
         DeleteCommand.register(commandManager)
         InfoCommand.register(commandManager)
         ListCommand.register(commandManager)
-        MountsCommand.register(commandManager)
+        MountCommand.register(commandManager)
         MoveCommand.register(commandManager)
         ReloadCommand.register(commandManager)
-        RepositoriesCommand.register(commandManager)
+        RepositoryCommand.register(commandManager)
         TeleportationLogCommand.register(commandManager)
         WarpCommand.register(commandManager)
     }

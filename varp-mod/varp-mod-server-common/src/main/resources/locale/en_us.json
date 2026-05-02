@@ -1,5 +1,5 @@
 {
-  "prefix": " <b><color:#99e550>ᴠᴀʀᴘ</color> <gray>▎</gray></b><reset>",
+    "prefix": " <b><color:#99e550>VARP</color></b><reset>",
 
   "info": [
     "<prefix> The server is running <yellow>varp-<platform></yellow>",
@@ -43,7 +43,9 @@
       "header": "<prefix> There are currently <color:#fbf236><repositories></color> <color:aqua>repositories</color> loaded:",
       "entry_with_mounts": "  <gray>-</gray> <color:aqua><repository_id></color> <gray>[<repository_type>]</gray> mounted at <color:#fbf236><repository_mounts></color>",
       "entry_without_mounts": "  <gray>-</gray> <color:aqua><repository_id></color> <gray>[<repository_type>]</gray>"
-    }
+    },
+    "mounted": "<prefix> You have <green>mounted</green> the repository <yellow><repository_id></yellow> <gray>@</gray> <repository_path> at <color:#fbf236><mount_location></color>",
+    "unmounted": "<prefix> You have <red>unmounted</red> the repository <yellow><repository_id></yellow> from <color:#fbf236><mount_location></color>"
   },
 
   "mount": {
