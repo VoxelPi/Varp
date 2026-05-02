@@ -3,7 +3,6 @@ package net.voxelpi.varp.mod.server.actor
 import net.kyori.adventure.audience.Audience
 import net.voxelpi.varp.exception.tree.FolderAlreadyExistsException
 import net.voxelpi.varp.exception.tree.FolderNotFoundException
-import net.voxelpi.varp.exception.tree.NodeParentNotFoundException
 import net.voxelpi.varp.exception.tree.WarpAlreadyExistsException
 import net.voxelpi.varp.exception.tree.WarpNotFoundException
 import net.voxelpi.varp.mod.server.VarpServerImpl
@@ -16,7 +15,6 @@ import net.voxelpi.varp.tree.path.FolderPath
 import net.voxelpi.varp.tree.path.WarpPath
 import net.voxelpi.varp.tree.state.FolderState
 import net.voxelpi.varp.tree.state.WarpState
-import org.incendo.cloud.exception.NoPermissionException
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
