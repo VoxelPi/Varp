@@ -356,7 +356,7 @@ public class Compositor(
 
         // Unmount all mounts that are part of the folder.
         val removedMounts = mounts.values.filter { path.isSubPathOf(it.path) }
-        mounts -= removedMounts.map(CompositorMount::path)
+        mounts -= removedMounts.map(CompositorMount::path).toSet()
 
         // Remove folder from registry.
         val state = registry.delete(path)
@@ -551,7 +551,7 @@ public class Compositor(
 
                 // Unmount all mounts that are part of the folder.
                 val removedMounts = mounts.values.filter { src.isSubPathOf(it.path) }
-                mounts -= removedMounts.map(CompositorMount::path)
+                mounts -= removedMounts.map(CompositorMount::path).toSet()
                 for (mount in mounts.values) {
                     eventScope.post(CompositorRepositoryUnmountEvent(this, mount.repository, mount.path))
                 }
