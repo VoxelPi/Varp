@@ -31,8 +31,16 @@ public data class WarpPath(
             return NodeParentPath.parse("/${matcher.group(1)}").getOrThrow()
         }
 
+    override fun isSubpathOf(other: NodeParentPath): Boolean {
+        return value.startsWith(other.value)
+    }
+
+    override fun isProperSubpathOf(other: NodeParentPath): Boolean {
+        return isSubpathOf(other) // A warp path can never be equal to a parent path.
+    }
+
     override fun relativeTo(path: NodeParentPath): WarpPath? {
-        if (!path.isSubPathOf(this)) {
+        if (!this.isSubpathOf(path)) {
             return null
         }
 

@@ -30,12 +30,12 @@ class WarpPathTest {
         val folder3Path = FolderPath("/folder1/folder3/")
 
         // Sub paths.
-        assertTrue(folder1Path.isSubPathOf(path))
-        assertTrue(folder2Path.isSubPathOf(path))
-        assertTrue(RootPath.isSubPathOf(path))
+        assertTrue(path.isSubpathOf(folder1Path))
+        assertTrue(path.isSubpathOf(folder2Path))
+        assertTrue(path.isSubpathOf(RootPath))
 
         // Not sub paths.
-        assertFalse(folder3Path.isSubPathOf(path))
+        assertFalse(path.isSubpathOf(folder3Path))
     }
 
     @Test

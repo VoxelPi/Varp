@@ -29,20 +29,6 @@ public sealed interface NodeParentPath : NodePath {
         return FolderPath("$value$id/")
     }
 
-    /**
-     * Returns if this path is part of or equal to the given [path].
-     */
-    public fun isSubPathOf(path: NodePath): Boolean {
-        return path.value.startsWith(value)
-    }
-
-    /**
-     * Returns if this path is part of but not equal to the given [path].
-     */
-    public fun isTrueSubPathOf(path: NodePath): Boolean {
-        return isSubPathOf(path) && path != this
-    }
-
     override fun relativeTo(path: NodeParentPath): NodeParentPath?
 
     /**

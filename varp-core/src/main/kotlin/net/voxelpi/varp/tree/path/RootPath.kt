@@ -12,9 +12,14 @@ public data object RootPath : NodeParentPath {
     override val level: Int
         get() = 0
 
-    override fun isSubPathOf(path: NodePath): Boolean {
-        // Root is always a sub path.
-        return true
+    override fun isSubpathOf(other: NodeParentPath): Boolean {
+        // The root path can only be a subpath if other is already a root path.
+        return other == RootPath
+    }
+
+    override fun isProperSubpathOf(other: NodeParentPath): Boolean {
+        // A root path can never be a proper subpath of another path.
+        return false
     }
 
     override fun relativeTo(path: NodeParentPath): RootPath? {

@@ -31,8 +31,16 @@ public data class FolderPath(
             return NodeParentPath.parse("/${matcher.group(1)}").getOrThrow()
         }
 
+    override fun isSubpathOf(other: NodeParentPath): Boolean {
+        return value.startsWith(other.value)
+    }
+
+    override fun isProperSubpathOf(other: NodeParentPath): Boolean {
+        return this != other && isSubpathOf(other)
+    }
+
     override fun relativeTo(path: NodeParentPath): NodeParentPath? {
-        if (!path.isSubPathOf(this)) {
+        if (!this.isSubpathOf(path)) {
             return null
         }
 

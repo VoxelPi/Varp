@@ -18,11 +18,11 @@ class RootPathTest {
         val folder2Path = FolderPath("/folder1/folder2/")
 
         // Sub paths
-        assertTrue(RootPath.isSubPathOf(RootPath))
+        assertTrue(RootPath.isSubpathOf(RootPath))
 
         // Not sub paths.
-        assertFalse(folder1Path.isSubPathOf(RootPath))
-        assertFalse(folder2Path.isSubPathOf(RootPath))
+        assertFalse(RootPath.isSubpathOf(folder1Path))
+        assertFalse(RootPath.isSubpathOf(folder2Path))
     }
 
     @Test

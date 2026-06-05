@@ -24,6 +24,16 @@ public sealed interface NodePath {
     public val key: String
 
     /**
+     * Returns `true` if this path is equal to [other] or refers to a descendant node of [other].
+     */
+    public fun isSubpathOf(other: NodeParentPath): Boolean
+
+    /**
+     * Returns `true` if this path refers to a descendant node of [other], excluding equality.
+     */
+    public fun isProperSubpathOf(other: NodeParentPath): Boolean
+
+    /**
      * Returns this path as if the given [path] is the root path.
      * If the given [path] is not a parent of this path, null is returned.
      */
