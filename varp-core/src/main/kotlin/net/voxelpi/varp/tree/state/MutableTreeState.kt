@@ -5,11 +5,11 @@ import net.voxelpi.varp.tree.path.NodeParentPath
 import net.voxelpi.varp.tree.path.RootPath
 import net.voxelpi.varp.tree.path.WarpPath
 
-public data class TreeStateRegistry(
+public data class MutableTreeState(
     override val warps: MutableMap<WarpPath, WarpState> = mutableMapOf(),
     override val folders: MutableMap<FolderPath, FolderState> = mutableMapOf(),
     override var root: FolderState = FolderState.defaultRootState(),
-) : TreeStateRegistryView {
+) : TreeState {
 
     public operator fun set(path: WarpPath, state: WarpState) {
         warps[path] = state
@@ -35,12 +35,12 @@ public data class TreeStateRegistry(
 
     public fun move(src: FolderPath, dst: FolderPath): FolderState? {
         // Move child warps.
-        val childWarps = warps.filter { src.isSubPathOf(it.key) }
+        val childWarps = warps.filter { it.key.isProperSubpathOf(src) }
         warps.keys.removeAll(childWarps.keys)
         warps.putAll(childWarps.map { (path, state) -> WarpPath("${dst}${path.relativeTo(src)!!.toString().substring(1)}") to state }.toMap())
 
         // Move child folders.
-        val childFolders = folders.filter { src.isTrueSubPathOf(it.key) }
+        val childFolders = folders.filter { it.key.isProperSubpathOf(src) }
         folders.keys.removeAll(childFolders.keys)
         folders.putAll(childFolders.map { (path, state) -> FolderPath("${dst}${path.relativeTo(src)!!.toString().substring(1)}") to state }.toMap())
 
@@ -57,10 +57,10 @@ public data class TreeStateRegistry(
 
     public fun delete(path: FolderPath): FolderState? {
         // Delete child warps.
-        warps.keys.removeAll(path::isSubPathOf)
+        warps.keys.removeAll { it.isProperSubpathOf(path) }
 
         // Delete child folders.
-        folders.keys.removeAll(path::isTrueSubPathOf)
+        folders.keys.removeAll { it.isProperSubpathOf(path) }
 
         // Delete folder.
         return folders.remove(path)
@@ -70,5 +70,13 @@ public data class TreeStateRegistry(
         warps.clear()
         folders.clear()
         root = FolderState.defaultRootState()
+    }
+
+    public fun update(newState: TreeState) {
+        warps.clear()
+        folders.clear()
+        root = newState.root
+        folders.putAll(newState.folders)
+        warps.putAll(newState.warps)
     }
 }

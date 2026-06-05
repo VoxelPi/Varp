@@ -17,6 +17,13 @@ public data class FolderState(
     override val properties: Map<String, String> = emptyMap(),
 ) : NodeState {
 
+    public constructor(
+        name: String = "Folder",
+        description: List<String> = emptyList(),
+        tags: Set<String> = emptySet(),
+        properties: Map<String, String> = emptyMap(),
+    ) : this(ComponentTemplate(name), description.map { ComponentTemplate(it) }, tags, properties)
+
     public fun modifiedCopy(action: Builder.() -> Unit): FolderState {
         return Builder(this).apply(action).build()
     }
