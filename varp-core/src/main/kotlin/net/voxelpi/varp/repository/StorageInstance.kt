@@ -8,7 +8,7 @@ import net.voxelpi.varp.tree.state.WarpState
 import java.util.EnumSet
 
 @JvmRecord
-public data class StorageInstance<C : Any, H : Any>(
+public data class StorageInstance<C : Any, H : StorageHandle>(
     public val storage: Storage<C, H>,
     public val config: C,
 ) {

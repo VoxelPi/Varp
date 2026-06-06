@@ -8,7 +8,7 @@ import net.voxelpi.varp.tree.state.WarpState
 import java.util.EnumSet
 import kotlin.reflect.KClass
 
-public interface Storage<C : Any, H : Any> {
+public interface Storage<C : Any, H : StorageHandle> {
 
     public val capabilities: EnumSet<StorageCapability>
 

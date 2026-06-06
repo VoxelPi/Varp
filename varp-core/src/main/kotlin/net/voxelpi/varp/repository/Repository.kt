@@ -37,7 +37,7 @@ import net.voxelpi.varp.tree.state.WarpState
 /**
  * A varp repository. This is the datasource for a varp tree.
  */
-public class Repository<C : Any, H : Any>(
+public class Repository<C : Any, H : StorageHandle>(
     public val id: String,
     public val storage: StorageInstance<C, H>,
 ) : Tree {

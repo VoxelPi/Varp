@@ -3,6 +3,7 @@ package net.voxelpi.varp.repository.sql
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import net.kyori.adventure.key.Key
+import net.voxelpi.event.eventScope
 import net.voxelpi.varp.ComponentTemplate
 import net.voxelpi.varp.MinecraftLocation
 import net.voxelpi.varp.repository.Storage
@@ -68,7 +69,7 @@ object SqlStorage : Storage<SqlStorageConfig, SqlStorageHandle> {
         // Create the connection pool.
         val dataSource = runCatching { HikariDataSource(hikariConfig) }
             .getOrElse { return Result.failure(it) }
-        val handle = SqlStorageHandle(dataSource)
+        val handle = SqlStorageHandle(eventScope(), dataSource)
 
         // Check if the connection was successful.
         if (!handle.isConnected()) {

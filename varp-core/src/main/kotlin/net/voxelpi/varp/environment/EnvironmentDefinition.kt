@@ -2,6 +2,7 @@ package net.voxelpi.varp.environment
 
 import net.voxelpi.varp.compositor.CompositorMount
 import net.voxelpi.varp.repository.Storage
+import net.voxelpi.varp.repository.StorageHandle
 import net.voxelpi.varp.tree.path.NodeParentPath
 import net.voxelpi.varp.tree.path.RootPath
 
@@ -16,7 +17,7 @@ public data class EnvironmentDefinition(
         public val repositories: MutableMap<String, RepositoryDefinition<*, *>> = mutableMapOf()
         public val mounts: MutableMap<NodeParentPath, MountDefinition> = mutableMapOf()
 
-        public fun <C : Any, H : Any> repository(
+        public fun <C : Any, H : StorageHandle> repository(
             id: String,
             storage: Storage<C, H>,
             config: C,
@@ -31,7 +32,7 @@ public data class EnvironmentDefinition(
             return repositoryDefinition
         }
 
-        public fun <H : Any> repository(
+        public fun <H : StorageHandle> repository(
             id: String,
             storage: Storage<Unit, H>,
             builder: RepositoryBuilder.() -> Unit = {},

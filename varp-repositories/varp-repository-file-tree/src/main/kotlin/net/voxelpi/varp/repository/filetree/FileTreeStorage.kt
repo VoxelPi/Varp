@@ -3,6 +3,7 @@ package net.voxelpi.varp.repository.filetree
 import net.kyori.adventure.serializer.configurate4.ConfigurateComponentSerializer
 import net.voxelpi.varp.repository.Storage
 import net.voxelpi.varp.repository.StorageCapability
+import net.voxelpi.varp.repository.StorageHandle
 import net.voxelpi.varp.serializer.configurate.VarpConfigurateSerializers
 import net.voxelpi.varp.tree.path.FolderPath
 import net.voxelpi.varp.tree.path.NodeParentPath
@@ -28,7 +29,7 @@ import kotlin.io.path.name
 import kotlin.io.path.notExists
 import kotlin.reflect.KClass
 
-object FileTreeStorage : Storage<FileTreeStorageConfig, Unit> {
+object FileTreeStorage : Storage<FileTreeStorageConfig, StorageHandle> {
 
     override val capabilities: EnumSet<StorageCapability> = EnumSet.of(
         StorageCapability.RECURSIVE_DELETE,
@@ -41,9 +42,9 @@ object FileTreeStorage : Storage<FileTreeStorageConfig, Unit> {
     const val WARP_FILE_SUFFIX = ".warp"
     const val FOLDER_FILE_NAME = "folder"
 
-    override suspend fun open(config: FileTreeStorageConfig): Result<Unit> = runCatching {}
+    override suspend fun open(config: FileTreeStorageConfig): Result<StorageHandle> = runCatching { StorageHandle.Simple() }
 
-    override suspend fun close(config: FileTreeStorageConfig, handle: Unit): Result<Unit> = runCatching {}
+    override suspend fun close(config: FileTreeStorageConfig, handle: StorageHandle): Result<Unit> = runCatching {}
 
     private fun createLoader(
         config: FileTreeStorageConfig,
@@ -70,7 +71,7 @@ object FileTreeStorage : Storage<FileTreeStorageConfig, Unit> {
 
     override suspend fun loadContent(
         config: FileTreeStorageConfig,
-        handle: Unit,
+        handle: StorageHandle,
     ): Result<TreeState> = runCatching {
         val state = MutableTreeState()
 
@@ -184,21 +185,21 @@ object FileTreeStorage : Storage<FileTreeStorageConfig, Unit> {
 
     override suspend fun createWarp(
         config: FileTreeStorageConfig,
-        handle: Unit,
+        handle: StorageHandle,
         path: WarpPath,
         state: WarpState,
     ): Result<Unit> = saveWarp(config, handle, path, state)
 
     override suspend fun createFolder(
         config: FileTreeStorageConfig,
-        handle: Unit,
+        handle: StorageHandle,
         path: FolderPath,
         state: FolderState,
     ): Result<Unit> = saveFolder(config, handle, path, state)
 
     override suspend fun saveWarp(
         config: FileTreeStorageConfig,
-        handle: Unit,
+        handle: StorageHandle,
         path: WarpPath,
         state: WarpState,
     ): Result<Unit> = runCatching {
@@ -210,7 +211,7 @@ object FileTreeStorage : Storage<FileTreeStorageConfig, Unit> {
 
     override suspend fun saveFolder(
         config: FileTreeStorageConfig,
-        handle: Unit,
+        handle: StorageHandle,
         path: FolderPath,
         state: FolderState,
     ): Result<Unit> = runCatching {
@@ -227,7 +228,7 @@ object FileTreeStorage : Storage<FileTreeStorageConfig, Unit> {
 
     override suspend fun saveRoot(
         config: FileTreeStorageConfig,
-        handle: Unit,
+        handle: StorageHandle,
         state: FolderState,
     ): Result<Unit> = runCatching {
         val directory = RootPath.directory(config)
@@ -243,7 +244,7 @@ object FileTreeStorage : Storage<FileTreeStorageConfig, Unit> {
 
     override suspend fun deleteWarp(
         config: FileTreeStorageConfig,
-        handle: Unit,
+        handle: StorageHandle,
         path: WarpPath,
     ): Result<Unit> = runCatching {
         path.file(config).deleteIfExists()
@@ -252,7 +253,7 @@ object FileTreeStorage : Storage<FileTreeStorageConfig, Unit> {
     @OptIn(ExperimentalPathApi::class)
     override suspend fun deleteFolder(
         config: FileTreeStorageConfig,
-        handle: Unit,
+        handle: StorageHandle,
         path: FolderPath,
     ): Result<Unit> = runCatching {
         path.file(config).deleteIfExists() // Delete folder config.
@@ -261,7 +262,7 @@ object FileTreeStorage : Storage<FileTreeStorageConfig, Unit> {
 
     override suspend fun moveWarp(
         config: FileTreeStorageConfig,
-        handle: Unit,
+        handle: StorageHandle,
         src: WarpPath,
         dst: WarpPath,
     ): Result<Unit> = runCatching {
@@ -272,7 +273,7 @@ object FileTreeStorage : Storage<FileTreeStorageConfig, Unit> {
 
     override suspend fun moveFolder(
         config: FileTreeStorageConfig,
-        handle: Unit,
+        handle: StorageHandle,
         src: FolderPath,
         dst: FolderPath,
     ): Result<Unit> = runCatching {
