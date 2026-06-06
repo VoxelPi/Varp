@@ -13,9 +13,9 @@ import org.incendo.cloud.suggestion.BlockingSuggestionProvider
 
 public class RepositoryParser<C : Any>(
     public val environmentProvider: (context: CommandContext<C>) -> VarpEnvironment,
-) : ArgumentParser<C, Repository>, BlockingSuggestionProvider.Strings<C> {
+) : ArgumentParser<C, Repository<*, *>>, BlockingSuggestionProvider.Strings<C> {
 
-    override fun parse(commandContext: CommandContext<C>, commandInput: CommandInput): ArgumentParseResult<Repository> {
+    override fun parse(commandContext: CommandContext<C>, commandInput: CommandInput): ArgumentParseResult<Repository<*, *>> {
         val input = commandInput.peekString()
         val environment = environmentProvider.invoke(commandContext)
 
@@ -32,14 +32,14 @@ public class RepositoryParser<C : Any>(
     }
 }
 
-public fun <C : Any> repositoryParser(environmentProvider: (context: CommandContext<C>) -> VarpEnvironment): ParserDescriptor<C, Repository> {
+public fun <C : Any> repositoryParser(environmentProvider: (context: CommandContext<C>) -> VarpEnvironment): ParserDescriptor<C, Repository<*, *>> {
     return ParserDescriptor.of(
         RepositoryParser(environmentProvider),
         Repository::class.java,
     )
 }
 
-public fun <C : Any> repositoryParser(): ParserDescriptor<C, Repository> {
+public fun <C : Any> repositoryParser(): ParserDescriptor<C, Repository<*, *>> {
     return ParserDescriptor.of(
         RepositoryParser { it[VarpCommandArguments.ENVIRONMENT] },
         Repository::class.java,

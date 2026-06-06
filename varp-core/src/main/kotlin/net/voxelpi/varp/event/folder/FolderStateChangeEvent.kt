@@ -1,6 +1,6 @@
 package net.voxelpi.varp.event.folder
 
-import net.voxelpi.varp.event.node.NodeStateChangeEvent
+import net.voxelpi.varp.event.node.NodeParentStateChangeEvent
 import net.voxelpi.varp.tree.Folder
 import net.voxelpi.varp.tree.state.FolderState
 
@@ -15,4 +15,4 @@ public data class FolderStateChangeEvent(
     override val folder: Folder,
     override val newState: FolderState,
     override val oldState: FolderState,
-) : FolderEvent, NodeStateChangeEvent
+) : FolderEvent, NodeParentStateChangeEvent

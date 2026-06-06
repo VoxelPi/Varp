@@ -27,7 +27,7 @@ public class WarpParser<C : Any>(
         val path = WarpPath.Companion.parse(input).getOrElse { return ArgumentParseResult.failure(it) }
 
         val tree = treeProvider(commandContext)
-        val warp = tree.resolve(path)
+        val warp = tree[path]
             ?: return ArgumentParseResult.failure(WarpNotFoundException(path))
 
         commandInput.readString()

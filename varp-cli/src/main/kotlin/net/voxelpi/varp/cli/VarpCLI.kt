@@ -12,9 +12,9 @@ import net.voxelpi.varp.cli.coroutine.VarpCLIDispatcher
 import net.voxelpi.varp.environment.VarpEnvironment
 import net.voxelpi.varp.environment.VarpEnvironmentLoader
 import net.voxelpi.varp.environment.model.EnvironmentDefinition
-import net.voxelpi.varp.repository.filetree.FileTreeRepositoryConfig
-import net.voxelpi.varp.repository.filetree.FileTreeRepositoryType
-import net.voxelpi.varp.repository.sql.SqlRepositoryType
+import net.voxelpi.varp.repository.filetree.FileTreeStorage
+import net.voxelpi.varp.repository.filetree.FileTreeStorageConfig
+import net.voxelpi.varp.repository.filetree.FileTreeStorageFormat
 import net.voxelpi.varp.tree.Tree
 import net.voxelpi.varp.tree.path.RootPath
 import org.slf4j.LoggerFactory
@@ -39,7 +39,7 @@ object VarpCLI {
     )
 
     val defaultEnvironment = EnvironmentDefinition.environmentDefinition {
-        repository("default", FileTreeRepositoryType, FileTreeRepositoryConfig(Path("./default/"), "json", false)) {
+        repository("default", FileTreeStorage, FileTreeStorageConfig(Path("./default/"), FileTreeStorageFormat.JSON)) {
             mountedAt(RootPath) {}
         }
     }

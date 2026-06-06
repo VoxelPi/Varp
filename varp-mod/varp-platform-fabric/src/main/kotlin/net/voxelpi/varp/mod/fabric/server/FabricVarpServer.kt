@@ -26,8 +26,8 @@ import net.voxelpi.varp.mod.fabric.util.toIdentifier
 import net.voxelpi.varp.mod.server.VarpServerImpl
 import net.voxelpi.varp.mod.server.api.VarpServer
 import net.voxelpi.varp.mod.server.warp.VarpServerNetworkBridge
-import net.voxelpi.varp.repository.filetree.FileTreeRepositoryConfig
 import net.voxelpi.varp.repository.filetree.FileTreeRepositoryType
+import net.voxelpi.varp.repository.filetree.FileTreeStorageConfig
 import net.voxelpi.varp.tree.path.RootPath
 import java.nio.file.Path
 import java.util.UUID
@@ -65,7 +65,7 @@ class FabricVarpServer(
     override val environmentFilePath = (server.getWorldPath(LevelResource.ROOT) / "data" / "varp" / "server.varp.json").normalize()
 
     private val defaultEnvironment = EnvironmentDefinition.environmentDefinition {
-        repository("default", FileTreeRepositoryType, FileTreeRepositoryConfig(environmentFilePath.parent / "repositories" / "default", "json", false)) {
+        repository("default", FileTreeRepositoryType, FileTreeStorageConfig(environmentFilePath.parent / "repositories" / "default", "json", false)) {
             mountedAt(RootPath) {}
         }
     }

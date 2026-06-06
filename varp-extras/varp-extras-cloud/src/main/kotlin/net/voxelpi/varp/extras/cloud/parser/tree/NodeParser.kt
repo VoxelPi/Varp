@@ -21,7 +21,7 @@ public class NodeParser<C : Any>(
         val path = NodePath.parse(input).getOrElse { return ArgumentParseResult.failure(it) }
 
         val tree = treeProvider(commandContext)
-        val container = tree.resolve(path)
+        val container = tree[path]
             ?: return ArgumentParseResult.failure(NodeNotFoundException(path))
 
         commandInput.readString()

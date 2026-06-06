@@ -74,7 +74,7 @@ public sealed interface NodeParent : Node {
      * @return the warp with the given name.
      */
     public fun childWarp(id: String): Warp? {
-        return tree.resolve(path.warp(id))
+        return tree[path.warp(id)]
     }
 
     /**
@@ -85,7 +85,7 @@ public sealed interface NodeParent : Node {
      * @return the folder with the given name.
      */
     public fun childFolder(id: String): Folder? {
-        return tree.resolve(path.folder(id))
+        return tree[path.folder(id)]
     }
 
     /**
@@ -93,7 +93,7 @@ public sealed interface NodeParent : Node {
      */
     public suspend fun createWarp(id: String, state: WarpState): Result<Warp> {
         val path = this.path.warp(id)
-        return tree.createWarp(path, state)
+        return tree.create(path, state)
     }
 
     /**
@@ -101,6 +101,6 @@ public sealed interface NodeParent : Node {
      */
     public suspend fun createFolder(id: String, state: FolderState): Result<Folder> {
         val path = this.path.folder(id)
-        return tree.createFolder(path, state)
+        return tree.create(path, state)
     }
 }

@@ -10,10 +10,10 @@ import net.voxelpi.varp.VarpBuildParameters
 import net.voxelpi.varp.cli.VarpCLI
 import net.voxelpi.varp.cli.command.VarpCLICommandManager
 import net.voxelpi.varp.cli.command.VarpCLICommandSender
+import net.voxelpi.varp.compositor.MissingMountException
 import net.voxelpi.varp.exception.tree.FolderMoveIntoChildException
 import net.voxelpi.varp.exception.tree.NodeAlreadyExistsException
 import net.voxelpi.varp.exception.tree.NodeNotFoundException
-import net.voxelpi.varp.repository.compositor.MissingMountException
 import org.incendo.cloud.exception.ArgumentParseException
 import org.incendo.cloud.exception.CommandExecutionException
 import org.incendo.cloud.exception.InvalidSyntaxException

@@ -4,16 +4,13 @@ import com.google.gson.FieldNamingPolicy
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
-import net.voxelpi.varp.environment.model.EnvironmentDefinition
-import net.voxelpi.varp.environment.model.RepositoryDefinition
 import net.voxelpi.varp.environment.serializer.PathSerializer
-import net.voxelpi.varp.environment.serializer.RepositoryDefinitionSerializer
-import net.voxelpi.varp.repository.RepositoryType
-import net.voxelpi.varp.repository.compositor.CompositorType
-import net.voxelpi.varp.repository.ephemeral.EphemeralRepositoryType
+import net.voxelpi.varp.environment.serializer.StorageInstanceSerializer
+import net.voxelpi.varp.environment.serializer.StorageSerializer
+import net.voxelpi.varp.repository.EphemeralStorage
+import net.voxelpi.varp.repository.Storage
+import net.voxelpi.varp.repository.StorageInstance
 import net.voxelpi.varp.serializer.gson.varpSerializers
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import kotlin.io.path.absolute
 import kotlin.io.path.bufferedReader
@@ -22,12 +19,8 @@ import kotlin.io.path.notExists
 import kotlin.io.path.writeText
 
 public class VarpEnvironmentLoader internal constructor(
-    repositoryTypes: Collection<RepositoryType<*, *>>,
+    private val storages: Map<String, Storage<*, *>>,
 ) {
-    private val logger: Logger = LoggerFactory.getLogger(VarpEnvironmentLoader::class.java)
-
-    private val repositoryTypes: Map<String, RepositoryType<*, *>> = repositoryTypes.associateBy(RepositoryType<*, *>::id)
-
     public fun load(
         environmentFilePath: Path,
     ): Result<EnvironmentDefinition?> = runCatching {
@@ -97,7 +90,8 @@ public class VarpEnvironmentLoader internal constructor(
             setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
             varpSerializers()
             registerTypeHierarchyAdapter(Path::class.java, PathSerializer(repositoriesDirectory))
-            registerTypeAdapter(RepositoryDefinition::class.java, RepositoryDefinitionSerializer { repositoryTypes })
+            registerTypeHierarchyAdapter(Storage::class.java, StorageSerializer { storages })
+            registerTypeAdapter(StorageInstance::class.java, StorageInstanceSerializer)
         }
     }
 
@@ -105,22 +99,21 @@ public class VarpEnvironmentLoader internal constructor(
         /**
          * The standard repository types.
          */
-        private val STANDARD_TYPES = listOf<RepositoryType<*, *>>(
-            EphemeralRepositoryType,
-            CompositorType,
+        private val STANDARD_TYPES = mapOf<String, Storage<*, *>>(
+            "ephemeral" to EphemeralStorage,
         )
 
         /**
          * Creates a new loader with the default repository types already registered.
          */
-        public fun withStandardTypes(types: Collection<RepositoryType<*, *>>): VarpEnvironmentLoader {
+        public fun withStandardTypes(types: Map<String, Storage<*, *>>): VarpEnvironmentLoader {
             return VarpEnvironmentLoader(STANDARD_TYPES + types)
         }
 
         /**
          * Creates a new loader builder without any preregistered repository types.
          */
-        public fun withoutStandardTypes(types: Collection<RepositoryType<*, *>>): VarpEnvironmentLoader {
+        public fun withoutStandardTypes(types: Map<String, Storage<*, *>>): VarpEnvironmentLoader {
             return VarpEnvironmentLoader(types)
         }
     }

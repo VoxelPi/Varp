@@ -29,7 +29,7 @@ object CopyCommand {
                 val id = context.optional<String>("id").getOrNull()
 
                 runBlocking {
-                    node.copy(destination, id).getOrThrow()
+                    node.copyInto(destination, id).getOrThrow()
                 }
             }
         }

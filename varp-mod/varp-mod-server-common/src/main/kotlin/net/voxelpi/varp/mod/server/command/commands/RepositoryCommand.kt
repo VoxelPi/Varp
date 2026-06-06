@@ -37,7 +37,7 @@ object RepositoryCommand : VarpCommand {
                     if (mounts.isEmpty()) {
                         messages.sendRepositoryListEntryWithoutMounts(sender, repository.id, repository.type.id)
                     } else {
-                        val mountsText = mounts.joinToString(",") { it.path.toString() }
+                        val mountsText = mounts.joinToString(",") { it.targetPath.toString() }
                         messages.sendRepositoryListEntryWithMounts(sender, repository.id, repository.type.id, mountsText)
                     }
                 }

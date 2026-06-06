@@ -1,6 +1,7 @@
 package net.voxelpi.varp.mod.client.warp
 
 import net.voxelpi.event.post
+import net.voxelpi.varp.DuplicatesStrategy
 import net.voxelpi.varp.event.folder.FolderCreateEvent
 import net.voxelpi.varp.event.folder.FolderDeleteEvent
 import net.voxelpi.varp.event.folder.FolderPathChangeEvent
@@ -37,12 +38,11 @@ import net.voxelpi.varp.mod.network.protocol.serverbound.VarpServerboundModifyFo
 import net.voxelpi.varp.mod.network.protocol.serverbound.VarpServerboundModifyRootStatePacket
 import net.voxelpi.varp.mod.network.protocol.serverbound.VarpServerboundModifyWarpPathPacket
 import net.voxelpi.varp.mod.network.protocol.serverbound.VarpServerboundModifyWarpStatePacket
-import net.voxelpi.varp.option.OptionsContext
 import net.voxelpi.varp.tree.path.FolderPath
 import net.voxelpi.varp.tree.path.WarpPath
 import net.voxelpi.varp.tree.state.FolderState
-import net.voxelpi.varp.tree.state.TreeStateRegistry
-import net.voxelpi.varp.tree.state.TreeStateRegistryView
+import net.voxelpi.varp.tree.state.MutableTreeState
+import net.voxelpi.varp.tree.state.TreeState
 import net.voxelpi.varp.tree.state.WarpState
 
 class ClientRepositoryImpl(
@@ -51,9 +51,9 @@ class ClientRepositoryImpl(
     id: String,
 ) : ClientRepository(id) {
 
-    private val registry: TreeStateRegistry = TreeStateRegistry()
+    private val registry: MutableTreeState = MutableTreeState()
 
-    override val registryView: TreeStateRegistryView
+    override val registryView: TreeState
         get() = registry
 
     override val active: Boolean
@@ -99,12 +99,12 @@ class ClientRepositoryImpl(
         return Result.success(Unit)
     }
 
-    override suspend fun move(src: WarpPath, dst: WarpPath, options: OptionsContext): Result<Unit> {
+    override suspend fun move(src: WarpPath, dst: WarpPath, duplicatesStrategy: DuplicatesStrategy): Result<Unit> {
         clientNetworkHandler.sendServerboundPacket(VarpServerboundModifyWarpPathPacket(src, dst))
         return Result.success(Unit)
     }
 
-    override suspend fun move(src: FolderPath, dst: FolderPath, options: OptionsContext): Result<Unit> {
+    override suspend fun move(src: FolderPath, dst: FolderPath, duplicatesStrategy: DuplicatesStrategy): Result<Unit> {
         clientNetworkHandler.sendServerboundPacket(VarpServerboundModifyFolderPathPacket(src, dst))
         return Result.success(Unit)
     }

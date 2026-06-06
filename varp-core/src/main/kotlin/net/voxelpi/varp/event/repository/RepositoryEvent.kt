@@ -11,5 +11,5 @@ public interface RepositoryEvent : VarpEvent {
     /**
      * The affected repository.
      */
-    public val repository: Repository
+    public val repository: Repository<*, *>
 }

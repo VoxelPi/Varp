@@ -3,7 +3,9 @@ package net.voxelpi.varp.tree
 import net.voxelpi.varp.tree.path.RootPath
 import net.voxelpi.varp.tree.state.FolderState
 
-public class Root internal constructor(
+@ConsistentCopyVisibility
+@JvmRecord
+public data class Root internal constructor(
     override val tree: Tree,
 ) : NodeParent {
 
@@ -17,15 +19,12 @@ public class Root internal constructor(
      * The state of the root folder.
      */
     override val state: FolderState
-        get() = tree.rootState()
+        get() = tree.state.root
 
     /**
      * Modifies the state of the root folder.
      */
     override suspend fun modify(state: FolderState): Result<FolderState> {
-        tree.rootState(state).getOrElse {
-            return Result.failure(it)
-        }
-        return Result.success(state)
+        return tree.update(RootPath, state)
     }
 }

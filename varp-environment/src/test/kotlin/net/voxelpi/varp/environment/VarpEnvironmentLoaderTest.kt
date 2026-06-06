@@ -1,8 +1,6 @@
 package net.voxelpi.varp.environment
 
-import net.voxelpi.varp.environment.model.EnvironmentDefinition
-import net.voxelpi.varp.repository.ephemeral.EphemeralRepositoryConfig
-import net.voxelpi.varp.repository.ephemeral.EphemeralRepositoryType
+import net.voxelpi.varp.repository.EphemeralStorage
 import net.voxelpi.varp.tree.path.RootPath
 import kotlin.io.path.Path
 import kotlin.test.Test
@@ -13,12 +11,12 @@ class VarpEnvironmentLoaderTest {
     @Test
     fun `test save to string`() {
         val definition = EnvironmentDefinition.environmentDefinition {
-            repository("default", EphemeralRepositoryType, EphemeralRepositoryConfig) {
+            repository("default", EphemeralStorage) {
                 mountedAt(RootPath) {}
             }
         }
 
-        val loader = VarpEnvironmentLoader.withStandardTypes(emptyList())
+        val loader = VarpEnvironmentLoader.withStandardTypes(emptyMap())
         val actual = loader.saveToString(definition, Path(".")).getOrThrow()
         println(actual)
     }
@@ -26,11 +24,11 @@ class VarpEnvironmentLoaderTest {
     @Test
     fun `test cycle`() {
         val definition = EnvironmentDefinition.environmentDefinition {
-            repository("default", EphemeralRepositoryType, EphemeralRepositoryConfig) {
+            repository("default", EphemeralStorage) {
                 mountedAt(RootPath) {}
             }
         }
-        val loader = VarpEnvironmentLoader.withStandardTypes(emptyList())
+        val loader = VarpEnvironmentLoader.withStandardTypes(emptyMap())
 
         val serialized = loader.saveToJson(definition, Path(".")).getOrThrow()
         val actual = loader.loadFromJson(serialized, Path(".")).getOrThrow()

@@ -34,7 +34,7 @@ object MoveCommand {
                 val moveMounts = !context.flags().isPresent("direct")
 
                 runBlocking {
-                    node.move(destination, id, listOf(MoveMountsOptions assign moveMounts)).getOrThrow()
+                    node.moveInto(destination, id, listOf(MoveMountsOptions assign moveMounts)).getOrThrow()
                 }
             }
         }

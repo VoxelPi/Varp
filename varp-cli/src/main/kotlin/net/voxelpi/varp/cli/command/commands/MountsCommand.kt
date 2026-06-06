@@ -3,8 +3,8 @@ package net.voxelpi.varp.cli.command.commands
 import kotlinx.coroutines.runBlocking
 import net.voxelpi.event.annotation.Subscribe
 import net.voxelpi.varp.cli.command.CommandsRegistrationEvent
+import net.voxelpi.varp.compositor.CompositorMount
 import net.voxelpi.varp.extras.cloud.parser.path.nodeParentPathParser
-import net.voxelpi.varp.repository.compositor.CompositorMount
 import net.voxelpi.varp.tree.path.NodeParentPath
 import org.incendo.cloud.description.Description
 import org.incendo.cloud.kotlin.extension.buildAndRegister
@@ -21,7 +21,7 @@ object MountsCommand {
 
         commandManager.buildAndRegister("mounts", Description.description("Lists all loaded mounts")) {
             handler { context ->
-                val mountsList = cli.environment.compositor.mounts().joinToString(", ") { "${it.sourcePath} of \"${it.repository.id}\" at ${it.path}" }
+                val mountsList = cli.environment.compositor.mounts().joinToString(", ") { "${it.sourcePath} of \"${it.repository.id}\" at ${it.targetPath}" }
                 context.sender().sendMessage("The following ${cli.environment.compositor.mounts().size} mounts are loaded: $mountsList")
             }
 
@@ -67,7 +67,7 @@ object MountsCommand {
             literal("remove")
             required("mount_path", nodeParentPathParser()) {
                 suggestionProvider = SuggestionProvider.blockingStrings { context, input ->
-                    cli.environment.compositor.mounts().map(CompositorMount::path).map(NodeParentPath::toString)
+                    cli.environment.compositor.mounts().map(CompositorMount::targetPath).map(NodeParentPath::toString)
                 }
             }
 
@@ -82,10 +82,10 @@ object MountsCommand {
 
                 runBlocking {
                     cli.environment.compositor.modifyMounts {
-                        unregister(mount.path)
+                        unregister(mount.targetPath)
                     }
                 }
-                context.sender().sendMessage("Removed mount to ${mount.sourcePath} of repository \"${mount.repository.id}\" at ${mount.path}")
+                context.sender().sendMessage("Removed mount to ${mount.sourcePath} of repository \"${mount.repository.id}\" at ${mount.targetPath}")
             }
         }
     }

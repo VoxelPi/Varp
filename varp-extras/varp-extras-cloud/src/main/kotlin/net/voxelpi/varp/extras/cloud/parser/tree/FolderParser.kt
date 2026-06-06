@@ -27,7 +27,7 @@ public class FolderParser<C : Any>(
         val path = FolderPath.parse(input).getOrElse { return ArgumentParseResult.failure(it) }
 
         val tree = treeProvider(commandContext)
-        val folder = tree.resolve(path)
+        val folder = tree[path]
             ?: return ArgumentParseResult.failure(FolderNotFoundException(path))
 
         commandInput.readString()

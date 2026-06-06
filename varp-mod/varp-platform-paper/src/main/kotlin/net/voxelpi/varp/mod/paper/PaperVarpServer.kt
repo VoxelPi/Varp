@@ -17,8 +17,9 @@ import net.voxelpi.varp.mod.paper.player.PaperVarpServerPlayerService
 import net.voxelpi.varp.mod.server.VarpServerImpl
 import net.voxelpi.varp.mod.server.api.VarpServer
 import net.voxelpi.varp.mod.server.warp.VarpServerNetworkBridge
-import net.voxelpi.varp.repository.filetree.FileTreeRepositoryConfig
-import net.voxelpi.varp.repository.filetree.FileTreeRepositoryType
+import net.voxelpi.varp.repository.filetree.FileTreeStorage
+import net.voxelpi.varp.repository.filetree.FileTreeStorageConfig
+import net.voxelpi.varp.repository.filetree.FileTreeStorageFormat
 import net.voxelpi.varp.tree.path.RootPath
 import org.bukkit.Server
 import org.bukkit.plugin.ServicePriority
@@ -26,7 +27,6 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
 import java.util.UUID
-import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.div
 
@@ -62,7 +62,7 @@ class PaperVarpServer(
     override val environmentFilePath = plugin.dataPath / "data" / "server.varp.json"
 
     private val defaultEnvironment = EnvironmentDefinition.environmentDefinition {
-        repository("default", FileTreeRepositoryType, FileTreeRepositoryConfig(environmentFilePath.parent / "repositories" / "default", "json", false)) {
+        repository("default", FileTreeStorage, FileTreeStorageConfig(environmentFilePath.parent / "repositories" / "default", FileTreeStorageFormat.JSON)) {
             mountedAt(RootPath) {}
         }
     }

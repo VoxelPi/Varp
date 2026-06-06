@@ -20,7 +20,7 @@ object MountCommand : VarpCommand {
 
                 messages.sendMountListHeader(context.sender(), mounts.size)
                 for (mount in mounts) {
-                    messages.sendMountListEntry(context.sender(), mount.path.toString(), mount.repository.id, mount.sourcePath.toString())
+                    messages.sendMountListEntry(context.sender(), mount.targetPath.toString(), mount.repository.id, mount.sourcePath.toString())
                 }
             }
 

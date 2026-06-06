@@ -5,7 +5,7 @@ import net.voxelpi.varp.tree.Tree
 import net.voxelpi.varp.tree.path.FolderPath
 import net.voxelpi.varp.tree.path.WarpPath
 import net.voxelpi.varp.tree.state.FolderState
-import net.voxelpi.varp.tree.state.TreeStateRegistryView
+import net.voxelpi.varp.tree.state.TreeState
 import net.voxelpi.varp.tree.state.WarpState
 
 /**
@@ -22,7 +22,7 @@ data class VarpClientboundSyncTreePacket(
     val warps: Map<WarpPath, WarpState>,
 ) : VarpClientboundPacket {
 
-    constructor(treeStateRegistry: TreeStateRegistryView) : this(treeStateRegistry.root, treeStateRegistry.folders, treeStateRegistry.warps)
+    constructor(treeStateRegistry: TreeState) : this(treeStateRegistry.root, treeStateRegistry.folders, treeStateRegistry.warps)
 
-    constructor(tree: Tree) : this(tree.repository.registryView)
+    constructor(tree: Tree) : this(tree.state)
 }

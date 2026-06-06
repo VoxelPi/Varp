@@ -1,6 +1,6 @@
 package net.voxelpi.varp.event.root
 
-import net.voxelpi.varp.event.node.NodeStateChangeEvent
+import net.voxelpi.varp.event.node.NodeParentStateChangeEvent
 import net.voxelpi.varp.tree.Root
 import net.voxelpi.varp.tree.state.FolderState
 
@@ -15,4 +15,4 @@ public data class RootStateChangeEvent(
     override val root: Root,
     override val newState: FolderState,
     override val oldState: FolderState,
-) : RootEvent, NodeStateChangeEvent
+) : RootEvent, NodeParentStateChangeEvent

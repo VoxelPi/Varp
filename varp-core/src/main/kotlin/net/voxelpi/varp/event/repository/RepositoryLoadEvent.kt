@@ -4,5 +4,5 @@ import net.voxelpi.varp.repository.Repository
 
 @JvmRecord
 public data class RepositoryLoadEvent(
-    override val repository: Repository,
+    override val repository: Repository<*, *>,
 ) : RepositoryEvent

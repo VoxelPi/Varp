@@ -1,6 +1,7 @@
 package net.voxelpi.varp.mod.server.actor
 
 import net.kyori.adventure.audience.Audience
+import net.voxelpi.varp.compositor.MissingMountException
 import net.voxelpi.varp.exception.tree.FolderAlreadyExistsException
 import net.voxelpi.varp.exception.tree.FolderNotFoundException
 import net.voxelpi.varp.exception.tree.NodeParentNotFoundException
@@ -9,7 +10,6 @@ import net.voxelpi.varp.exception.tree.WarpNotFoundException
 import net.voxelpi.varp.mod.server.VarpServerImpl
 import net.voxelpi.varp.mod.server.api.VarpPermissions
 import net.voxelpi.varp.mod.server.entity.VarpServerEntityImpl
-import net.voxelpi.varp.repository.compositor.MissingMountException
 import net.voxelpi.varp.tree.Folder
 import net.voxelpi.varp.tree.Warp
 import net.voxelpi.varp.tree.path.FolderPath
