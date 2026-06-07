@@ -15,4 +15,14 @@ dependencies {
     compileOnlyApi(libs.bundles.configurate.core)
     compileOnlyApi(libs.bundles.configurate.formats)
     compileOnlyApi(libs.adventure.text.minimessage)
+
+    testImplementation(libs.kotlin.stdlib)
+    testImplementation(libs.kotlin.reflect)
+    testImplementation(libs.kotlinx.coroutines.core)
+    testImplementation(libs.event)
+    testImplementation(libs.bundles.adventure)
+    testImplementation(libs.bundles.configurate.core)
+    testImplementation(libs.bundles.configurate.formats)
+    testImplementation(libs.adventure.text.minimessage)
+    testImplementation(libs.adventure.serializer.configurate4)
 }

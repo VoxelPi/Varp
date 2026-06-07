@@ -27,6 +27,7 @@ import kotlin.io.path.deleteRecursively
 import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.isDirectory
+import kotlin.io.path.isRegularFile
 import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.name
 import kotlin.io.path.notExists
@@ -48,8 +49,8 @@ object FileTreeStorage : Storage<FileTreeStorageConfig, StorageHandle> {
         config.dataDirectory().createDirectories()
         config.tempDirectory().createDirectories()
 
-        // Create root file if it does not already exist.
-        if (RootPath.file(config).notExists()) {
+        // Create root state if it does not already exist.
+        if (RootPath.file(config).notExists() || !RootPath.file(config).isRegularFile()) {
             RootPath.file(config).writeNodeState(config, FolderState.defaultRootState())
         }
 
@@ -63,51 +64,72 @@ object FileTreeStorage : Storage<FileTreeStorageConfig, StorageHandle> {
         }
     }
 
-    private fun createLoader(
-        config: FileTreeStorageConfig,
-        path: Path,
-    ): AbstractConfigurationLoader<*> {
-        return config.format.provider().apply {
-            defaultOptions { options ->
-                options.serializers { builder ->
-                    builder.registerAll(
-                        ConfigurateComponentSerializer.builder().apply {
-                            // if (componentSerializer != null) {
-                            //     scalarSerializer(componentSerializer)
-                            //     outputStringComponents(true)
-                            // }
-                        }.build().serializers()
-                    )
-                    builder.registerAll(VarpConfigurateSerializers.serializers)
-                    builder.registerAnnotatedObjects(objectMapperFactory())
-                }
-            }
-            path(path)
-        }.build()
-    }
-
     override suspend fun loadTree(
         config: FileTreeStorageConfig,
         handle: StorageHandle,
     ): Result<TreeState> = runCatching {
         val state = MutableTreeState()
 
-        // Create the data directory if it does not already exist.
-        if (!config.dataDirectory().isDirectory()) {
-            config.dataDirectory().createDirectories()
-        }
-
-        // Create root file if it does not already exist.
-        if (RootPath.file(config).notExists()) {
+        // Create the root state, if it not already exists.
+        config.dataDirectory().createDirectories()
+        if (RootPath.file(config).notExists() || !RootPath.file(config).isRegularFile()) {
             RootPath.file(config).writeNodeState(config, FolderState.defaultRootState())
         }
 
-        // Load content.
-        val rootState = loadRoot(config, config.path).getOrThrow()
-        val (warps, folders) = loadContainerContent(config, RootPath, config.path).getOrThrow()
-        state.root = rootState
-        state.warps += warps
-        state.folders += folders
+        // Read the root state.
+        state.root = RootPath.file(config).readFolderState(config)
+
+        // Load all content warps & folders.
+        val scanQueue = ArrayDeque<Pair<NodeParentPath, Path>>(listOf(Pair(RootPath, config.dataDirectory())))
+        while (scanQueue.isNotEmpty()) {
+            val (parentPath, parentDirectory) = scanQueue.removeFirst()
+            for (entry in parentDirectory.listDirectoryEntries()) {
+                when {
+                    entry.isDirectory() -> {
+                        // Construct the folder path.
+                        val folderId = entry.name // The id of the folder is the name of the filesystem folder.
+                        val folderPath = parentPath.folder(folderId)
+
+                        // Read the folder state.
+                        val folderConfig = folderPath.file(config)
+                        if (folderConfig.notExists() || !folderConfig.isRegularFile()) {
+                            throw IllegalStateException("Missing folder state file '$folderConfig'")
+                        }
+                        val folderState: FolderState = folderConfig.readFolderState(config)
+
+                        // Register the folder in the tree state.
+                        state.folders[folderPath] = folderState
+
+                        // Queue the content of this directory to be scanned.
+                        scanQueue.addLast(Pair(folderPath, entry))
+                    }
+                    entry.isRegularFile() -> {
+                        // Ignore folder state file.
+                        if (entry.name == "$FOLDER_FILE_NAME${config.format.extension}") {
+                            continue
+                        }
+
+                        // Fail on unknown content.
+                        if (!entry.name.endsWith("$WARP_FILE_SUFFIX${config.format.extension}")) {
+                            throw IllegalStateException("Unsupported file type '${entry.normalize().absolutePathString()}'")
+                        }
+
+                        // Construct the warp path.
+                        val warpId = entry.name.removeSuffix("$WARP_FILE_SUFFIX${config.format.extension}") // The id of the warp is the filename without the extension.
+                        val warpPath = parentPath.warp(warpId)
+
+                        // Read the warp state.
+                        val warpState: WarpState = entry.readWarpState(config)
+
+                        // Register the warp in the tree state.
+                        state.warps[warpPath] = warpState
+                    }
+                    else -> {
+                        throw IllegalStateException("Unsupported entry type '${entry.normalize().absolutePathString()}'")
+                    }
+                }
+            }
+        }
 
         return@runCatching state
     }
@@ -130,10 +152,10 @@ object FileTreeStorage : Storage<FileTreeStorageConfig, StorageHandle> {
             updateRoot(config, handle, state.root)
 
             for ((path, state) in state.folders) {
-                updateFolder(config, handle, path, state).getOrThrow()
+                createFolder(config, handle, path, state).getOrThrow()
             }
             for ((path, state) in state.warps) {
-                updateWarp(config, handle, path, state).getOrThrow()
+                createWarp(config, handle, path, state).getOrThrow()
             }
         } catch (exception: Exception) {
             // Delete incomplete new state.
@@ -245,12 +267,35 @@ object FileTreeStorage : Storage<FileTreeStorageConfig, StorageHandle> {
         Files.move(srcPath, dstPath)
     }
 
+    private fun createLoader(
+        config: FileTreeStorageConfig,
+        path: Path,
+    ): AbstractConfigurationLoader<*> {
+        return config.format.provider().apply {
+            defaultOptions { options ->
+                options.serializers { builder ->
+                    builder.registerAll(
+                        ConfigurateComponentSerializer.builder().apply {
+                            // if (componentSerializer != null) {
+                            //     scalarSerializer(componentSerializer)
+                            //     outputStringComponents(true)
+                            // }
+                        }.build().serializers()
+                    )
+                    builder.registerAll(VarpConfigurateSerializers.serializers)
+                    builder.registerAnnotatedObjects(objectMapperFactory())
+                }
+            }
+            path(path)
+        }.build()
+    }
+
     private fun WarpPath.file(config: FileTreeStorageConfig): Path {
-        return parent.directory(config).resolve("$id$WARP_FILE_SUFFIX${config.format.extension}")
+        return parent.directory(config) / "$id$WARP_FILE_SUFFIX${config.format.extension}"
     }
 
     private fun NodeParentPath.file(config: FileTreeStorageConfig): Path {
-        return directory(config).resolve("$FOLDER_FILE_NAME${config.format.extension}")
+        return directory(config) / "$FOLDER_FILE_NAME${config.format.extension}"
     }
 
     private fun NodeParentPath.directory(config: FileTreeStorageConfig): Path {
@@ -265,98 +310,20 @@ object FileTreeStorage : Storage<FileTreeStorageConfig, StorageHandle> {
     }
 
     private fun Path.writeNodeState(config: FileTreeStorageConfig, state: NodeState) {
-        createDirectories()
+        parent.createDirectories()
         val loader = createLoader(config, this)
         val node = loader.createNode()
         node.set(state)
         loader.save(node)
     }
 
-    private fun loadContainerContent(
-        config: FileTreeStorageConfig,
-        parent: NodeParentPath,
-        path: Path,
-    ): Result<Pair<Map<WarpPath, WarpState>, Map<FolderPath, FolderState>>> {
-        val warps = mutableMapOf<WarpPath, WarpState>()
-        val folders = mutableMapOf<FolderPath, FolderState>()
-
-        for (file in path.listDirectoryEntries("*$WARP_FILE_SUFFIX${config.format.extension}")) {
-            // Load child warp state.
-            val (warpPath, warpState) = loadWarp(config, parent, file).getOrElse {
-                return Result.failure(Exception("Unable to load warp state data \"${file.toAbsolutePath()}\": ${it.message}"))
-            }
-            warps[warpPath] = warpState
-        }
-
-        for (folder in Files.newDirectoryStream(path) { file -> Files.isDirectory(file) }) {
-            // Load child folder state.
-            val (folderPath, folderState) = loadFolder(config, parent, folder).getOrElse {
-                return Result.failure(Exception("Unable to load folder state data \"${folder.toAbsolutePath()}\": ${it.message}"))
-            }
-            folders[folderPath] = folderState
-
-            // Load child folder children.
-            val (childWarps, childFolders) = loadContainerContent(config, folderPath, folder).getOrElse {
-                return Result.failure(it)
-            }
-            warps.putAll(childWarps)
-            folders.putAll(childFolders)
-        }
-
-        return Result.success(Pair(warps, folders))
+    private fun Path.readWarpState(config: FileTreeStorageConfig): WarpState {
+        val node = createLoader(config, this).load()
+        return node.get() ?: throw Exception("invalid warp state in '${normalize().absolutePathString()}'")
     }
 
-    private fun loadWarp(
-        config: FileTreeStorageConfig,
-        parent: NodeParentPath,
-        path: Path,
-    ): Result<Pair<WarpPath, WarpState>> {
-        return runCatching {
-            check(Files.exists(path)) { "Warp configuration missing ($path)" }
-
-            val node = createLoader(config, path).load()
-
-            val name = path.name.removeSuffix("$WARP_FILE_SUFFIX${config.format.extension}")
-            val state: WarpState = node.get() ?: throw Exception("invalid warp state ($path)")
-
-            Pair(parent.warp(name), state)
-        }
-    }
-
-    private fun loadFolder(
-        config: FileTreeStorageConfig,
-        parent: NodeParentPath,
-        path: Path,
-    ): Result<Pair<FolderPath, FolderState>> {
-        return runCatching {
-            check(Files.isDirectory(path)) { "Path doesn't lead to a folder ($path)" }
-
-            val folderConfig = path.resolve(FOLDER_FILE_NAME + config.format.extension)
-            check(Files.exists(path)) { "Folder configuration missing ($path)" }
-
-            val node = createLoader(config, folderConfig).load()
-
-            val name = path.name
-            val state: FolderState = node.get() ?: throw Exception("invalid folder state ($path)")
-
-            Pair(parent.folder(name), state)
-        }
-    }
-
-    private fun loadRoot(
-        config: FileTreeStorageConfig,
-        path: Path,
-    ): Result<FolderState> {
-        return runCatching {
-            check(Files.isDirectory(path)) { "Path doesn't lead to a folder ($path)" }
-
-            val moduleConfig = path.resolve(FOLDER_FILE_NAME + config.format.extension)
-            check(Files.exists(path)) { "Root configuration missing ($path)" }
-
-            val node = createLoader(config, moduleConfig).load()
-            val state: FolderState = node.get() ?: throw Exception("invalid module state ($path)")
-
-            state
-        }
+    private fun Path.readFolderState(config: FileTreeStorageConfig): FolderState {
+        val node = createLoader(config, this).load()
+        return node.get() ?: throw Exception("invalid folder state '${normalize().absolutePathString()}'")
     }
 }
