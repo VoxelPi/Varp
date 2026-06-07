@@ -1,6 +1,7 @@
 package net.voxelpi.varp.tree
 
 import net.voxelpi.event.EventScope
+import net.voxelpi.event.EventScopeProvider
 import net.voxelpi.varp.DuplicatesStrategy
 import net.voxelpi.varp.tree.path.FolderPath
 import net.voxelpi.varp.tree.path.NodeChildPath
@@ -12,11 +13,11 @@ import net.voxelpi.varp.tree.state.FolderState
 import net.voxelpi.varp.tree.state.TreeState
 import net.voxelpi.varp.tree.state.WarpState
 
-public interface Tree {
+public interface Tree : EventScopeProvider {
 
     public val state: TreeState
 
-    public val eventScope: EventScope
+    public override val eventScope: EventScope
 
     /**
      * The root of the node tree (the "/" folder)
