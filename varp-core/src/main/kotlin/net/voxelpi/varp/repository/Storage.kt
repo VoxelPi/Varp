@@ -12,7 +12,7 @@ public interface Storage<C : Any, H : StorageHandle> {
 
     public val capabilities: EnumSet<StorageCapability>
 
-    public val configType: KClass<*>
+    public val configType: KClass<C>
 
     public suspend fun open(config: C): Result<H>
 

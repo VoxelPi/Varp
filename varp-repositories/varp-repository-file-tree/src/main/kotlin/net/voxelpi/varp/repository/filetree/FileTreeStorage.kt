@@ -36,7 +36,7 @@ object FileTreeStorage : Storage<FileTreeStorageConfig, StorageHandle> {
         StorageCapability.RECURSIVE_MOVE,
     )
 
-    override val configType: KClass<*>
+    override val configType: KClass<FileTreeStorageConfig>
         get() = FileTreeStorageConfig::class
 
     const val WARP_FILE_SUFFIX = ".warp"

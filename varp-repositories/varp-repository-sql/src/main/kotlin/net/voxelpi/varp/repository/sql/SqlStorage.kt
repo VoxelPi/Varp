@@ -40,7 +40,7 @@ object SqlStorage : Storage<SqlStorageConfig, SqlStorageHandle> {
         StorageCapability.RECURSIVE_MOVE,
     )
 
-    override val configType: KClass<*>
+    override val configType: KClass<SqlStorageConfig>
         get() = SqlStorageConfig::class
 
     override suspend fun open(config: SqlStorageConfig): Result<SqlStorageHandle> = runCatching {

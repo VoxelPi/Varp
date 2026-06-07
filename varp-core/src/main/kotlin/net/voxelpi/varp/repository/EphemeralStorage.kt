@@ -19,7 +19,7 @@ public object EphemeralStorage : Storage<Unit, StorageHandle> {
         StorageCapability.RECURSIVE_MOVE,
     )
 
-    override val configType: KClass<*>
+    override val configType: KClass<Unit>
         get() = Unit::class
 
     override suspend fun open(config: Unit): Result<StorageHandle> = runCatching { StorageHandle.Simple() }
