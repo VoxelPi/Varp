@@ -44,15 +44,6 @@ public class Repository<C : Any, H : StorageHandle>(
 
     public constructor(id: String, storage: Storage<C, H>, config: C) : this(id, StorageInstance(storage, config))
 
-    /**
-     * The storage handle of this repository. Is null if the repository is currently closed.
-     */
-    private var handle: H? = null
-
-    private fun handleOrThrow(): H {
-        return handle ?: throw IllegalStateException("Storage is closed for repository '$id'")
-    }
-
     public override val state: TreeState
         field = MutableTreeState()
 
@@ -61,34 +52,23 @@ public class Repository<C : Any, H : StorageHandle>(
     /**
      * Opens the storage instance of this repository.
      */
-    internal suspend fun open(): Result<Unit> = runCatching {
-        this.handle = storage.storage.open(storage.config).getOrThrow()
+    public suspend fun open(): Result<Unit> = runCatching {
+        storage.open().getOrThrow()
     }
 
     /**
      * Closes the storage instance of this repository.
      */
-    internal suspend fun close(): Result<Unit> = runCatching {
-        val handle = this.handle ?: run {
-            throw IllegalStateException("Storage is already closed for repository '$id'")
-        }
-        storage.storage.close(storage.config, handle)
-        this.handle = null
+    public suspend fun close(): Result<Unit> = runCatching {
+        storage.close().getOrThrow()
     }
-
-    /**
-     * Returns if the storage of this repository is currently open, meaning that it is ready to load / store data.
-     */
-    public val isOpen: Boolean
-        get() = handle != null
 
     /**
      * Reloads the content of the repository.
      * The implementation should also post a [net.voxelpi.varp.event.repository.RepositoryLoadEvent] to the tree event bus.
      */
     public suspend fun load(): Result<Unit> = runCatching {
-        val handle = handleOrThrow()
-        val newState = storage.loadContent(handle).getOrThrow()
+        val newState = storage.loadTree().getOrThrow()
 
         // Update state.
         state.update(newState)
@@ -113,8 +93,7 @@ public class Repository<C : Any, H : StorageHandle>(
         }
 
         // Update storage.
-        val handle = handleOrThrow()
-        storage.createWarp(handle, path, state).getOrThrow()
+        storage.createWarp(path, state).getOrThrow()
 
         // Update state.
         this.state[path] = state
@@ -138,8 +117,7 @@ public class Repository<C : Any, H : StorageHandle>(
         }
 
         // Update storage.
-        val handle = handleOrThrow()
-        storage.createFolder(handle, path, state).getOrThrow()
+        storage.createFolder(path, state).getOrThrow()
 
         // Update state.
         this.state[path] = state
@@ -158,8 +136,7 @@ public class Repository<C : Any, H : StorageHandle>(
         }
 
         // Update storage.
-        val handle = handleOrThrow()
-        storage.saveWarp(handle, path, newState).getOrThrow()
+        storage.updateWarp(path, newState).getOrThrow()
 
         // Update state.
         this.state[path] = newState
@@ -178,8 +155,7 @@ public class Repository<C : Any, H : StorageHandle>(
         }
 
         // Update storage.
-        val handle = handleOrThrow()
-        storage.saveFolder(handle, path, newState).getOrThrow()
+        storage.updateFolder(path, newState).getOrThrow()
 
         // Update state.
         this.state[path] = newState
@@ -195,8 +171,7 @@ public class Repository<C : Any, H : StorageHandle>(
         val previousState = state.root
 
         // Update storage.
-        val handle = handleOrThrow()
-        storage.saveRoot(handle, newState).getOrThrow()
+        storage.updateRoot(newState).getOrThrow()
 
         // Update state.
         this.state[path] = newState
@@ -219,8 +194,7 @@ public class Repository<C : Any, H : StorageHandle>(
         eventScope.post(WarpDeleteEvent(warp))
 
         // Update storage.
-        val handle = handleOrThrow()
-        storage.deleteWarp(handle, path).getOrThrow()
+        storage.deleteWarp(path).getOrThrow()
 
         // Update state.
         this.state.delete(path)
@@ -242,27 +216,10 @@ public class Repository<C : Any, H : StorageHandle>(
         // Post event.
         eventScope.post(FolderDeleteEvent(folder))
 
-        // Update storage & state.
-        val handle = handleOrThrow()
-        if (StorageCapability.RECURSIVE_DELETE !in storage.capabilities) {
-            // We need to manually and recursivly delete the content of the folder before moving the folder itself.
-            // TODO: This should probably be handle more transaction-like
-            val childWarps = state.warps.keys
-            val childFolders = state.folders.keys
-                .filter { it.isSubpathOf(path) }
-                .sortedByDescending { it.value.length }
-                .toSet()
+        // Update storage.
+        storage.deleteFolder(path).getOrThrow()
 
-            for (warp in childWarps) {
-                storage.deleteWarp(handle, warp).getOrThrow()
-            }
-            for (folder in childFolders) {
-                storage.deleteFolder(handle, folder).getOrThrow()
-            }
-            state.warps.keys.removeAll(childWarps)
-            state.folders.keys.removeAll(childFolders)
-        }
-        storage.deleteFolder(handle, path).getOrThrow()
+        // Update state.
         this.state.delete(path)
 
         // Post event.
@@ -292,8 +249,7 @@ public class Repository<C : Any, H : StorageHandle>(
         }
 
         // Update storage.
-        val handle = handleOrThrow()
-        storage.moveWarp(handle, src, dst)
+        storage.moveWarp(src, dst)
 
         TODO()
     }
@@ -321,12 +277,7 @@ public class Repository<C : Any, H : StorageHandle>(
         }
 
         // Update storage.
-        val handle = handleOrThrow()
-        if (StorageCapability.RECURSIVE_MOVE !in storage.capabilities) {
-            // We first need to recursivly move the content of the folder before moving the folder itself.
-            TODO()
-        }
-        storage.moveFolder(handle, src, dst)
+        storage.moveFolder(src, dst)
 
         TODO()
     }

@@ -3,8 +3,6 @@ package net.voxelpi.varp.mod.client.api
 import net.voxelpi.varp.environment.VarpEnvironment
 import net.voxelpi.varp.mod.api.VarpClientInformation
 import net.voxelpi.varp.mod.api.VarpServerInformation
-import net.voxelpi.varp.repository.Repository
-import net.voxelpi.varp.tree.Tree
 import net.voxelpi.varp.tree.Warp
 import net.voxelpi.varp.tree.path.NodeParentPath
 import net.voxelpi.varp.tree.path.RootPath

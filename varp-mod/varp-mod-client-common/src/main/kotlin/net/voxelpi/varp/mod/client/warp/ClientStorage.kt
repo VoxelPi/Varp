@@ -13,7 +13,6 @@ import net.voxelpi.varp.event.warp.WarpDeleteEvent
 import net.voxelpi.varp.event.warp.WarpPathChangeEvent
 import net.voxelpi.varp.event.warp.WarpPostDeleteEvent
 import net.voxelpi.varp.event.warp.WarpStateChangeEvent
-import net.voxelpi.varp.mod.VarpModConstants
 import net.voxelpi.varp.mod.client.VarpClientImpl
 import net.voxelpi.varp.mod.client.network.VarpClientNetworkHandler
 import net.voxelpi.varp.mod.network.protocol.clientbound.VarpClientboundCreateFolderPacket
@@ -26,7 +25,6 @@ import net.voxelpi.varp.mod.network.protocol.clientbound.VarpClientboundUpdateFo
 import net.voxelpi.varp.mod.network.protocol.clientbound.VarpClientboundUpdateRootStatePacket
 import net.voxelpi.varp.mod.network.protocol.clientbound.VarpClientboundUpdateWarpPathPacket
 import net.voxelpi.varp.mod.network.protocol.clientbound.VarpClientboundUpdateWarpStatePacket
-import net.voxelpi.varp.mod.network.protocol.serverbound.VarpServerboundClientInfoPacket
 import net.voxelpi.varp.mod.network.protocol.serverbound.VarpServerboundCreateFolderPacket
 import net.voxelpi.varp.mod.network.protocol.serverbound.VarpServerboundCreateWarpPacket
 import net.voxelpi.varp.mod.network.protocol.serverbound.VarpServerboundDeleteFolderPacket
@@ -37,25 +35,18 @@ import net.voxelpi.varp.mod.network.protocol.serverbound.VarpServerboundModifyRo
 import net.voxelpi.varp.mod.network.protocol.serverbound.VarpServerboundModifyWarpPathPacket
 import net.voxelpi.varp.mod.network.protocol.serverbound.VarpServerboundModifyWarpStatePacket
 import net.voxelpi.varp.repository.Storage
-import net.voxelpi.varp.repository.StorageCapability
 import net.voxelpi.varp.repository.StorageHandle
 import net.voxelpi.varp.tree.path.FolderPath
 import net.voxelpi.varp.tree.path.WarpPath
 import net.voxelpi.varp.tree.state.FolderState
 import net.voxelpi.varp.tree.state.TreeState
 import net.voxelpi.varp.tree.state.WarpState
-import java.util.EnumSet
 import kotlin.reflect.KClass
 
 class ClientStorage(
     private val client: VarpClientImpl,
     private val clientNetworkHandler: VarpClientNetworkHandler,
 ) : Storage<ClientStorageConfig, StorageHandle> {
-
-    override val capabilities: EnumSet<StorageCapability> = EnumSet.of(
-        StorageCapability.RECURSIVE_DELETE,
-        StorageCapability.RECURSIVE_MOVE,
-    )
 
     override val configType: KClass<ClientStorageConfig>
         get() = ClientStorageConfig::class
@@ -77,10 +68,14 @@ class ClientStorage(
         openServerRepositories.remove(config.repositoryId) ?: throw IllegalStateException("Client storage for repository '${config.repositoryId}' is not open")
     }
 
-    override suspend fun loadContent(config: ClientStorageConfig, handle: StorageHandle): Result<TreeState> = runCatching {
+    override suspend fun loadTree(config: ClientStorageConfig, handle: StorageHandle): Result<TreeState> = runCatching {
         // TODO
         // clientNetworkHandler.sendServerboundPacket(VarpServerboundClientInfoPacket(client.version, VarpModConstants.PROTOCOL_VERSION))
         return@runCatching serverRepositoryState[config.repositoryId]!!
+    }
+
+    override suspend fun updateTree(config: ClientStorageConfig, handle: StorageHandle, state: TreeState): Result<Unit> {
+        TODO("Not yet implemented")
     }
 
     override suspend fun createWarp(config: ClientStorageConfig, handle: StorageHandle, path: WarpPath, state: WarpState): Result<Unit> {
@@ -93,17 +88,17 @@ class ClientStorage(
         return Result.success(Unit)
     }
 
-    override suspend fun saveWarp(config: ClientStorageConfig, handle: StorageHandle, path: WarpPath, state: WarpState): Result<Unit> {
+    override suspend fun updateWarp(config: ClientStorageConfig, handle: StorageHandle, path: WarpPath, state: WarpState): Result<Unit> {
         clientNetworkHandler.sendServerboundPacket(VarpServerboundModifyWarpStatePacket(path, state))
         return Result.success(Unit)
     }
 
-    override suspend fun saveFolder(config: ClientStorageConfig, handle: StorageHandle, path: FolderPath, state: FolderState): Result<Unit> {
+    override suspend fun updateFolder(config: ClientStorageConfig, handle: StorageHandle, path: FolderPath, state: FolderState): Result<Unit> {
         clientNetworkHandler.sendServerboundPacket(VarpServerboundModifyFolderStatePacket(path, state))
         return Result.success(Unit)
     }
 
-    override suspend fun saveRoot(config: ClientStorageConfig, handle: StorageHandle, state: FolderState): Result<Unit> {
+    override suspend fun updateRoot(config: ClientStorageConfig, handle: StorageHandle, state: FolderState): Result<Unit> {
         clientNetworkHandler.sendServerboundPacket(VarpServerboundModifyRootStatePacket(state))
         return Result.success(Unit)
     }

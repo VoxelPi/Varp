@@ -7,6 +7,7 @@ import com.google.gson.JsonObject
 import com.google.gson.JsonSerializationContext
 import com.google.gson.JsonSerializer
 import net.voxelpi.varp.repository.Storage
+import net.voxelpi.varp.repository.StorageHandle
 import net.voxelpi.varp.repository.StorageInstance
 import java.lang.reflect.Type
 import kotlin.reflect.full.createType
@@ -31,7 +32,7 @@ internal object StorageInstanceSerializer : JsonSerializer<StorageInstance<*, *>
             ?: context.deserialize(json["config"], storage.configType.createType().javaType)
 
         @Suppress("UNCHECKED_CAST")
-        return (storage as Storage<Any, Any>).createInstance(config)
+        return (storage as Storage<Any, StorageHandle>).createInstance(config)
     }
 
     private fun storageConfigObject(storage: Storage<*, *>): Any? {

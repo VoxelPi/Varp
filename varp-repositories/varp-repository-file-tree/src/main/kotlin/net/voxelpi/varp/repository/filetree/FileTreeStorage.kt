@@ -2,7 +2,6 @@ package net.voxelpi.varp.repository.filetree
 
 import net.kyori.adventure.serializer.configurate4.ConfigurateComponentSerializer
 import net.voxelpi.varp.repository.Storage
-import net.voxelpi.varp.repository.StorageCapability
 import net.voxelpi.varp.repository.StorageHandle
 import net.voxelpi.varp.serializer.configurate.VarpConfigurateSerializers
 import net.voxelpi.varp.tree.path.FolderPath
@@ -11,18 +10,22 @@ import net.voxelpi.varp.tree.path.RootPath
 import net.voxelpi.varp.tree.path.WarpPath
 import net.voxelpi.varp.tree.state.FolderState
 import net.voxelpi.varp.tree.state.MutableTreeState
+import net.voxelpi.varp.tree.state.NodeState
 import net.voxelpi.varp.tree.state.TreeState
 import net.voxelpi.varp.tree.state.WarpState
+import org.slf4j.LoggerFactory
 import org.spongepowered.configurate.kotlin.extensions.get
 import org.spongepowered.configurate.kotlin.objectMapperFactory
 import org.spongepowered.configurate.loader.AbstractConfigurationLoader
 import java.nio.file.Files
 import java.nio.file.Path
-import java.util.EnumSet
 import kotlin.io.path.ExperimentalPathApi
+import kotlin.io.path.absolutePathString
 import kotlin.io.path.createDirectories
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.deleteRecursively
+import kotlin.io.path.div
+import kotlin.io.path.exists
 import kotlin.io.path.isDirectory
 import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.name
@@ -31,10 +34,7 @@ import kotlin.reflect.KClass
 
 object FileTreeStorage : Storage<FileTreeStorageConfig, StorageHandle> {
 
-    override val capabilities: EnumSet<StorageCapability> = EnumSet.of(
-        StorageCapability.RECURSIVE_DELETE,
-        StorageCapability.RECURSIVE_MOVE,
-    )
+    private val logger = LoggerFactory.getLogger(FileTreeStorage::class.java)
 
     override val configType: KClass<FileTreeStorageConfig>
         get() = FileTreeStorageConfig::class
@@ -42,9 +42,26 @@ object FileTreeStorage : Storage<FileTreeStorageConfig, StorageHandle> {
     const val WARP_FILE_SUFFIX = ".warp"
     const val FOLDER_FILE_NAME = "folder"
 
-    override suspend fun open(config: FileTreeStorageConfig): Result<StorageHandle> = runCatching { StorageHandle.Simple() }
+    override suspend fun open(config: FileTreeStorageConfig): Result<StorageHandle> = runCatching {
+        val handle = StorageHandle.Simple()
 
-    override suspend fun close(config: FileTreeStorageConfig, handle: StorageHandle): Result<Unit> = runCatching {}
+        config.dataDirectory().createDirectories()
+        config.tempDirectory().createDirectories()
+
+        // Create root file if it does not already exist.
+        if (RootPath.file(config).notExists()) {
+            RootPath.file(config).writeNodeState(config, FolderState.defaultRootState())
+        }
+
+        return@runCatching handle
+    }
+
+    @OptIn(ExperimentalPathApi::class)
+    override suspend fun close(config: FileTreeStorageConfig, handle: StorageHandle): Result<Unit> = runCatching {
+        if (config.tempDirectory().exists()) {
+            config.tempDirectory().deleteRecursively()
+        }
+    }
 
     private fun createLoader(
         config: FileTreeStorageConfig,
@@ -69,20 +86,20 @@ object FileTreeStorage : Storage<FileTreeStorageConfig, StorageHandle> {
         }.build()
     }
 
-    override suspend fun loadContent(
+    override suspend fun loadTree(
         config: FileTreeStorageConfig,
         handle: StorageHandle,
     ): Result<TreeState> = runCatching {
         val state = MutableTreeState()
 
-        // Create main directory if it does not already exist.
-        if (!config.path.isDirectory()) {
-            config.path.createDirectories()
+        // Create the data directory if it does not already exist.
+        if (!config.dataDirectory().isDirectory()) {
+            config.dataDirectory().createDirectories()
         }
 
         // Create root file if it does not already exist.
         if (RootPath.file(config).notExists()) {
-            saveRoot(config, handle, FolderState.defaultRootState())
+            RootPath.file(config).writeNodeState(config, FolderState.defaultRootState())
         }
 
         // Load content.
@@ -93,6 +110,166 @@ object FileTreeStorage : Storage<FileTreeStorageConfig, StorageHandle> {
         state.folders += folders
 
         return@runCatching state
+    }
+
+    @OptIn(ExperimentalPathApi::class)
+    override suspend fun updateTree(config: FileTreeStorageConfig, handle: StorageHandle, state: TreeState): Result<Unit> = runCatching {
+        val dataPath = config.dataDirectory()
+        val backupPath = config.tempDirectory() / "backup_${System.nanoTime()}"
+        var backupCreated = false
+
+        try {
+            // Move existing state to backup-location.
+            if (dataPath.exists()) {
+                Files.move(dataPath, backupPath)
+                backupCreated = true
+            }
+
+            // Create the new state.
+            dataPath.createDirectories()
+            updateRoot(config, handle, state.root)
+
+            for ((path, state) in state.folders) {
+                updateFolder(config, handle, path, state).getOrThrow()
+            }
+            for ((path, state) in state.warps) {
+                updateWarp(config, handle, path, state).getOrThrow()
+            }
+        } catch (exception: Exception) {
+            // Delete incomplete new state.
+            if (dataPath.isDirectory()) {
+                dataPath.deleteRecursively()
+            }
+
+            // Rollback to the backup, if it exists.
+            if (backupCreated) {
+                runCatching { Files.move(backupPath, dataPath) }.onFailure {
+                    logger.error("Failed to rollback to previous state '${backupPath.normalize().absolutePathString()}'", it)
+                }
+            }
+
+            throw exception
+        }
+
+        // New state is valid, we can therefore delete the backup.
+        if (backupCreated) {
+            try {
+                backupPath.deleteRecursively()
+            } catch (exception: Exception) {
+                logger.warn("Failed to delete backup state '${backupPath.normalize().absolutePathString()}'", exception)
+            }
+        }
+    }
+
+    override suspend fun createWarp(
+        config: FileTreeStorageConfig,
+        handle: StorageHandle,
+        path: WarpPath,
+        state: WarpState,
+    ): Result<Unit> = runCatching {
+        path.file(config).writeNodeState(config, state)
+    }
+
+    override suspend fun createFolder(
+        config: FileTreeStorageConfig,
+        handle: StorageHandle,
+        path: FolderPath,
+        state: FolderState,
+    ): Result<Unit> = runCatching {
+        path.file(config).writeNodeState(config, state)
+    }
+
+    override suspend fun updateWarp(
+        config: FileTreeStorageConfig,
+        handle: StorageHandle,
+        path: WarpPath,
+        state: WarpState,
+    ): Result<Unit> = runCatching {
+        path.file(config).writeNodeState(config, state)
+    }
+
+    override suspend fun updateFolder(
+        config: FileTreeStorageConfig,
+        handle: StorageHandle,
+        path: FolderPath,
+        state: FolderState,
+    ): Result<Unit> = runCatching {
+        path.file(config).writeNodeState(config, state)
+    }
+
+    override suspend fun updateRoot(
+        config: FileTreeStorageConfig,
+        handle: StorageHandle,
+        state: FolderState,
+    ): Result<Unit> = runCatching {
+        RootPath.file(config).writeNodeState(config, state)
+    }
+
+    override suspend fun deleteWarp(
+        config: FileTreeStorageConfig,
+        handle: StorageHandle,
+        path: WarpPath,
+    ): Result<Unit> = runCatching {
+        path.file(config).deleteIfExists()
+    }
+
+    @OptIn(ExperimentalPathApi::class)
+    override suspend fun deleteFolder(
+        config: FileTreeStorageConfig,
+        handle: StorageHandle,
+        path: FolderPath,
+    ): Result<Unit> = runCatching {
+        path.file(config).deleteIfExists() // Delete folder config.
+        path.directory(config).deleteRecursively() // Delete folder recursive.
+    }
+
+    override suspend fun moveWarp(
+        config: FileTreeStorageConfig,
+        handle: StorageHandle,
+        src: WarpPath,
+        dst: WarpPath,
+    ): Result<Unit> = runCatching {
+        val srcPath = src.file(config)
+        val dstPath = dst.file(config)
+        Files.move(srcPath, dstPath)
+    }
+
+    override suspend fun moveFolder(
+        config: FileTreeStorageConfig,
+        handle: StorageHandle,
+        src: FolderPath,
+        dst: FolderPath,
+    ): Result<Unit> = runCatching {
+        val srcPath = src.directory(config)
+        val dstPath = dst.directory(config)
+        Files.move(srcPath, dstPath)
+    }
+
+    private fun WarpPath.file(config: FileTreeStorageConfig): Path {
+        return parent.directory(config).resolve("$id$WARP_FILE_SUFFIX${config.format.extension}")
+    }
+
+    private fun NodeParentPath.file(config: FileTreeStorageConfig): Path {
+        return directory(config).resolve("$FOLDER_FILE_NAME${config.format.extension}")
+    }
+
+    private fun NodeParentPath.directory(config: FileTreeStorageConfig): Path {
+        // Handle root path.
+        if (this is RootPath) {
+            return config.dataDirectory()
+        }
+
+        // Skip the first slash.
+        val relativeFilesystemPath = this.toString().substring(1)
+        return config.dataDirectory() / relativeFilesystemPath
+    }
+
+    private fun Path.writeNodeState(config: FileTreeStorageConfig, state: NodeState) {
+        createDirectories()
+        val loader = createLoader(config, this)
+        val node = loader.createNode()
+        node.set(state)
+        loader.save(node)
     }
 
     private fun loadContainerContent(
@@ -181,122 +358,5 @@ object FileTreeStorage : Storage<FileTreeStorageConfig, StorageHandle> {
 
             state
         }
-    }
-
-    override suspend fun createWarp(
-        config: FileTreeStorageConfig,
-        handle: StorageHandle,
-        path: WarpPath,
-        state: WarpState,
-    ): Result<Unit> = saveWarp(config, handle, path, state)
-
-    override suspend fun createFolder(
-        config: FileTreeStorageConfig,
-        handle: StorageHandle,
-        path: FolderPath,
-        state: FolderState,
-    ): Result<Unit> = saveFolder(config, handle, path, state)
-
-    override suspend fun saveWarp(
-        config: FileTreeStorageConfig,
-        handle: StorageHandle,
-        path: WarpPath,
-        state: WarpState,
-    ): Result<Unit> = runCatching {
-        val loader = createLoader(config, path.file(config))
-        val node = loader.createNode()
-        node.set(state)
-        loader.save(node)
-    }
-
-    override suspend fun saveFolder(
-        config: FileTreeStorageConfig,
-        handle: StorageHandle,
-        path: FolderPath,
-        state: FolderState,
-    ): Result<Unit> = runCatching {
-        val directory = path.directory(config)
-        if (!directory.isDirectory()) {
-            directory.createDirectories()
-        }
-
-        val loader = createLoader(config, path.file(config))
-        val node = loader.createNode()
-        node.set(state)
-        loader.save(node)
-    }
-
-    override suspend fun saveRoot(
-        config: FileTreeStorageConfig,
-        handle: StorageHandle,
-        state: FolderState,
-    ): Result<Unit> = runCatching {
-        val directory = RootPath.directory(config)
-        if (!directory.isDirectory()) {
-            directory.createDirectories()
-        }
-
-        val loader = createLoader(config, RootPath.file(config))
-        val node = loader.createNode()
-        node.set(state)
-        loader.save(node)
-    }
-
-    override suspend fun deleteWarp(
-        config: FileTreeStorageConfig,
-        handle: StorageHandle,
-        path: WarpPath,
-    ): Result<Unit> = runCatching {
-        path.file(config).deleteIfExists()
-    }
-
-    @OptIn(ExperimentalPathApi::class)
-    override suspend fun deleteFolder(
-        config: FileTreeStorageConfig,
-        handle: StorageHandle,
-        path: FolderPath,
-    ): Result<Unit> = runCatching {
-        path.file(config).deleteIfExists() // Delete folder config.
-        path.directory(config).deleteRecursively() // Delete folder recursive.
-    }
-
-    override suspend fun moveWarp(
-        config: FileTreeStorageConfig,
-        handle: StorageHandle,
-        src: WarpPath,
-        dst: WarpPath,
-    ): Result<Unit> = runCatching {
-        val srcPath = src.file(config)
-        val dstPath = dst.file(config)
-        Files.move(srcPath, dstPath)
-    }
-
-    override suspend fun moveFolder(
-        config: FileTreeStorageConfig,
-        handle: StorageHandle,
-        src: FolderPath,
-        dst: FolderPath,
-    ): Result<Unit> = runCatching {
-        val srcPath = src.directory(config)
-        val dstPath = dst.directory(config)
-        Files.move(srcPath, dstPath)
-    }
-
-    private fun WarpPath.file(config: FileTreeStorageConfig): Path {
-        return parent.directory(config).resolve("$id$WARP_FILE_SUFFIX${config.format.extension}")
-    }
-
-    private fun NodeParentPath.file(config: FileTreeStorageConfig): Path {
-        return directory(config).resolve("$FOLDER_FILE_NAME${config.format.extension}")
-    }
-
-    private fun NodeParentPath.directory(config: FileTreeStorageConfig): Path {
-        // Handle root path.
-        if (this is RootPath) {
-            return config.path
-        }
-
-        // Skip the first slash.
-        return config.path.resolve(this.toString().substring(1))
     }
 }

@@ -7,7 +7,6 @@ import net.voxelpi.event.eventScope
 import net.voxelpi.varp.ComponentTemplate
 import net.voxelpi.varp.MinecraftLocation
 import net.voxelpi.varp.repository.Storage
-import net.voxelpi.varp.repository.StorageCapability
 import net.voxelpi.varp.repository.sql.function.ReplaceFunction
 import net.voxelpi.varp.repository.sql.table.FolderTable
 import net.voxelpi.varp.repository.sql.table.WarpTable
@@ -23,6 +22,8 @@ import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.like
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
+import org.jetbrains.exposed.v1.jdbc.batchInsert
+import org.jetbrains.exposed.v1.jdbc.deleteAll
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.insertIgnore
@@ -30,15 +31,9 @@ import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.jdbc.update
 import java.io.IOException
-import java.util.EnumSet
 import kotlin.reflect.KClass
 
 object SqlStorage : Storage<SqlStorageConfig, SqlStorageHandle> {
-
-    override val capabilities: EnumSet<StorageCapability> = EnumSet.of(
-        StorageCapability.RECURSIVE_DELETE,
-        StorageCapability.RECURSIVE_MOVE,
-    )
 
     override val configType: KClass<SqlStorageConfig>
         get() = SqlStorageConfig::class
@@ -102,7 +97,7 @@ object SqlStorage : Storage<SqlStorageConfig, SqlStorageHandle> {
         handle.dataSource.close()
     }
 
-    override suspend fun loadContent(
+    override suspend fun loadTree(
         config: SqlStorageConfig,
         handle: SqlStorageHandle,
     ): Result<TreeState> = runCatching {
@@ -114,7 +109,7 @@ object SqlStorage : Storage<SqlStorageConfig, SqlStorageHandle> {
                     ComponentTemplate(entry[FolderTable.name]),
                     entry[FolderTable.description].split("\n").filter { it.isNotBlank() }.map { ComponentTemplate(it) },
                     entry[FolderTable.tags].split(",").filter { it.isNotBlank() }.toSet(),
-                    entry[FolderTable.properties].split(",").filter { it.contains("=") }.associate {
+                    entry[FolderTable.properties].split("\n").filter { it.contains("=") }.associate {
                         val parts = it.split("=")
                         parts[0] to parts[1]
                     }
@@ -147,6 +142,43 @@ object SqlStorage : Storage<SqlStorageConfig, SqlStorageHandle> {
             }
         }
         return@runCatching treeState
+    }
+
+    override suspend fun updateTree(
+        config: SqlStorageConfig,
+        handle: SqlStorageHandle,
+        state: TreeState,
+    ): Result<Unit> = runCatching {
+        val warps = state.warps.toList()
+        val folders = state.folders.toList() + listOf(Pair(RootPath, state.root))
+
+        transaction {
+            // Delete existing content
+            WarpTable.deleteAll()
+            FolderTable.deleteAll()
+
+            // Create new content.
+            FolderTable.batchInsert(folders) { (path, state) ->
+                this[FolderTable.path] = path.toString()
+                this[FolderTable.name] = state.name.originalMessage
+                this[FolderTable.description] = state.description.joinToString("\n") { it.originalMessage }
+                this[FolderTable.tags] = state.tags.joinToString(",")
+                this[FolderTable.properties] = state.properties.map { "${it.key}=${it.value}" }.joinToString("\n")
+            }
+            WarpTable.batchInsert(warps) { (path, state) ->
+                this[WarpTable.path] = path.toString()
+                this[WarpTable.name] = state.name.originalMessage
+                this[WarpTable.description] = state.description.joinToString("\n") { it.originalMessage }
+                this[WarpTable.tags] = state.tags.joinToString(",")
+                this[WarpTable.properties] = state.properties.map { "${it.key}=${it.value}" }.joinToString("\n")
+                this[WarpTable.world] = state.location.world.toString()
+                this[WarpTable.x] = state.location.x
+                this[WarpTable.y] = state.location.y
+                this[WarpTable.z] = state.location.z
+                this[WarpTable.yaw] = state.location.yaw
+                this[WarpTable.pitch] = state.location.pitch
+            }
+        }
     }
 
     override suspend fun createWarp(
@@ -189,7 +221,7 @@ object SqlStorage : Storage<SqlStorageConfig, SqlStorageHandle> {
         }
     }
 
-    override suspend fun saveWarp(
+    override suspend fun updateWarp(
         config: SqlStorageConfig,
         handle: SqlStorageHandle,
         path: WarpPath,
@@ -211,7 +243,7 @@ object SqlStorage : Storage<SqlStorageConfig, SqlStorageHandle> {
         }
     }
 
-    override suspend fun saveFolder(
+    override suspend fun updateFolder(
         config: SqlStorageConfig,
         handle: SqlStorageHandle,
         path: FolderPath,
@@ -227,7 +259,7 @@ object SqlStorage : Storage<SqlStorageConfig, SqlStorageHandle> {
         }
     }
 
-    override suspend fun saveRoot(
+    override suspend fun updateRoot(
         config: SqlStorageConfig,
         handle: SqlStorageHandle,
         state: FolderState,

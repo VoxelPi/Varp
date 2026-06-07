@@ -75,7 +75,7 @@ public class VarpEnvironment internal constructor() {
                 logger.error("Unable to create mount '$targetPath', unknown repository '${mountDef.repository}'")
                 continue
             }
-            if (!repository.isOpen) {
+            if (!repository.storage.isOpen) {
                 logger.error("Unable to create mount '$targetPath', repository '${mountDef.repository}' failed to open")
                 continue
             }
