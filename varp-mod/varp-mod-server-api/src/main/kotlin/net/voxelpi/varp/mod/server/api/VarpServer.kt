@@ -3,7 +3,7 @@ package net.voxelpi.varp.mod.server.api
 import net.voxelpi.event.EventScope
 import net.voxelpi.varp.compositor.Compositor
 import net.voxelpi.varp.environment.VarpEnvironment
-import net.voxelpi.varp.environment.VarpEnvironmentLoader
+import net.voxelpi.varp.loader.VarpEnvironmentLoader
 import net.voxelpi.varp.mod.api.VarpServerInformation
 import net.voxelpi.varp.mod.server.api.entity.VarpServerEntityService
 import net.voxelpi.varp.mod.server.api.player.VarpServerPlayerService

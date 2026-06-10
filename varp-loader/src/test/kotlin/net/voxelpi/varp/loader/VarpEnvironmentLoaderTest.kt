@@ -1,5 +1,6 @@
-package net.voxelpi.varp.environment
+package net.voxelpi.varp.loader
 
+import net.voxelpi.varp.environment.EnvironmentDefinition
 import net.voxelpi.varp.repository.EphemeralStorage
 import net.voxelpi.varp.tree.path.RootPath
 import kotlin.io.path.Path

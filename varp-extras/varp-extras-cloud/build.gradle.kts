@@ -14,7 +14,6 @@ dependencies {
 
     // Project
     compileOnlyApi(projects.varpCore)
-    compileOnlyApi(projects.varpEnvironment)
 
     // Libraries
     compileOnlyApi(libs.adventure.api)

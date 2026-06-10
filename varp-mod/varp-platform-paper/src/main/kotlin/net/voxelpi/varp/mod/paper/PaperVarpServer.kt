@@ -8,7 +8,7 @@ import net.voxelpi.event.eventScope
 import net.voxelpi.varp.Varp
 import net.voxelpi.varp.environment.EnvironmentDefinition
 import net.voxelpi.varp.environment.VarpEnvironment
-import net.voxelpi.varp.environment.VarpEnvironmentLoader
+import net.voxelpi.varp.loader.VarpEnvironmentLoader
 import net.voxelpi.varp.mod.VarpModConstants
 import net.voxelpi.varp.mod.api.VarpServerInformation
 import net.voxelpi.varp.mod.paper.entity.PaperVarpServerEntityService

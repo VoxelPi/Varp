@@ -1,12 +1,13 @@
-package net.voxelpi.varp.environment
+package net.voxelpi.varp.loader
 
 import com.google.gson.FieldNamingPolicy
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
-import net.voxelpi.varp.environment.serializer.PathSerializer
-import net.voxelpi.varp.environment.serializer.StorageInstanceSerializer
-import net.voxelpi.varp.environment.serializer.StorageSerializer
+import net.voxelpi.varp.environment.EnvironmentDefinition
+import net.voxelpi.varp.loader.serializer.PathSerializer
+import net.voxelpi.varp.loader.serializer.StorageInstanceSerializer
+import net.voxelpi.varp.loader.serializer.StorageSerializer
 import net.voxelpi.varp.repository.EphemeralStorage
 import net.voxelpi.varp.repository.Storage
 import net.voxelpi.varp.repository.StorageInstance

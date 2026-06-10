@@ -11,7 +11,7 @@ import net.voxelpi.varp.cli.console.VarpCLIConsole
 import net.voxelpi.varp.cli.coroutine.VarpCLIDispatcher
 import net.voxelpi.varp.environment.EnvironmentDefinition
 import net.voxelpi.varp.environment.VarpEnvironment
-import net.voxelpi.varp.environment.VarpEnvironmentLoader
+import net.voxelpi.varp.loader.VarpEnvironmentLoader
 import net.voxelpi.varp.repository.filetree.FileTreeStorage
 import net.voxelpi.varp.repository.filetree.FileTreeStorageConfig
 import net.voxelpi.varp.repository.filetree.FileTreeStorageFormat
