@@ -261,7 +261,7 @@ class FabricVarpCreateWarpScreen(
                             yawInput.value.toFloat(),
                             pitchInput.value.toFloat(),
                         )
-                        runBlocking { FabricVarpClientMod.client.tree.createWarp(path, WarpState(location, name)) } // Only sends packet.
+                        runBlocking { FabricVarpClientMod.client.tree.create(path, WarpState(location, name)) } // Only sends packet.
 
                         // Open parent in explorer gui.
                         FabricVarpClientMod.client.openExplorer(parentPath)

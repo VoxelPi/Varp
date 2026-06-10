@@ -52,18 +52,18 @@ abstract class VarpClientNetworkHandler(
     private fun handleClientboundPacket(packet: VarpClientboundPacket): Result<Unit> {
         return runCatching {
             when (packet) {
-                is VarpClientboundCreateFolderPacket -> client.repository.handlePacket(packet)
-                is VarpClientboundCreateWarpPacket -> client.repository.handlePacket(packet)
-                is VarpClientboundDeleteFolderPacket -> client.repository.handlePacket(packet)
-                is VarpClientboundDeleteWarpPacket -> client.repository.handlePacket(packet)
+                is VarpClientboundCreateFolderPacket -> client.tree.handlePacket(packet)
+                is VarpClientboundCreateWarpPacket -> client.tree.handlePacket(packet)
+                is VarpClientboundDeleteFolderPacket -> client.tree.handlePacket(packet)
+                is VarpClientboundDeleteWarpPacket -> client.tree.handlePacket(packet)
                 is VarpClientboundOpenExplorerPacket -> client.openExplorer(packet.path)
                 is VarpClientboundServerInfoPacket -> client.enableBridge(packet.serverInformation())
-                is VarpClientboundSyncTreePacket -> client.repository.handlePacket(packet)
-                is VarpClientboundUpdateFolderPathPacket -> client.repository.handlePacket(packet)
-                is VarpClientboundUpdateFolderStatePacket -> client.repository.handlePacket(packet)
-                is VarpClientboundUpdateRootStatePacket -> client.repository.handlePacket(packet)
-                is VarpClientboundUpdateWarpPathPacket -> client.repository.handlePacket(packet)
-                is VarpClientboundUpdateWarpStatePacket -> client.repository.handlePacket(packet)
+                is VarpClientboundSyncTreePacket -> client.tree.handlePacket(packet)
+                is VarpClientboundUpdateFolderPathPacket -> client.tree.handlePacket(packet)
+                is VarpClientboundUpdateFolderStatePacket -> client.tree.handlePacket(packet)
+                is VarpClientboundUpdateRootStatePacket -> client.tree.handlePacket(packet)
+                is VarpClientboundUpdateWarpPathPacket -> client.tree.handlePacket(packet)
+                is VarpClientboundUpdateWarpStatePacket -> client.tree.handlePacket(packet)
             }
         }
     }

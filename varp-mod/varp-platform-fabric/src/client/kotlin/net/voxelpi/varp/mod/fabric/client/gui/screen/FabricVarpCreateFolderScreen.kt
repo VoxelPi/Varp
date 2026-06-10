@@ -137,7 +137,7 @@ class FabricVarpCreateFolderScreen(
                         val id = idInput.value
                         val path = parentPath.folder(id)
                         val name = ComponentTemplate(nameInput.value)
-                        runBlocking { FabricVarpClientMod.client.tree.createFolder(path, FolderState(name)) } // Only sends packet.
+                        runBlocking { FabricVarpClientMod.client.tree.create(path, FolderState(name)) } // Only sends packet.
 
                         // Open parent in explorer gui.
                         FabricVarpClientMod.client.openExplorer(parentPath)

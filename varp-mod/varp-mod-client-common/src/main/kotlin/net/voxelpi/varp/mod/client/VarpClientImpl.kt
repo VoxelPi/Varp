@@ -4,11 +4,10 @@ import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger
-import net.voxelpi.varp.environment.VarpEnvironment
 import net.voxelpi.varp.mod.api.VarpServerInformation
 import net.voxelpi.varp.mod.client.api.VarpClient
 import net.voxelpi.varp.mod.client.network.VarpClientNetworkHandler
-import net.voxelpi.varp.mod.client.warp.ClientStorage
+import net.voxelpi.varp.mod.client.tree.VarpClientTree
 import net.voxelpi.varp.mod.network.protocol.serverbound.VarpServerboundClientInfoPacket
 import net.voxelpi.varp.mod.network.protocol.serverbound.VarpServerboundTeleportWarpPacket
 import net.voxelpi.varp.tree.Warp
@@ -21,8 +20,7 @@ abstract class VarpClientImpl : VarpClient {
 
     abstract val clientNetworkHandler: VarpClientNetworkHandler
 
-    protected abstract val storage: ClientStorage
-    abstract override val environment: VarpEnvironment
+    abstract override val tree: VarpClientTree
 
     override var serverInfo: VarpServerInformation? = null
         protected set
@@ -44,7 +42,7 @@ abstract class VarpClientImpl : VarpClient {
 
     fun disableBridge() {
         serverInfo = null
-        storage.reset()
+        tree.reset()
         logger.info("Deactivated varp client-server bridge")
     }
 

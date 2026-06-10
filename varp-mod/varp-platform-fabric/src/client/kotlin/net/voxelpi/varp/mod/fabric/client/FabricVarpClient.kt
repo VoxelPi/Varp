@@ -9,12 +9,11 @@ import net.voxelpi.varp.Varp
 import net.voxelpi.varp.mod.VarpModConstants
 import net.voxelpi.varp.mod.api.VarpClientInformation
 import net.voxelpi.varp.mod.client.VarpClientImpl
-import net.voxelpi.varp.mod.client.warp.ClientRepositoryImpl
+import net.voxelpi.varp.mod.client.tree.VarpClientTree
 import net.voxelpi.varp.mod.fabric.FabricVarpMod
 import net.voxelpi.varp.mod.fabric.client.gui.FabricVarpGUIListener
 import net.voxelpi.varp.mod.fabric.client.gui.screen.FabricVarpExplorerScreen
 import net.voxelpi.varp.mod.fabric.client.network.FabricVarpClientNetworkHandler
-import net.voxelpi.varp.tree.Tree
 import net.voxelpi.varp.tree.path.NodeParentPath
 
 class FabricVarpClient : VarpClientImpl() {
@@ -29,14 +28,11 @@ class FabricVarpClient : VarpClientImpl() {
 
     override val clientNetworkHandler: FabricVarpClientNetworkHandler = FabricVarpClientNetworkHandler(this)
 
-    override val repository: ClientRepositoryImpl = ClientRepositoryImpl(this, clientNetworkHandler, "main")
+    override val tree: VarpClientTree = VarpClientTree(this, clientNetworkHandler)
 
-    private val guiRepositoryListener = FabricVarpGUIListener(repository.tree)
+    private val guiRepositoryListener = FabricVarpGUIListener(tree)
 
     val keyBindingService = VarpKeyBindingService(this)
-
-    override val tree: Tree
-        get() = repository.tree
 
     val audience = MinecraftClientAudiences.of().audience()
 

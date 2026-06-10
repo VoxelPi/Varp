@@ -22,7 +22,7 @@ data class VarpClientboundSyncTreePacket(
     val warps: Map<WarpPath, WarpState>,
 ) : VarpClientboundPacket {
 
-    constructor(treeStateRegistry: TreeState) : this(treeStateRegistry.root, treeStateRegistry.folders, treeStateRegistry.warps)
+    constructor(state: TreeState) : this(state.root, state.folders, state.warps)
 
     constructor(tree: Tree) : this(tree.state)
 }

@@ -57,7 +57,7 @@ class FabricVarpGUIListener(
     private fun refreshScreen() {
         val screen = Minecraft.getInstance().screen ?: return
         if (screen is FabricVarpExplorerScreen) {
-            val node = tree.resolve(screen.viewPath)
+            val node = tree[screen.viewPath]
             val newViewPath = node?.path ?: RootPath
             FabricVarpClientMod.client.openExplorer(newViewPath)
         }
@@ -69,14 +69,14 @@ class FabricVarpGUIListener(
             when (path) {
                 is FolderPath -> {
                     if (path.parent == screen.viewPath) {
-                        val node = tree.resolve(screen.viewPath)
+                        val node = tree[screen.viewPath]
                         val newViewPath = node?.path ?: RootPath
                         FabricVarpClientMod.client.openExplorer(newViewPath)
                     }
                 }
                 is WarpPath -> {
                     if (path.parent == screen.viewPath) {
-                        val node = tree.resolve(screen.viewPath)
+                        val node = tree[screen.viewPath]
                         val newViewPath = node?.path ?: RootPath
                         FabricVarpClientMod.client.openExplorer(newViewPath)
                     }

@@ -51,7 +51,7 @@ class ExplorerContentList(
 
         val tree = FabricVarpClientMod.client.tree
 
-        val container = tree.resolve(path) ?: return
+        val container = tree[path] ?: return
 
         for (folder in container.childFolders().sortedBy(NodeChild::id)) {
             child(

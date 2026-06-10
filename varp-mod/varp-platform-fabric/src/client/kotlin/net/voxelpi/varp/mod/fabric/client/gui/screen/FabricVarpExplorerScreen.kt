@@ -109,7 +109,7 @@ class FabricVarpExplorerScreen(
     }
 
     fun changeViewPath(path: NodeParentPath) {
-        changeViewContainer(tree.resolve(path) ?: tree.root)
+        changeViewContainer(tree[path] ?: tree.root)
     }
 
     fun changeViewContainer(parent: NodeParent) {

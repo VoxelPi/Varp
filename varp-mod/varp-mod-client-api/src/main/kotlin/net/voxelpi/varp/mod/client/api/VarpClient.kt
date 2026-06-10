@@ -1,8 +1,8 @@
 package net.voxelpi.varp.mod.client.api
 
-import net.voxelpi.varp.environment.VarpEnvironment
 import net.voxelpi.varp.mod.api.VarpClientInformation
 import net.voxelpi.varp.mod.api.VarpServerInformation
+import net.voxelpi.varp.mod.client.api.tree.ClientTree
 import net.voxelpi.varp.tree.Warp
 import net.voxelpi.varp.tree.path.NodeParentPath
 import net.voxelpi.varp.tree.path.RootPath
@@ -32,7 +32,7 @@ public interface VarpClient {
     /**
      * The varp client environment.
      */
-    public val environment: VarpEnvironment
+    public val tree: ClientTree
 
     /**
      * Opens the varp explorer gui, displaying the content of the container specified by the given [path].
