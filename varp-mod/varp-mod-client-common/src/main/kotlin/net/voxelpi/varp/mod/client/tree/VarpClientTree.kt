@@ -9,6 +9,7 @@ import net.voxelpi.varp.event.folder.FolderPathChangeEvent
 import net.voxelpi.varp.event.folder.FolderPostDeleteEvent
 import net.voxelpi.varp.event.folder.FolderStateChangeEvent
 import net.voxelpi.varp.event.root.RootStateChangeEvent
+import net.voxelpi.varp.event.tree.TreeUpdateEvent
 import net.voxelpi.varp.event.warp.WarpCreateEvent
 import net.voxelpi.varp.event.warp.WarpDeleteEvent
 import net.voxelpi.varp.event.warp.WarpPathChangeEvent
@@ -162,11 +163,11 @@ class VarpClientTree(
         client.logger.debug("Received state sync packet: ${packet.folders.size} folders, ${packet.warps.size} warps.")
 
         // Update state.
+        val previousState = state.copy()
         state.update(MutableTreeState(packet.warps.toMutableMap(), packet.folders.toMutableMap(), packet.root))
 
         // Post load event
-        // TODO: New event. Maybe TreeUpdateEvent?
-        // eventScope.post(RepositoryLoadEvent(this))
+        eventScope.post(TreeUpdateEvent(this, previousState, state))
     }
 
     fun handlePacket(packet: VarpClientboundUpdateFolderPathPacket) {

@@ -9,8 +9,8 @@ import net.voxelpi.varp.event.folder.FolderDeleteEvent
 import net.voxelpi.varp.event.folder.FolderPathChangeEvent
 import net.voxelpi.varp.event.folder.FolderPostDeleteEvent
 import net.voxelpi.varp.event.folder.FolderStateChangeEvent
-import net.voxelpi.varp.event.repository.RepositoryLoadEvent
 import net.voxelpi.varp.event.root.RootStateChangeEvent
+import net.voxelpi.varp.event.tree.TreeUpdateEvent
 import net.voxelpi.varp.event.warp.WarpCreateEvent
 import net.voxelpi.varp.event.warp.WarpDeleteEvent
 import net.voxelpi.varp.event.warp.WarpPathChangeEvent
@@ -50,8 +50,9 @@ public class Repository<C : Any, H : StorageHandle>(
 
     init {
         storage.on { event: StorageEvents.TreeStateChangeEvent ->
+            val previousState = state.copy()
             state.update(event.newState)
-            eventScope.post(RepositoryLoadEvent(this))
+            eventScope.post(TreeUpdateEvent(this, previousState, state))
         }
         storage.on { event: StorageEvents.WarpCreateEvent ->
             state[event.path] = event.state
@@ -112,16 +113,9 @@ public class Repository<C : Any, H : StorageHandle>(
 
     /**
      * Reloads the content of the repository.
-     * The implementation should also post a [net.voxelpi.varp.event.repository.RepositoryLoadEvent] to the tree event bus.
      */
     public suspend fun load(): Result<Unit> = runCatching {
-        val newState = storage.loadTree().getOrThrow()
-
-        // Update state.
-        state.update(newState)
-
-        // Post load event.
-        eventScope.post(RepositoryLoadEvent(this))
+        storage.loadTree().getOrThrow()
     }
 
     public suspend fun update(newState: TreeState): Result<Unit> = runCatching {

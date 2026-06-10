@@ -5,8 +5,8 @@ import net.voxelpi.varp.event.folder.FolderCreateEvent
 import net.voxelpi.varp.event.folder.FolderDeleteEvent
 import net.voxelpi.varp.event.folder.FolderPathChangeEvent
 import net.voxelpi.varp.event.folder.FolderStateChangeEvent
-import net.voxelpi.varp.event.repository.RepositoryLoadEvent
 import net.voxelpi.varp.event.root.RootStateChangeEvent
+import net.voxelpi.varp.event.tree.TreeUpdateEvent
 import net.voxelpi.varp.event.warp.WarpCreateEvent
 import net.voxelpi.varp.event.warp.WarpDeleteEvent
 import net.voxelpi.varp.event.warp.WarpPathChangeEvent
@@ -38,7 +38,7 @@ class VarpServerNetworkBridge(
     }
 
     @Subscribe
-    fun handle(event: RepositoryLoadEvent) {
+    fun handle(event: TreeUpdateEvent) {
         serverNetworkHandler.sendClientboundPacketToAll(VarpClientboundSyncTreePacket(tree))
     }
 

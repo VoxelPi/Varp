@@ -12,8 +12,8 @@ import net.voxelpi.varp.event.folder.FolderPathChangeEvent
 import net.voxelpi.varp.event.folder.FolderPostDeleteEvent
 import net.voxelpi.varp.event.folder.FolderStateChangeEvent
 import net.voxelpi.varp.event.node.NodeParentStateChangeEvent
-import net.voxelpi.varp.event.repository.RepositoryLoadEvent
 import net.voxelpi.varp.event.root.RootStateChangeEvent
+import net.voxelpi.varp.event.tree.TreeUpdateEvent
 import net.voxelpi.varp.event.warp.WarpCreateEvent
 import net.voxelpi.varp.event.warp.WarpDeleteEvent
 import net.voxelpi.varp.event.warp.WarpPathChangeEvent
@@ -65,11 +65,12 @@ public class Compositor(
 
         // Handle any event in a mounted repository.
         // This is also how events are created when performing actions via the compositor.
-        repositoriesEventScope.on { event: RepositoryLoadEvent ->
-            val mounts = mounts().filter { it.repository == event.repository }
+        repositoriesEventScope.on { event: TreeUpdateEvent ->
+            val previousState = state.copy()
+            val mounts = mounts().filter { it.repository == event.tree }
             // TODO: Handle internally.
 
-            eventScope.post(RepositoryLoadEvent(event.repository))
+            eventScope.post(TreeUpdateEvent(this, previousState, state))
         }
         repositoriesEventScope.on { event: WarpCreateEvent ->
             // TODO: Handle cross-mount move.
@@ -313,6 +314,7 @@ public class Compositor(
     }
 
     private fun buildTree(): Result<Unit> = runCatching {
+        val previousTreeState = state.copy()
         state.clear()
 
         if (mounts.isEmpty()) {
@@ -379,7 +381,7 @@ public class Compositor(
             }
         }
 
-        // eventScope.post(RepositoryLoadEvent(this)) // TODO: A tree / compositor load event?
+        eventScope.post(TreeUpdateEvent(this, previousTreeState, state))
         return Result.success(Unit)
     }
 

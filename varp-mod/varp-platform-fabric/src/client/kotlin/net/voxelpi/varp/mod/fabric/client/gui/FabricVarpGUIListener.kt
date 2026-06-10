@@ -6,7 +6,7 @@ import net.voxelpi.varp.event.node.NodeCreateEvent
 import net.voxelpi.varp.event.node.NodePathChangeEvent
 import net.voxelpi.varp.event.node.NodePostDeleteEvent
 import net.voxelpi.varp.event.node.NodeStateChangeEvent
-import net.voxelpi.varp.event.repository.RepositoryLoadEvent
+import net.voxelpi.varp.event.tree.TreeUpdateEvent
 import net.voxelpi.varp.mod.fabric.client.FabricVarpClientMod
 import net.voxelpi.varp.mod.fabric.client.gui.screen.FabricVarpExplorerScreen
 import net.voxelpi.varp.tree.Tree
@@ -50,7 +50,7 @@ class FabricVarpGUIListener(
 
     @Subscribe
     @Suppress("UNUSED_PARAMETER")
-    fun onStateSync(event: RepositoryLoadEvent) {
+    fun onStateSync(event: TreeUpdateEvent) {
         refreshScreen()
     }
 
