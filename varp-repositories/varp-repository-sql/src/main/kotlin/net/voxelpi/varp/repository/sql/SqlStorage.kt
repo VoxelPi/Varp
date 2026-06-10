@@ -35,6 +35,8 @@ import kotlin.reflect.KClass
 
 object SqlStorage : Storage<SqlStorageConfig, SqlStorageHandle> {
 
+    override val id: Key = Key.key("varp", "sql")
+
     override val configType: KClass<SqlStorageConfig>
         get() = SqlStorageConfig::class
 

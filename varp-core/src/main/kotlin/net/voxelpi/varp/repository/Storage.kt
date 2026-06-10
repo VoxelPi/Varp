@@ -1,5 +1,6 @@
 package net.voxelpi.varp.repository
 
+import net.kyori.adventure.key.Key
 import net.voxelpi.varp.tree.path.FolderPath
 import net.voxelpi.varp.tree.path.WarpPath
 import net.voxelpi.varp.tree.state.FolderState
@@ -33,6 +34,11 @@ import kotlin.reflect.KClass
  * @param H the storage handle type created by [open] and passed to subsequent operations.
  */
 public interface Storage<C : Any, H : StorageHandle> {
+
+    /**
+     * The id of this storage.
+     */
+    public val id: Key
 
     /**
      * The configuration type supported by this storage implementation.

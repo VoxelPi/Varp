@@ -1,5 +1,6 @@
 package net.voxelpi.varp.repository
 
+import net.kyori.adventure.key.Key
 import net.voxelpi.event.EventScope
 import net.voxelpi.event.EventScopeProvider
 import net.voxelpi.event.eventScope
@@ -39,6 +40,12 @@ public data class StorageInstance<C : Any, H : StorageHandle>(
      */
     public var handle: H? = null
         private set
+
+    /**
+     * The id of the storage.
+     */
+    public val id: Key
+        get() = storage.id
 
     /**
      * The event scope of this instance, forwards events from the storage handle.

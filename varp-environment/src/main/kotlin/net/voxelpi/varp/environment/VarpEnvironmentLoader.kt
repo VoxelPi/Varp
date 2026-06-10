@@ -19,8 +19,10 @@ import kotlin.io.path.notExists
 import kotlin.io.path.writeText
 
 public class VarpEnvironmentLoader internal constructor(
-    private val storages: Map<String, Storage<*, *>>,
+    storages: List<Storage<*, *>>,
 ) {
+    private val storages = storages.associateBy { it.id }
+
     public fun load(
         environmentFilePath: Path,
     ): Result<EnvironmentDefinition?> = runCatching {
@@ -99,21 +101,21 @@ public class VarpEnvironmentLoader internal constructor(
         /**
          * The standard repository types.
          */
-        private val STANDARD_TYPES = mapOf<String, Storage<*, *>>(
-            "ephemeral" to EphemeralStorage,
+        private val STANDARD_TYPES = listOf<Storage<*, *>>(
+            EphemeralStorage,
         )
 
         /**
          * Creates a new loader with the default repository types already registered.
          */
-        public fun withStandardTypes(types: Map<String, Storage<*, *>>): VarpEnvironmentLoader {
+        public fun withStandardTypes(types: List<Storage<*, *>>): VarpEnvironmentLoader {
             return VarpEnvironmentLoader(STANDARD_TYPES + types)
         }
 
         /**
          * Creates a new loader builder without any preregistered repository types.
          */
-        public fun withoutStandardTypes(types: Map<String, Storage<*, *>>): VarpEnvironmentLoader {
+        public fun withoutStandardTypes(types: List<Storage<*, *>>): VarpEnvironmentLoader {
             return VarpEnvironmentLoader(types)
         }
     }

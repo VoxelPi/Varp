@@ -16,7 +16,7 @@ class VarpEnvironmentLoaderTest {
             }
         }
 
-        val loader = VarpEnvironmentLoader.withStandardTypes(emptyMap())
+        val loader = VarpEnvironmentLoader.withStandardTypes(emptyList())
         val actual = loader.saveToString(definition, Path(".")).getOrThrow()
         println(actual)
     }
@@ -28,7 +28,7 @@ class VarpEnvironmentLoaderTest {
                 mountedAt(RootPath) {}
             }
         }
-        val loader = VarpEnvironmentLoader.withStandardTypes(emptyMap())
+        val loader = VarpEnvironmentLoader.withStandardTypes(emptyList())
 
         val serialized = loader.saveToJson(definition, Path(".")).getOrThrow()
         val actual = loader.loadFromJson(serialized, Path(".")).getOrThrow()

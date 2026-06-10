@@ -1,5 +1,6 @@
 package net.voxelpi.varp.repository
 
+import net.kyori.adventure.key.Key
 import net.voxelpi.varp.tree.path.FolderPath
 import net.voxelpi.varp.tree.path.WarpPath
 import net.voxelpi.varp.tree.state.FolderState
@@ -12,6 +13,8 @@ import kotlin.reflect.KClass
  * A repository storage that doesn't actually store the repository data.
  */
 public object EphemeralStorage : Storage<Unit, StorageHandle> {
+
+    override val id: Key = Key.key("varp", "ephemeral")
 
     override val configType: KClass<Unit>
         get() = Unit::class

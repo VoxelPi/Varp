@@ -1,5 +1,6 @@
 package net.voxelpi.varp.mod.client.warp
 
+import net.kyori.adventure.key.Key
 import net.voxelpi.event.post
 import net.voxelpi.varp.event.folder.FolderCreateEvent
 import net.voxelpi.varp.event.folder.FolderDeleteEvent
@@ -47,6 +48,8 @@ class ClientStorage(
     private val client: VarpClientImpl,
     private val clientNetworkHandler: VarpClientNetworkHandler,
 ) : Storage<ClientStorageConfig, StorageHandle> {
+
+    override val id: Key = Key.key("varp", "client")
 
     override val configType: KClass<ClientStorageConfig>
         get() = ClientStorageConfig::class

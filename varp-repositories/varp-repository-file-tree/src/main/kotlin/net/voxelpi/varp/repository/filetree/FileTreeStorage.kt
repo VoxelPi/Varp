@@ -1,5 +1,6 @@
 package net.voxelpi.varp.repository.filetree
 
+import net.kyori.adventure.key.Key
 import net.kyori.adventure.serializer.configurate4.ConfigurateComponentSerializer
 import net.voxelpi.varp.repository.Storage
 import net.voxelpi.varp.repository.StorageHandle
@@ -34,6 +35,8 @@ import kotlin.io.path.notExists
 import kotlin.reflect.KClass
 
 object FileTreeStorage : Storage<FileTreeStorageConfig, StorageHandle> {
+
+    override val id: Key = Key.key("varp", "file_tree")
 
     private val logger = LoggerFactory.getLogger(FileTreeStorage::class.java)
 
