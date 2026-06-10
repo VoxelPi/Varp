@@ -1,5 +1,9 @@
 package net.voxelpi.varp.repository
 
+import net.voxelpi.event.EventScope
+import net.voxelpi.event.EventScopeProvider
+import net.voxelpi.event.eventScope
+import net.voxelpi.event.post
 import net.voxelpi.varp.tree.path.FolderPath
 import net.voxelpi.varp.tree.path.WarpPath
 import net.voxelpi.varp.tree.state.FolderState
@@ -29,12 +33,17 @@ import net.voxelpi.varp.tree.state.WarpState
 public data class StorageInstance<C : Any, H : StorageHandle>(
     public val storage: Storage<C, H>,
     public val config: C,
-) {
+) : EventScopeProvider {
     /**
      * The currently open storage handle, or `null` if this instance is closed.
      */
     public var handle: H? = null
         private set
+
+    /**
+     * The event scope of this instance, forwards events from the storage handle.
+     */
+    public override val eventScope: EventScope = eventScope()
 
     /**
      * Returns the currently open handle.
@@ -63,6 +72,7 @@ public data class StorageInstance<C : Any, H : StorageHandle>(
     public suspend fun open(): Result<H> = runCatching {
         check(!isOpen) { "Storage is already open" }
         val handle = storage.open(config).getOrThrow()
+        handle.eventScope.register(eventScope)
         this.handle = handle
         return@runCatching handle
     }
@@ -79,6 +89,7 @@ public data class StorageInstance<C : Any, H : StorageHandle>(
     public suspend fun close(): Result<Unit> {
         val handle = handleOrThrow()
         this.handle = null
+        handle.eventScope.unregister(eventScope)
         return storage.close(config, handle)
     }
 
@@ -89,9 +100,11 @@ public data class StorageInstance<C : Any, H : StorageHandle>(
      *
      * @return the full persisted tree state, including the root folder, folders, and warps.
      */
-    public suspend fun loadTree(): Result<TreeState> {
+    public suspend fun loadTree(): Result<TreeState> = runCatching {
         val handle = handleOrThrow()
-        return storage.loadTree(config, handle)
+        val state = storage.loadTree(config, handle).getOrThrow()
+        eventScope.post(StorageEvents.TreeStateChangeEvent(state))
+        return@runCatching state
     }
 
     /**
@@ -102,9 +115,10 @@ public data class StorageInstance<C : Any, H : StorageHandle>(
      * The underlying storage is expected to apply the replacement safely: if the operation fails, the
      * storage should not be left in a partially replaced state.
      */
-    public suspend fun updateTree(state: TreeState): Result<Unit> {
+    public suspend fun updateTree(state: TreeState): Result<Unit> = runCatching {
         val handle = handleOrThrow()
-        return storage.updateTree(config, handle, state)
+        storage.updateTree(config, handle, state).getOrThrow()
+        eventScope.post(StorageEvents.TreeStateChangeEvent(state))
     }
 
     /**
@@ -113,9 +127,10 @@ public data class StorageInstance<C : Any, H : StorageHandle>(
      * Callers must guarantee that this instance is open, that the parent folder exists, and that no
      * other warp already exists at [path].
      */
-    public suspend fun createWarp(path: WarpPath, state: WarpState): Result<Unit> {
+    public suspend fun createWarp(path: WarpPath, state: WarpState): Result<Unit> = runCatching {
         val handle = handleOrThrow()
-        return storage.createWarp(config, handle, path, state)
+        storage.createWarp(config, handle, path, state).getOrThrow()
+        eventScope.post(StorageEvents.WarpCreateEvent(path, state))
     }
 
     /**
@@ -124,9 +139,10 @@ public data class StorageInstance<C : Any, H : StorageHandle>(
      * Callers must guarantee that this instance is open, that the parent folder exists, and that no
      * other folder already exists at [path].
      */
-    public suspend fun createFolder(path: FolderPath, state: FolderState): Result<Unit> {
+    public suspend fun createFolder(path: FolderPath, state: FolderState): Result<Unit> = runCatching {
         val handle = handleOrThrow()
-        return storage.createFolder(config, handle, path, state)
+        storage.createFolder(config, handle, path, state).getOrThrow()
+        eventScope.post(StorageEvents.FolderCreateEvent(path, state))
     }
 
     /**
@@ -134,9 +150,10 @@ public data class StorageInstance<C : Any, H : StorageHandle>(
      *
      * Callers must guarantee that this instance is open and that a warp exists at [path].
      */
-    public suspend fun updateWarp(path: WarpPath, state: WarpState): Result<Unit> {
+    public suspend fun updateWarp(path: WarpPath, state: WarpState): Result<Unit> = runCatching {
         val handle = handleOrThrow()
-        return storage.updateWarp(config, handle, path, state)
+        storage.updateWarp(config, handle, path, state).getOrThrow()
+        eventScope.post(StorageEvents.WarpStateChangeEvent(path, state))
     }
 
     /**
@@ -144,9 +161,10 @@ public data class StorageInstance<C : Any, H : StorageHandle>(
      *
      * Callers must guarantee that this instance is open and that a folder exists at [path].
      */
-    public suspend fun updateFolder(path: FolderPath, state: FolderState): Result<Unit> {
+    public suspend fun updateFolder(path: FolderPath, state: FolderState): Result<Unit> = runCatching {
         val handle = handleOrThrow()
-        return storage.updateFolder(config, handle, path, state)
+        storage.updateFolder(config, handle, path, state).getOrThrow()
+        eventScope.post(StorageEvents.FolderStateChangeEvent(path, state))
     }
 
     /**
@@ -154,9 +172,10 @@ public data class StorageInstance<C : Any, H : StorageHandle>(
      *
      * Callers must guarantee that this instance is open.
      */
-    public suspend fun updateRoot(state: FolderState): Result<Unit> {
+    public suspend fun updateRoot(state: FolderState): Result<Unit> = runCatching {
         val handle = handleOrThrow()
-        return storage.updateRoot(config, handle, state)
+        storage.updateRoot(config, handle, state).getOrThrow()
+        eventScope.post(StorageEvents.RootStateChangeEvent(state))
     }
 
     /**
@@ -166,9 +185,10 @@ public data class StorageInstance<C : Any, H : StorageHandle>(
      *
      * If the operation fails, the underlying storage is expected to keep the warp available.
      */
-    public suspend fun deleteWarp(path: WarpPath): Result<Unit> {
+    public suspend fun deleteWarp(path: WarpPath): Result<Unit> = runCatching {
         val handle = handleOrThrow()
-        return storage.deleteWarp(config, handle, path)
+        storage.deleteWarp(config, handle, path).getOrThrow()
+        eventScope.post(StorageEvents.WarpDeleteEvent(path))
     }
 
     /**
@@ -179,9 +199,10 @@ public data class StorageInstance<C : Any, H : StorageHandle>(
      * If the operation fails, the underlying storage is expected to keep the full subtree available
      * instead of leaving only part of it deleted.
      */
-    public suspend fun deleteFolder(path: FolderPath): Result<Unit> {
+    public suspend fun deleteFolder(path: FolderPath): Result<Unit> = runCatching {
         val handle = handleOrThrow()
-        return storage.deleteFolder(config, handle, path)
+        storage.deleteFolder(config, handle, path).getOrThrow()
+        eventScope.post(StorageEvents.FolderDeleteEvent(path))
     }
 
     /**
@@ -190,9 +211,10 @@ public data class StorageInstance<C : Any, H : StorageHandle>(
      * Callers must guarantee that this instance is open, that a warp exists at [src], that the
      * destination parent folder exists, and that no node already exists at [dst].
      */
-    public suspend fun moveWarp(src: WarpPath, dst: WarpPath): Result<Unit> {
+    public suspend fun moveWarp(src: WarpPath, dst: WarpPath): Result<Unit> = runCatching {
         val handle = handleOrThrow()
-        return storage.moveWarp(config, handle, src, dst)
+        storage.moveWarp(config, handle, src, dst).getOrThrow()
+        eventScope.post(StorageEvents.WarpPathChangeEvent(src, dst))
     }
 
     /**
@@ -204,8 +226,9 @@ public data class StorageInstance<C : Any, H : StorageHandle>(
      * The full subtree state is preserved. If the operation fails, the underlying storage is expected
      * to keep the subtree at [src] instead of leaving it partially moved.
      */
-    public suspend fun moveFolder(src: FolderPath, dst: FolderPath): Result<Unit> {
+    public suspend fun moveFolder(src: FolderPath, dst: FolderPath): Result<Unit> = runCatching {
         val handle = handleOrThrow()
-        return storage.moveFolder(config, handle, src, dst)
+        storage.moveFolder(config, handle, src, dst).getOrThrow()
+        eventScope.post(StorageEvents.FolderPathChangeEvent(src, dst))
     }
 }

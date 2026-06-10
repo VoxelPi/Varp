@@ -2,31 +2,30 @@ package net.voxelpi.varp.repository
 
 import net.voxelpi.event.EventScope
 import net.voxelpi.event.eventScope
+import net.voxelpi.event.on
 import net.voxelpi.event.post
-import net.voxelpi.varp.DuplicatesStrategy
 import net.voxelpi.varp.event.folder.FolderCreateEvent
 import net.voxelpi.varp.event.folder.FolderDeleteEvent
+import net.voxelpi.varp.event.folder.FolderPathChangeEvent
 import net.voxelpi.varp.event.folder.FolderPostDeleteEvent
 import net.voxelpi.varp.event.folder.FolderStateChangeEvent
 import net.voxelpi.varp.event.repository.RepositoryLoadEvent
 import net.voxelpi.varp.event.root.RootStateChangeEvent
 import net.voxelpi.varp.event.warp.WarpCreateEvent
 import net.voxelpi.varp.event.warp.WarpDeleteEvent
+import net.voxelpi.varp.event.warp.WarpPathChangeEvent
 import net.voxelpi.varp.event.warp.WarpPostDeleteEvent
 import net.voxelpi.varp.event.warp.WarpStateChangeEvent
 import net.voxelpi.varp.exception.tree.FolderAlreadyExistsException
 import net.voxelpi.varp.exception.tree.FolderMoveIntoChildException
 import net.voxelpi.varp.exception.tree.FolderNotFoundException
-import net.voxelpi.varp.exception.tree.NodeParentAlreadyExistsException
 import net.voxelpi.varp.exception.tree.NodeParentNotFoundException
 import net.voxelpi.varp.exception.tree.WarpAlreadyExistsException
 import net.voxelpi.varp.exception.tree.WarpNotFoundException
 import net.voxelpi.varp.tree.Folder
-import net.voxelpi.varp.tree.Root
 import net.voxelpi.varp.tree.Tree
 import net.voxelpi.varp.tree.Warp
 import net.voxelpi.varp.tree.path.FolderPath
-import net.voxelpi.varp.tree.path.NodeParentPath
 import net.voxelpi.varp.tree.path.RootPath
 import net.voxelpi.varp.tree.path.WarpPath
 import net.voxelpi.varp.tree.state.FolderState
@@ -48,6 +47,54 @@ public class Repository<C : Any, H : StorageHandle>(
         field = MutableTreeState()
 
     override val eventScope: EventScope = eventScope()
+
+    init {
+        storage.on { event: StorageEvents.TreeStateChangeEvent ->
+            state.update(event.newState)
+            eventScope.post(RepositoryLoadEvent(this))
+        }
+        storage.on { event: StorageEvents.WarpCreateEvent ->
+            state[event.path] = event.state
+            eventScope.post(WarpCreateEvent(this[event.path]!!))
+        }
+        storage.on { event: StorageEvents.FolderCreateEvent ->
+            state[event.path] = event.state
+            eventScope.post(FolderCreateEvent(this[event.path]!!))
+        }
+        storage.on { event: StorageEvents.WarpStateChangeEvent ->
+            val oldState = state[event.path] ?: return@on
+            state[event.path] = event.newState
+            eventScope.post(WarpStateChangeEvent(this[event.path]!!, newState = event.newState, oldState = oldState))
+        }
+        storage.on { event: StorageEvents.FolderStateChangeEvent ->
+            val oldState = state[event.path] ?: return@on
+            state[event.path] = event.newState
+            eventScope.post(FolderStateChangeEvent(this[event.path]!!, newState = event.newState, oldState = oldState))
+        }
+        storage.on { event: StorageEvents.RootStateChangeEvent ->
+            val oldState = state.root
+            state.root = event.newState
+            eventScope.post(RootStateChangeEvent(this.root, newState = event.newState, oldState = oldState))
+        }
+        storage.on { event: StorageEvents.WarpDeleteEvent ->
+            eventScope.post(WarpDeleteEvent(this[event.path]!!))
+            val oldState = state.delete(event.path) ?: return@on
+            eventScope.post(WarpPostDeleteEvent(event.path, oldState))
+        }
+        storage.on { event: StorageEvents.FolderDeleteEvent ->
+            eventScope.post(FolderDeleteEvent(this[event.path]!!))
+            val oldState = state.delete(event.path) ?: return@on
+            eventScope.post(FolderPostDeleteEvent(event.path, oldState))
+        }
+        storage.on { event: StorageEvents.WarpPathChangeEvent ->
+            state.move(src = event.oldPath, dst = event.newPath)
+            eventScope.post(WarpPathChangeEvent(this[event.newPath]!!, newPath = event.newPath, oldPath = event.oldPath))
+        }
+        storage.on { event: StorageEvents.FolderPathChangeEvent ->
+            state.move(src = event.oldPath, dst = event.newPath)
+            eventScope.post(FolderPathChangeEvent(this[event.newPath]!!, newPath = event.newPath, oldPath = event.oldPath))
+        }
+    }
 
     /**
      * Opens the storage instance of this repository.
@@ -77,8 +124,8 @@ public class Repository<C : Any, H : StorageHandle>(
         eventScope.post(RepositoryLoadEvent(this))
     }
 
-    public fun update(newState: TreeState) {
-        state.update(newState)
+    public suspend fun update(newState: TreeState): Result<Unit> = runCatching {
+        storage.updateTree(newState).getOrThrow()
     }
 
     public override suspend fun create(path: WarpPath, state: WarpState): Result<Warp> = runCatching {
@@ -95,14 +142,7 @@ public class Repository<C : Any, H : StorageHandle>(
         // Update storage.
         storage.createWarp(path, state).getOrThrow()
 
-        // Update state.
-        this.state[path] = state
-        val warp = Warp(this, path)
-
-        // Post event.
-        eventScope.post(WarpCreateEvent(warp))
-
-        return@runCatching warp
+        return@runCatching this[path]!!
     }
 
     public override suspend fun create(path: FolderPath, state: FolderState): Result<Folder> = runCatching {
@@ -119,68 +159,32 @@ public class Repository<C : Any, H : StorageHandle>(
         // Update storage.
         storage.createFolder(path, state).getOrThrow()
 
-        // Update state.
-        this.state[path] = state
-        val folder = Folder(this, path)
-
-        // Post event.
-        eventScope.post(FolderCreateEvent(folder))
-
-        return@runCatching folder
+        return@runCatching this[path]!!
     }
 
-    public override suspend fun update(path: WarpPath, newState: WarpState): Result<WarpState> = runCatching {
+    public override suspend fun update(path: WarpPath, newState: WarpState): Result<Unit> = runCatching {
         // Check that a warp exists at the given path.
-        val previousState = state[path] ?: run {
+        if (path !in this) {
             throw WarpNotFoundException(path)
         }
 
         // Update storage.
         storage.updateWarp(path, newState).getOrThrow()
-
-        // Update state.
-        this.state[path] = newState
-        val warp = Warp(this, path)
-
-        // Post event.
-        eventScope.post(WarpStateChangeEvent(warp, newState, previousState))
-
-        newState
     }
 
-    public override suspend fun update(path: FolderPath, newState: FolderState): Result<FolderState> = runCatching {
+    public override suspend fun update(path: FolderPath, newState: FolderState): Result<Unit> = runCatching {
         // Check that a folder exists at the given path.
-        val previousState = state[path] ?: run {
+        if (path !in this) {
             throw FolderNotFoundException(path)
         }
 
         // Update storage.
         storage.updateFolder(path, newState).getOrThrow()
-
-        // Update state.
-        this.state[path] = newState
-        val folder = Folder(this, path)
-
-        // Post event.
-        eventScope.post(FolderStateChangeEvent(folder, newState, previousState))
-
-        newState
     }
 
-    public override suspend fun update(path: RootPath, newState: FolderState): Result<FolderState> = runCatching {
-        val previousState = state.root
-
+    public override suspend fun update(path: RootPath, newState: FolderState): Result<Unit> = runCatching {
         // Update storage.
         storage.updateRoot(newState).getOrThrow()
-
-        // Update state.
-        this.state[path] = newState
-        val root = Root(this)
-
-        // Post event.
-        eventScope.post(RootStateChangeEvent(root, newState, previousState))
-
-        newState
     }
 
     public override suspend fun delete(path: WarpPath): Result<WarpState> = runCatching {
@@ -188,19 +192,9 @@ public class Repository<C : Any, H : StorageHandle>(
         val previousState = this.state[path] ?: run {
             throw WarpNotFoundException(path)
         }
-        val warp = Warp(this, path)
-
-        // Post event.
-        eventScope.post(WarpDeleteEvent(warp))
 
         // Update storage.
         storage.deleteWarp(path).getOrThrow()
-
-        // Update state.
-        this.state.delete(path)
-
-        // Post event.
-        eventScope.post(WarpPostDeleteEvent(path, previousState))
 
         // Return the previous state.
         return@runCatching previousState
@@ -211,19 +205,9 @@ public class Repository<C : Any, H : StorageHandle>(
         val previousState = this.state[path] ?: run {
             throw FolderNotFoundException(path)
         }
-        val folder = Folder(this, path)
-
-        // Post event.
-        eventScope.post(FolderDeleteEvent(folder))
 
         // Update storage.
         storage.deleteFolder(path).getOrThrow()
-
-        // Update state.
-        this.state.delete(path)
-
-        // Post event.
-        eventScope.post(FolderPostDeleteEvent(path, previousState))
 
         // Return the previous state.
         return@runCatching previousState
@@ -232,101 +216,51 @@ public class Repository<C : Any, H : StorageHandle>(
     public override suspend fun move(
         src: WarpPath,
         dst: WarpPath,
-        duplicatesStrategy: DuplicatesStrategy,
     ): Result<Unit> = runCatching {
-        // Handle case if a warp already exists at the destination path.
+        // Check that the given warp exists.
+        if (src !in this) {
+            throw WarpNotFoundException(src)
+        }
+
+        // Early exit if the src and destination paths are the same.
+        if (src == dst) {
+            return Result.success(Unit)
+        }
+
+        // Fail if a warp already exists at the destination path.
         if (dst in this) {
-            when (duplicatesStrategy) {
-                DuplicatesStrategy.REPLACE_EXISTING -> {
-                    // TODO: This should happen as a "transaction".
-                    update(dst, state[src]!!).getOrThrow()
-                    delete(src)
-                    return@runCatching
-                }
-                DuplicatesStrategy.SKIP -> return@runCatching
-                DuplicatesStrategy.FAIL -> throw WarpAlreadyExistsException(dst)
-            }
+            throw WarpAlreadyExistsException(dst)
         }
 
         // Update storage.
         storage.moveWarp(src, dst)
-
-        TODO()
     }
 
     public override suspend fun move(
         src: FolderPath,
         dst: FolderPath,
-        duplicatesStrategy: DuplicatesStrategy,
-    ): Result<Unit> {
-        if (src != dst) {
-            // Nothing to do.
+    ): Result<Unit> = runCatching {
+        // Check that the given folder exists.
+        if (src !in this) {
+            throw FolderNotFoundException(src)
+        }
+
+        // Early exit if the src and destination paths are the same.
+        if (src == dst) {
             return Result.success(Unit)
         }
+
+        // Fail if the destination is a subpath of the source.
         if (dst.isSubpathOf(src)) {
             throw FolderMoveIntoChildException(src, dst)
         }
 
         // Fail if a folder already exists at the destination path.
         if (dst in this) {
-            when (duplicatesStrategy) {
-                DuplicatesStrategy.REPLACE_EXISTING -> TODO() // We need to merge the content.
-                DuplicatesStrategy.SKIP -> TODO() // We need to merge the content.
-                DuplicatesStrategy.FAIL -> return Result.failure(FolderAlreadyExistsException(dst))
-            }
+            throw FolderAlreadyExistsException(dst)
         }
 
         // Update storage.
         storage.moveFolder(src, dst)
-
-        TODO()
-    }
-
-    public suspend fun moveInto(
-        src: FolderPath,
-        dst: NodeParentPath,
-        duplicatesStrategy: DuplicatesStrategy,
-    ): Result<Unit> {
-        return when (dst) {
-            is FolderPath -> {
-                move(src, dst, duplicatesStrategy)
-            }
-            RootPath -> {
-                if (duplicatesStrategy == DuplicatesStrategy.FAIL) {
-                    return Result.failure(NodeParentAlreadyExistsException(dst))
-                }
-
-                // If replace strategy is used, overwrite root node state.
-                if (duplicatesStrategy == DuplicatesStrategy.REPLACE_EXISTING) {
-                    val srcState = state[src] ?: throw FolderNotFoundException(src)
-                    update(RootPath, srcState)
-                }
-
-                // Move all direct child folders
-                val directChildFolders = state.folders.keys
-                    .filter { it.isProperSubpathOf(src) && !it.value.substring(src.value.length, it.value.length - 1).contains("/") }
-                for (folder in directChildFolders) {
-                    move(
-                        folder,
-                        RootPath / (folder.relativeTo(src)!! as FolderPath),
-                        duplicatesStrategy = duplicatesStrategy,
-                    ).getOrElse { return Result.failure(it) }
-                }
-
-                // Move all direct child warps.
-                val directChildWarps = state.warps.keys
-                    .filter { it.isSubpathOf(src) && !it.value.substring(src.value.length).contains("/") }
-                for (warp in directChildWarps) {
-                    move(
-                        warp,
-                        RootPath / warp.relativeTo(src)!!,
-                        duplicatesStrategy = duplicatesStrategy,
-                    ).getOrElse { return Result.failure(it) }
-                }
-
-                // Everything completed successfully.
-                Result.success(Unit)
-            }
-        }
     }
 }

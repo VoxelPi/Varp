@@ -19,15 +19,17 @@ public sealed interface NodeParent : Node {
     /**
      * Modifies the state of the folder.
      */
-    public suspend fun modify(state: FolderState): Result<FolderState>
+    public suspend fun modify(state: FolderState): Result<Unit>
 
     /**
      * Modifies the state of the folder.
      */
-    public suspend fun modify(init: FolderState.Builder.() -> Unit): Result<FolderState> {
+    public suspend fun modify(init: FolderState.Builder.() -> Unit): Result<FolderState> = runCatching {
         val builder = FolderState.Builder(state)
         builder.init()
-        return modify(builder.build())
+        val state = builder.build()
+        modify(state).getOrThrow()
+        state
     }
 
     /**

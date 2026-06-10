@@ -33,17 +33,19 @@ public class Warp internal constructor(
     /**
      * Modifies the state of the folder.
      */
-    public suspend fun modify(state: WarpState): Result<WarpState> {
+    public suspend fun modify(state: WarpState): Result<Unit> {
         return tree.update(path, state)
     }
 
     /**
      * Modifies the state of the warp.
      */
-    public suspend fun modify(init: WarpState.Builder.() -> Unit): Result<WarpState> {
+    public suspend fun modify(init: WarpState.Builder.() -> Unit): Result<WarpState> = runCatching {
         val builder = WarpState.Builder(state)
         builder.init()
-        return modify(builder.build())
+        val state = builder.build()
+        modify(state).getOrThrow()
+        state
     }
 
     /**
@@ -52,12 +54,10 @@ public class Warp internal constructor(
      */
     public suspend fun move(
         destination: WarpPath,
-        duplicatesStrategy: DuplicatesStrategy = DuplicatesStrategy.FAIL,
     ): Result<Unit> = runCatching {
         tree.move(
             path,
             destination,
-            duplicatesStrategy = duplicatesStrategy
         ).getOrThrow()
 
         path = destination
@@ -66,16 +66,14 @@ public class Warp internal constructor(
     override suspend fun moveInto(
         parent: NodeParentPath,
         id: String?,
-        duplicatesStrategy: DuplicatesStrategy,
     ): Result<Unit> = runCatching {
-        move(parent.warp(id ?: this@Warp.id), duplicatesStrategy).getOrThrow()
+        move(parent.warp(id ?: this@Warp.id)).getOrThrow()
     }
 
     override suspend fun move(
         id: String,
-        duplicatesStrategy: DuplicatesStrategy,
     ): Result<Unit> = runCatching {
-        move(path.parent.warp(id), duplicatesStrategy = duplicatesStrategy).getOrThrow()
+        move(path.parent.warp(id)).getOrThrow()
     }
 
     /**
@@ -102,9 +100,8 @@ public class Warp internal constructor(
     override suspend fun copyInto(
         parent: NodeParentPath,
         id: String?,
-        duplicatesStrategy: DuplicatesStrategy,
     ): Result<Warp> {
-        return copy(parent.warp(id ?: this@Warp.id), duplicatesStrategy)
+        return copy(parent.warp(id ?: this@Warp.id))
     }
 
     override suspend fun delete(): Result<WarpState> {

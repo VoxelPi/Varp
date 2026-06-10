@@ -26,7 +26,7 @@ public class Folder internal constructor(
     /**
      * Modifies the state of the folder.
      */
-    override suspend fun modify(state: FolderState): Result<FolderState> {
+    override suspend fun modify(state: FolderState): Result<Unit> {
         return tree.update(path, state)
     }
 
@@ -36,12 +36,10 @@ public class Folder internal constructor(
      */
     public suspend fun move(
         destination: FolderPath,
-        duplicatesStrategy: DuplicatesStrategy = DuplicatesStrategy.FAIL,
     ): Result<Unit> = runCatching {
         tree.move(
             path,
             destination,
-            duplicatesStrategy = duplicatesStrategy,
         ).getOrThrow()
 
         path = destination
@@ -50,21 +48,17 @@ public class Folder internal constructor(
     override suspend fun moveInto(
         parent: NodeParentPath,
         id: String?,
-        duplicatesStrategy: DuplicatesStrategy,
     ): Result<Unit> = runCatching {
         move(
             parent.folder(id ?: this.id),
-            duplicatesStrategy = duplicatesStrategy,
         ).getOrThrow()
     }
 
     override suspend fun move(
         id: String,
-        duplicatesStrategy: DuplicatesStrategy,
     ): Result<Unit> = runCatching {
         move(
             path.parent.folder(id),
-            duplicatesStrategy = duplicatesStrategy,
         ).getOrThrow()
     }
 
@@ -99,9 +93,8 @@ public class Folder internal constructor(
     override suspend fun copyInto(
         parent: NodeParentPath,
         id: String?,
-        duplicatesStrategy: DuplicatesStrategy,
     ): Result<Folder> {
-        return copy(parent, id, true, duplicatesStrategy)
+        return copy(parent, id, true)
     }
 
     private suspend fun copy(

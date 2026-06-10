@@ -24,7 +24,7 @@ public data class Root internal constructor(
     /**
      * Modifies the state of the root folder.
      */
-    override suspend fun modify(state: FolderState): Result<FolderState> {
+    override suspend fun modify(state: FolderState): Result<Unit> {
         return tree.update(RootPath, state)
     }
 }

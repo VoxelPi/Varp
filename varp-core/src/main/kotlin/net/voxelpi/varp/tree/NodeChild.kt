@@ -1,6 +1,5 @@
 package net.voxelpi.varp.tree
 
-import net.voxelpi.varp.DuplicatesStrategy
 import net.voxelpi.varp.tree.path.NodeChildPath
 import net.voxelpi.varp.tree.path.NodeParentPath
 import net.voxelpi.varp.tree.state.NodeState
@@ -26,7 +25,6 @@ public sealed interface NodeChild : Node {
      */
     public suspend fun move(
         id: String,
-        duplicatesStrategy: DuplicatesStrategy = DuplicatesStrategy.FAIL,
     ): Result<Unit>
 
     /**
@@ -35,7 +33,6 @@ public sealed interface NodeChild : Node {
     public suspend fun moveInto(
         parent: NodeParentPath,
         id: String? = null,
-        duplicatesStrategy: DuplicatesStrategy = DuplicatesStrategy.FAIL,
     ): Result<Unit>
 
     /**
@@ -45,7 +42,6 @@ public sealed interface NodeChild : Node {
     public suspend fun copyInto(
         parent: NodeParentPath,
         id: String? = null,
-        duplicatesStrategy: DuplicatesStrategy = DuplicatesStrategy.FAIL,
     ): Result<NodeChild>
 
     /**

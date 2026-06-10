@@ -4,7 +4,6 @@ import net.voxelpi.event.EventScope
 import net.voxelpi.event.eventScope
 import net.voxelpi.event.on
 import net.voxelpi.event.post
-import net.voxelpi.varp.DuplicatesStrategy
 import net.voxelpi.varp.event.compositor.CompositorRepositoryMountEvent
 import net.voxelpi.varp.event.compositor.CompositorRepositoryUnmountEvent
 import net.voxelpi.varp.event.folder.FolderCreateEvent
@@ -41,7 +40,6 @@ import net.voxelpi.varp.tree.state.FolderState
 import net.voxelpi.varp.tree.state.MutableTreeState
 import net.voxelpi.varp.tree.state.TreeState
 import net.voxelpi.varp.tree.state.WarpState
-import kotlin.collections.iterator
 
 public class Compositor(
     mounts: List<CompositorMount>,
@@ -632,14 +630,14 @@ public class Compositor(
         return@runCatching Folder(this, path)
     }
 
-    override suspend fun update(path: WarpPath, newState: WarpState): Result<WarpState> = runCatching {
+    override suspend fun update(path: WarpPath, newState: WarpState): Result<Unit> = runCatching {
         // Update the warp in the mounted repository.
         // The compositor state is then updated by the event handler for that repository.
         val (mount, repositoryPath) = toRepositoryLocation(path)
         mount.repository.update(repositoryPath, newState).getOrThrow()
     }
 
-    override suspend fun update(path: FolderPath, newState: FolderState): Result<FolderState> = runCatching {
+    override suspend fun update(path: FolderPath, newState: FolderState): Result<Unit> = runCatching {
         val (mount, repositoryPath) = toRepositoryLocation(path)
         if (path == mount.targetPath) {
             // Update the overlay instead of the underlying repository state.
@@ -651,7 +649,7 @@ public class Compositor(
         mount.repository.update(repositoryPath, newState).getOrThrow()
     }
 
-    override suspend fun update(path: RootPath, newState: FolderState): Result<FolderState> = runCatching {
+    override suspend fun update(path: RootPath, newState: FolderState): Result<Unit> = runCatching {
         val mount = mountFor(RootPath)
         val repositoryPath = mount.sourcePath
         if (path == mount.targetPath) {
@@ -706,7 +704,6 @@ public class Compositor(
     override suspend fun move(
         src: WarpPath,
         dst: WarpPath,
-        duplicatesStrategy: DuplicatesStrategy,
     ): Result<Unit> = runCatching {
         val (srcMount, srcRepositoryPath) = toRepositoryLocation(src)
         val (dstMount, dstRepositoryPath) = toRepositoryLocation(dst)
@@ -714,16 +711,12 @@ public class Compositor(
         if (srcMount.targetPath == dstMount.targetPath) {
             // The warp doesn't change its mount during the move operation, the move is therefore handled by the repository.
             val mount = srcMount // = dstMount
-            mount.repository.move(srcRepositoryPath, dstRepositoryPath, duplicatesStrategy).getOrThrow()
+            mount.repository.move(srcRepositoryPath, dstRepositoryPath).getOrThrow()
         } else {
             // The warp is moved into a different mount.
             val state = this.state[src] ?: throw WarpNotFoundException(src)
             if (dst in this) {
-                when (duplicatesStrategy) {
-                    DuplicatesStrategy.REPLACE_EXISTING -> dstMount.repository.delete(dstRepositoryPath).getOrThrow()
-                    DuplicatesStrategy.SKIP -> return@runCatching
-                    DuplicatesStrategy.FAIL -> throw WarpAlreadyExistsException(dst)
-                }
+                throw WarpAlreadyExistsException(dst)
             }
 
             // Move the warp, by deleting it from one repository and creating it in the other.
@@ -736,13 +729,11 @@ public class Compositor(
     override suspend fun move(
         src: FolderPath,
         dst: FolderPath,
-        duplicatesStrategy: DuplicatesStrategy,
-    ): Result<Unit> = move(src, dst, duplicatesStrategy = duplicatesStrategy, moveMounts = true)
+    ): Result<Unit> = move(src, dst, moveMounts = true)
 
     public suspend fun move(
         src: FolderPath,
         dst: FolderPath,
-        duplicatesStrategy: DuplicatesStrategy = DuplicatesStrategy.FAIL,
         moveMounts: Boolean = true,
     ): Result<Unit> = runCatching {
         // Early exit if move operation is a no-op.
@@ -765,11 +756,12 @@ public class Compositor(
 
         // Handle the case when the source and destination mount are the same,
         // in which case the move is handled by the shared repository.
+        // TODO: What about mounts in subpaths?!?
         if (srcMount == dstMount) {
             // The folder doesn't change its mount during the move operation, the move is therefore handled by the repository.
             val mount = srcMount // = dstMount
             dstRepositoryPath as FolderPath // Handled by destination does not exist check.
-            mount.repository.move(srcRepositoryPath, dstRepositoryPath, duplicatesStrategy).getOrThrow()
+            mount.repository.move(srcRepositoryPath, dstRepositoryPath).getOrThrow()
             return@runCatching
         }
 

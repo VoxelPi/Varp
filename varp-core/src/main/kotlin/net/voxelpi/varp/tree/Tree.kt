@@ -2,7 +2,6 @@ package net.voxelpi.varp.tree
 
 import net.voxelpi.event.EventScope
 import net.voxelpi.event.EventScopeProvider
-import net.voxelpi.varp.DuplicatesStrategy
 import net.voxelpi.varp.tree.path.FolderPath
 import net.voxelpi.varp.tree.path.NodeChildPath
 import net.voxelpi.varp.tree.path.NodeParentPath
@@ -162,22 +161,22 @@ public interface Tree : EventScopeProvider {
     /**
      * Sets the state of the warp at the given [path].
      */
-    public suspend fun update(path: WarpPath, newState: WarpState): Result<WarpState>
+    public suspend fun update(path: WarpPath, newState: WarpState): Result<Unit>
 
     /**
      * Sets the state of the folder at the given [path].
      */
-    public suspend fun update(path: FolderPath, newState: FolderState): Result<FolderState>
+    public suspend fun update(path: FolderPath, newState: FolderState): Result<Unit>
 
     /**
      * Sets the state of the root.
      */
-    public suspend fun update(path: RootPath, newState: FolderState): Result<FolderState>
+    public suspend fun update(path: RootPath, newState: FolderState): Result<Unit>
 
     /**
      * Sets the state of the folder at the given [path].
      */
-    public suspend fun update(path: NodeParentPath, newState: FolderState): Result<FolderState> {
+    public suspend fun update(path: NodeParentPath, newState: FolderState): Result<Unit> {
         return when (path) {
             is FolderPath -> update(path, newState)
             RootPath -> update(RootPath, newState)
@@ -187,18 +186,10 @@ public interface Tree : EventScopeProvider {
     /**
      * Moves the warp at [src] to [dst].
      */
-    public suspend fun move(
-        src: WarpPath,
-        dst: WarpPath,
-        duplicatesStrategy: DuplicatesStrategy = DuplicatesStrategy.FAIL,
-    ): Result<Unit>
+    public suspend fun move(src: WarpPath, dst: WarpPath): Result<Unit>
 
     /**
      * Moves the folder at [src] to [dst].
      */
-    public suspend fun move(
-        src: FolderPath,
-        dst: FolderPath,
-        duplicatesStrategy: DuplicatesStrategy = DuplicatesStrategy.FAIL,
-    ): Result<Unit>
+    public suspend fun move(src: FolderPath, dst: FolderPath): Result<Unit>
 }
