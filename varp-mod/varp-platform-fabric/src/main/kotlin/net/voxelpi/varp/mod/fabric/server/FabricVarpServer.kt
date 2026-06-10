@@ -13,9 +13,9 @@ import net.minecraft.world.level.storage.LevelResource
 import net.voxelpi.event.EventScope
 import net.voxelpi.event.eventScope
 import net.voxelpi.varp.Varp
+import net.voxelpi.varp.environment.EnvironmentDefinition
 import net.voxelpi.varp.environment.VarpEnvironment
 import net.voxelpi.varp.environment.VarpEnvironmentLoader
-import net.voxelpi.varp.environment.model.EnvironmentDefinition
 import net.voxelpi.varp.mod.VarpModConstants
 import net.voxelpi.varp.mod.api.VarpServerInformation
 import net.voxelpi.varp.mod.fabric.FabricVarpMod
@@ -26,8 +26,9 @@ import net.voxelpi.varp.mod.fabric.util.toIdentifier
 import net.voxelpi.varp.mod.server.VarpServerImpl
 import net.voxelpi.varp.mod.server.api.VarpServer
 import net.voxelpi.varp.mod.server.warp.VarpServerNetworkBridge
-import net.voxelpi.varp.repository.filetree.FileTreeRepositoryType
+import net.voxelpi.varp.repository.filetree.FileTreeStorage
 import net.voxelpi.varp.repository.filetree.FileTreeStorageConfig
+import net.voxelpi.varp.repository.filetree.FileTreeStorageFormat
 import net.voxelpi.varp.tree.path.RootPath
 import java.nio.file.Path
 import java.util.UUID
@@ -59,13 +60,13 @@ class FabricVarpServer(
     }
 
     override val loader: VarpEnvironmentLoader = VarpEnvironmentLoader.withStandardTypes(
-        listOf(FileTreeRepositoryType)
+        listOf(FileTreeStorage)
     )
 
     override val environmentFilePath = (server.getWorldPath(LevelResource.ROOT) / "data" / "varp" / "server.varp.json").normalize()
 
     private val defaultEnvironment = EnvironmentDefinition.environmentDefinition {
-        repository("default", FileTreeRepositoryType, FileTreeStorageConfig(environmentFilePath.parent / "repositories" / "default", "json", false)) {
+        repository("default", FileTreeStorage, FileTreeStorageConfig(environmentFilePath.parent / "repositories" / "default", FileTreeStorageFormat.JSON)) {
             mountedAt(RootPath) {}
         }
     }
@@ -105,7 +106,7 @@ class FabricVarpServer(
         playerService.handleShutdown()
         runBlocking {
             loader.save(environment.save(), environmentFilePath)
-            environment.deactivate()
+            environment.close()
         }
         coroutineScope.cancel()
 

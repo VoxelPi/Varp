@@ -36,7 +36,7 @@ object MountsCommand {
                     cli.environment.repositories.keys
                 }
             }
-            required("source_path", nodeParentPathParser { context -> cli.environment.repositories[context["repository"]]?.tree })
+            required("source_path", nodeParentPathParser { context -> cli.environment.repositories[context["repository"]] })
             required("mount_parent_path", nodeParentPathParser())
             required("mount_id", stringParser()) {}
 

@@ -6,9 +6,9 @@ import net.kyori.adventure.text.logger.slf4j.ComponentLogger
 import net.voxelpi.event.EventScope
 import net.voxelpi.event.eventScope
 import net.voxelpi.varp.Varp
+import net.voxelpi.varp.environment.EnvironmentDefinition
 import net.voxelpi.varp.environment.VarpEnvironment
 import net.voxelpi.varp.environment.VarpEnvironmentLoader
-import net.voxelpi.varp.environment.model.EnvironmentDefinition
 import net.voxelpi.varp.mod.VarpModConstants
 import net.voxelpi.varp.mod.api.VarpServerInformation
 import net.voxelpi.varp.mod.paper.entity.PaperVarpServerEntityService
@@ -56,7 +56,7 @@ class PaperVarpServer(
     }
 
     override val loader: VarpEnvironmentLoader = VarpEnvironmentLoader.withStandardTypes(
-        listOf(FileTreeRepositoryType)
+        listOf(FileTreeStorage)
     )
 
     override val environmentFilePath = plugin.dataPath / "data" / "server.varp.json"
@@ -97,7 +97,7 @@ class PaperVarpServer(
         serverNetworkBridge.cleanup()
         runBlocking {
             loader.save(environment.save(), environmentFilePath)
-            environment.deactivate()
+            environment.close()
         }
         coroutineScope.cancel()
 

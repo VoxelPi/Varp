@@ -56,7 +56,7 @@ abstract class VarpServerPlayerImpl(
         }
 
         // Get the warp.
-        val warp = server.tree.resolve(path)
+        val warp = server.tree[path]
         if (warp == null) {
             server.messages.sendErrorWarpPathUnresolved(this, path)
             return

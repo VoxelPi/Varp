@@ -34,7 +34,7 @@ interface VarpServerActor : Audience {
         }
 
         // Create the folder.
-        val folder = server.tree.createFolder(path, state).getOrElse { exception ->
+        val folder = server.tree.create(path, state).getOrElse { exception ->
             when (exception) {
                 is FolderAlreadyExistsException -> server.messages.sendErrorFolderAlreadyExists(this, exception.path)
                 is MissingMountException -> server.messages.sendErrorMissingMount(this, exception.path)
@@ -58,7 +58,7 @@ interface VarpServerActor : Audience {
         }
 
         // Create the warp.
-        val warp = server.tree.createWarp(path, state).getOrElse { exception ->
+        val warp = server.tree.create(path, state).getOrElse { exception ->
             when (exception) {
                 is WarpAlreadyExistsException -> server.messages.sendErrorWarpAlreadyExists(this, exception.path)
                 is MissingMountException -> server.messages.sendErrorMissingMount(this, exception.path)
@@ -82,7 +82,7 @@ interface VarpServerActor : Audience {
         }
 
         // Get the folder.
-        val folder = server.tree.resolve(path)
+        val folder = server.tree[path]
         if (folder == null) {
             server.messages.sendErrorFolderPathUnresolved(this, path)
             return
@@ -126,7 +126,7 @@ interface VarpServerActor : Audience {
         }
 
         // Get the warp.
-        val warp = server.tree.resolve(path)
+        val warp = server.tree[path]
         if (warp == null) {
             server.messages.sendErrorWarpPathUnresolved(this, path)
             return
@@ -170,7 +170,7 @@ interface VarpServerActor : Audience {
         }
 
         // Get the folder.
-        val folder = server.tree.resolve(src)
+        val folder = server.tree[src]
         if (folder == null) {
             server.messages.sendErrorFolderPathUnresolved(this, src)
             return
@@ -216,7 +216,7 @@ interface VarpServerActor : Audience {
         }
 
         // Get the folder.
-        val folder = server.tree.resolve(path)
+        val folder = server.tree[path]
         if (folder == null) {
             server.messages.sendErrorFolderPathUnresolved(this, path)
             return
@@ -273,7 +273,7 @@ interface VarpServerActor : Audience {
         }
 
         // Get the warp.
-        val warp = server.tree.resolve(src)
+        val warp = server.tree[src]
         if (warp == null) {
             server.messages.sendErrorWarpPathUnresolved(this, src)
             return
@@ -377,7 +377,7 @@ interface VarpServerActor : Audience {
         }
 
         // Get the warp.
-        val warp = server.tree.resolve(path)
+        val warp = server.tree[path]
         if (warp == null) {
             server.messages.sendErrorWarpPathUnresolved(this, path)
             return
@@ -408,7 +408,7 @@ interface VarpServerActor : Audience {
         }
 
         // Get the warp.
-        val warp = server.tree.resolve(path)
+        val warp = server.tree[path]
         if (warp == null) {
             server.messages.sendErrorWarpPathUnresolved(this, path)
             return

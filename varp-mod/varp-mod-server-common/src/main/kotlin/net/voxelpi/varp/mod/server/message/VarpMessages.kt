@@ -138,7 +138,7 @@ interface VarpMessages {
     fun sendRepositoryMounted(
         @Receiver receiver: Audience,
         @Placeholder("mount_location") mountLocation: NodeParentPath,
-        @Placeholder("repository") repository: Repository,
+        @Placeholder("repository") repository: Repository<*, *>,
         @Placeholder("repository_path") repositoryPath: NodeParentPath,
     )
 

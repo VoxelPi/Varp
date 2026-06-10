@@ -35,10 +35,10 @@ object RepositoryCommand : VarpCommand {
                 for (repository in environment.repositories.values) {
                     val mounts = environment.compositor.mounts().filter { it.repository.id == repository.id }
                     if (mounts.isEmpty()) {
-                        messages.sendRepositoryListEntryWithoutMounts(sender, repository.id, repository.type.id)
+                        messages.sendRepositoryListEntryWithoutMounts(sender, repository.id, repository.storage.id.asString())
                     } else {
                         val mountsText = mounts.joinToString(",") { it.targetPath.toString() }
-                        messages.sendRepositoryListEntryWithMounts(sender, repository.id, repository.type.id, mountsText)
+                        messages.sendRepositoryListEntryWithMounts(sender, repository.id, repository.storage.id.asString(), mountsText)
                     }
                 }
             }
@@ -50,7 +50,7 @@ object RepositoryCommand : VarpCommand {
             literal("repository", Description.empty(), "repos")
             literal("mount")
             required("repository", repositoryParser())
-            required("repository_path", nodeParentPathParser { context -> context.get<Repository>("repository").tree })
+            required("repository_path", nodeParentPathParser { context -> context.get<Repository<*, *>>("repository") })
             literal("at")
             required("mount_location", nodeParentPathParser())
             required("mount_id", stringParser())
@@ -63,7 +63,7 @@ object RepositoryCommand : VarpCommand {
                 val coroutineScope = context[VarpModCommandArguments.COROUTINE_SCOPE]
                 val messages = context[VarpModCommandArguments.MESSAGE_SERVICE]
 
-                val repository: Repository = context["repository"]
+                val repository: Repository<*, *> = context["repository"]
                 val repositoryPath: NodeParentPath = context.getOrDefault("repository_path", RootPath)
                 val mountLocation: NodeParentPath = context["mount_location"]
                 val mountId: String = context["mount_id"]

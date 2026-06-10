@@ -11,11 +11,11 @@ import net.voxelpi.varp.repository.Repository
 import java.lang.reflect.Method
 import java.lang.reflect.Type
 
-object RepositoryPlaceholderResolver : IPlaceholderResolver<Audience, Repository, Component> {
+object RepositoryPlaceholderResolver : IPlaceholderResolver<Audience, Repository<*, *>, Component> {
 
     override fun resolve(
         placeholderName: String,
-        value: Repository,
+        value: Repository<*, *>,
         receiver: Audience?,
         owner: Type,
         method: Method,
@@ -24,7 +24,7 @@ object RepositoryPlaceholderResolver : IPlaceholderResolver<Audience, Repository
         return mutableMapOf(
             placeholderName to Either.right(continuanceValue(value.id, String::class.java)),
             "${placeholderName}_id" to Either.right(continuanceValue(value.id, String::class.java)),
-            "${placeholderName}_type" to Either.right(continuanceValue(value.type.id, String::class.java)),
+            "${placeholderName}_type" to Either.right(continuanceValue(value.storage.id.asString(), String::class.java)),
         )
     }
 }

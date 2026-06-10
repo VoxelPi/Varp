@@ -5,8 +5,6 @@ import net.voxelpi.event.annotation.Subscribe
 import net.voxelpi.varp.cli.command.CommandsRegistrationEvent
 import net.voxelpi.varp.extras.cloud.parser.path.nodeParentPathParser
 import net.voxelpi.varp.extras.cloud.parser.tree.nodeChildParser
-import net.voxelpi.varp.option.MoveMountsOptions
-import net.voxelpi.varp.option.assign
 import net.voxelpi.varp.tree.NodeChild
 import net.voxelpi.varp.tree.path.NodeParentPath
 import org.incendo.cloud.description.Description
@@ -34,7 +32,7 @@ object MoveCommand {
                 val moveMounts = !context.flags().isPresent("direct")
 
                 runBlocking {
-                    node.moveInto(destination, id, listOf(MoveMountsOptions assign moveMounts)).getOrThrow()
+                    node.moveInto(destination, id).getOrThrow()
                 }
             }
         }

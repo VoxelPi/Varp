@@ -9,12 +9,13 @@ import net.voxelpi.event.eventScope
 import net.voxelpi.varp.cli.command.VarpCLICommandManager
 import net.voxelpi.varp.cli.console.VarpCLIConsole
 import net.voxelpi.varp.cli.coroutine.VarpCLIDispatcher
+import net.voxelpi.varp.environment.EnvironmentDefinition
 import net.voxelpi.varp.environment.VarpEnvironment
 import net.voxelpi.varp.environment.VarpEnvironmentLoader
-import net.voxelpi.varp.environment.model.EnvironmentDefinition
 import net.voxelpi.varp.repository.filetree.FileTreeStorage
 import net.voxelpi.varp.repository.filetree.FileTreeStorageConfig
 import net.voxelpi.varp.repository.filetree.FileTreeStorageFormat
+import net.voxelpi.varp.repository.sql.SqlStorage
 import net.voxelpi.varp.tree.Tree
 import net.voxelpi.varp.tree.path.RootPath
 import org.slf4j.LoggerFactory
@@ -35,7 +36,10 @@ object VarpCLI {
     val console = VarpCLIConsole(this, commandManager)
 
     val environmentLoader = VarpEnvironmentLoader.withStandardTypes(
-        listOf(FileTreeRepositoryType, SqlRepositoryType.PostgreSql, SqlRepositoryType.MySql),
+        listOf(
+            FileTreeStorage,
+            SqlStorage
+        ),
     )
 
     val defaultEnvironment = EnvironmentDefinition.environmentDefinition {
@@ -73,7 +77,7 @@ object VarpCLI {
         runBlocking {
             val definition = environment.save()
             environmentLoader.save(definition, Path("varp.json").toAbsolutePath().normalize())
-            environment.deactivate()
+            environment.close()
         }
         coroutineScope.cancel()
         exitProcess(0)

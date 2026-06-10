@@ -30,7 +30,7 @@ object ListCommand : VarpCommand {
                 val pathString: String = context.flags().getValue<String>("path").getOrNull() ?: "/"
                 val path = NodeParentPath.parse(pathString).getOrThrow()
 
-                val parent = tree.resolve(path) ?: return@handler
+                val parent = tree[path] ?: return@handler
                 for (warp in parent.childWarps()) {
                     context.sender().sender.sendMessage(warp.name)
                 }
