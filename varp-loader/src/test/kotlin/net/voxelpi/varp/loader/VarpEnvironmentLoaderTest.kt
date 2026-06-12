@@ -13,7 +13,7 @@ class VarpEnvironmentLoaderTest {
     fun `test save to string`() {
         val definition = EnvironmentDefinition.environmentDefinition {
             repository("default", EphemeralStorage) {
-                mountedAt(RootPath) {}
+                mountedAt(RootPath)
             }
         }
 
@@ -26,7 +26,7 @@ class VarpEnvironmentLoaderTest {
     fun `test cycle`() {
         val definition = EnvironmentDefinition.environmentDefinition {
             repository("default", EphemeralStorage) {
-                mountedAt(RootPath) {}
+                mountedAt(RootPath)
             }
         }
         val loader = VarpEnvironmentLoader.withStandardTypes(emptyList())

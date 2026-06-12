@@ -79,7 +79,7 @@ public class VarpEnvironment internal constructor() {
                 logger.error("Unable to create mount '$targetPath', repository '${mountDef.repository}' failed to open")
                 continue
             }
-            mounts += CompositorMount(targetPath, repository, mountDef.sourcePath, mountDef.overlay)
+            mounts += CompositorMount(targetPath, repository, mountDef.sourcePath, mountDef.state)
         }
         compositor.modifyMounts(mounts).getOrThrow()
     }
@@ -105,7 +105,7 @@ public class VarpEnvironment internal constructor() {
     public fun save(): EnvironmentDefinition {
         return EnvironmentDefinition(
             repositories.mapValues { RepositoryDefinition.repositoryDefinition(it.value) },
-            compositor.mounts().associate { it.targetPath to MountDefinition(it.repository.id, it.sourcePath, it.overlay) },
+            compositor.mounts().associate { it.targetPath to MountDefinition(it.repository.id, it.sourcePath, it.state) },
         )
     }
 

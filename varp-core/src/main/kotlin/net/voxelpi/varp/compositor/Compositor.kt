@@ -212,18 +212,15 @@ public class Compositor(
                 var newState = if (compositorPath == mount.targetPath) {
                     event.newState.modifiedCopy {
                         // Use the overlay name if available.
-                        mount.overlay.name?.let { name = it }
+                        mount.state.name.let { name = it }
                     }
                 } else {
                     event.newState
                 }
 
                 // Get the old state of the container.
-                var oldState = if (compositorPath == mount.targetPath) {
-                    event.newState.modifiedCopy {
-                        // Use the overlay name if available.
-                        mount.overlay.name?.let { name = it }
-                    }
+                val oldState = if (compositorPath == mount.targetPath) {
+                    mount.state
                 } else {
                     event.oldState
                 }
@@ -334,14 +331,11 @@ public class Compositor(
             }
 
             // Copy the root folder of the mount.
-            val mountRootFolder = mount.repository.state[mount.sourcePath] ?: run {
+            if (mount.sourcePath !in mount.repository) {
                 state.clear()
                 throw NodeParentNotFoundException(mount.sourcePath)
             }
-            state[mountPath] = mountRootFolder.modifiedCopy {
-                // Use the overlay name if available.
-                mount.overlay.name?.let { name = it }
-            }
+            state[mountPath] = mount.state
 
             // Copy all folders that are children of the mounts source container.
             for ((repositoryPath, folderState) in mount.repository.state.folders) {
@@ -640,10 +634,17 @@ public class Compositor(
     }
 
     override suspend fun update(path: FolderPath, newState: FolderState): Result<Unit> = runCatching {
+        if (path !in this) {
+            throw FolderNotFoundException(path)
+        }
+
         val (mount, repositoryPath) = toRepositoryLocation(path)
         if (path == mount.targetPath) {
-            // Update the overlay instead of the underlying repository state.
-            TODO()
+            // Update the mount state instead of the underlying repository state.
+            mounts.remove(mount.targetPath)
+            mounts[mount.targetPath] = mount.copy(state = newState)
+            eventScope.post(FolderStateChangeEvent(this[path]!!, newState = newState, oldState = mount.state))
+            return@runCatching
         }
 
         // Update the container in the mounted repository.
@@ -656,7 +657,10 @@ public class Compositor(
         val repositoryPath = mount.sourcePath
         if (path == mount.targetPath) {
             // Update the overlay instead of the underlying repository state.
-            TODO()
+            mounts.remove(mount.targetPath)
+            mounts[mount.targetPath] = mount.copy(state = newState)
+            eventScope.post(RootStateChangeEvent(root, newState = newState, oldState = mount.state))
+            return@runCatching
         }
 
         // Update the container in the mounted repository.
@@ -884,9 +888,9 @@ public class Compositor(
             path: NodeParentPath,
             repository: Repository<*, *>,
             repositoryPath: NodeParentPath,
-            overlayBuilder: CompositorMount.Overlay.Builder.() -> Unit,
+            state: FolderState = FolderState.defaultMountState(),
         ): CompositorMount? {
-            return mounts.put(path, CompositorMount(path, repository, repositoryPath, overlayBuilder))
+            return mounts.put(path, CompositorMount(path, repository, repositoryPath, state))
         }
 
         /**

@@ -2,7 +2,6 @@ package net.voxelpi.varp.mod.server.command.commands
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import net.voxelpi.varp.ComponentTemplate
 import net.voxelpi.varp.extras.cloud.VarpCommandArguments
 import net.voxelpi.varp.extras.cloud.parser.path.nodeParentPathParser
 import net.voxelpi.varp.extras.cloud.parser.repositoryParser
@@ -12,6 +11,7 @@ import net.voxelpi.varp.mod.server.command.VarpModCommandArguments
 import net.voxelpi.varp.repository.Repository
 import net.voxelpi.varp.tree.path.NodeParentPath
 import net.voxelpi.varp.tree.path.RootPath
+import net.voxelpi.varp.tree.state.FolderState
 import org.incendo.cloud.CommandManager
 import org.incendo.cloud.description.Description
 import org.incendo.cloud.kotlin.extension.argumentDescription
@@ -69,13 +69,11 @@ object RepositoryCommand : VarpCommand {
                 val mountId: String = context["mount_id"]
                 val mountPath = mountLocation.folder(mountId)
 
-                val name = context.flags().getValue<String>("name").getOrNull()?.let(::ComponentTemplate)
+                val name = context.flags().getValue<String>("name").getOrNull()
 
                 coroutineScope.launch(Dispatchers.IO) {
                     environment.compositor.modifyMounts {
-                        register(mountPath, repository, repositoryPath) {
-                            this.name = name
-                        }
+                        register(mountPath, repository, repositoryPath, FolderState.defaultMountState(name ?: "mount"))
                     }.onFailure {
                         messages.sendErrorGeneric(context.sender())
                         return@launch

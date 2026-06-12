@@ -67,7 +67,7 @@ class FabricVarpServer(
 
     private val defaultEnvironment = EnvironmentDefinition.environmentDefinition {
         repository("default", FileTreeStorage, FileTreeStorageConfig(environmentFilePath.parent / "repositories" / "default", FileTreeStorageFormat.JSON)) {
-            mountedAt(RootPath) {}
+            mountedAt(RootPath)
         }
     }
 

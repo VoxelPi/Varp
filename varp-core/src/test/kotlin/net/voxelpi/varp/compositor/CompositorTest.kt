@@ -32,10 +32,10 @@ class CompositorTest {
 
         val compositor = Compositor(
             listOf(
-                CompositorMount(NodeParentPath.parse("/").getOrThrow(), repo0, RootPath) {},
-                CompositorMount(NodeParentPath.parse("/data1/").getOrThrow(), repo1, RootPath) {},
-                CompositorMount(NodeParentPath.parse("/data2/").getOrThrow(), repo2, RootPath) {},
-                CompositorMount(NodeParentPath.parse("/data2/data3/").getOrThrow(), repo3, RootPath) {},
+                CompositorMount(NodeParentPath.parse("/").getOrThrow(), repo0, RootPath),
+                CompositorMount(NodeParentPath.parse("/data1/").getOrThrow(), repo1, RootPath),
+                CompositorMount(NodeParentPath.parse("/data2/").getOrThrow(), repo2, RootPath),
+                CompositorMount(NodeParentPath.parse("/data2/data3/").getOrThrow(), repo3, RootPath),
             ),
         )
 
@@ -112,7 +112,7 @@ class CompositorTest {
 
         val compositor = Compositor(
             listOf(
-                CompositorMount(NodeParentPath.parse("/test/repo/").getOrThrow(), repo, RootPath) {},
+                CompositorMount(NodeParentPath.parse("/test/repo/").getOrThrow(), repo, RootPath),
             ),
         )
         assertThrows<MissingMountException> { runBlocking { compositor.load() } }

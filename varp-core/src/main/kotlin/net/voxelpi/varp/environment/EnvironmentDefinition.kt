@@ -1,10 +1,10 @@
 package net.voxelpi.varp.environment
 
-import net.voxelpi.varp.compositor.CompositorMount
 import net.voxelpi.varp.repository.Storage
 import net.voxelpi.varp.repository.StorageHandle
 import net.voxelpi.varp.tree.path.NodeParentPath
 import net.voxelpi.varp.tree.path.RootPath
+import net.voxelpi.varp.tree.state.FolderState
 
 @JvmRecord
 public data class EnvironmentDefinition(
@@ -55,14 +55,14 @@ public data class EnvironmentDefinition(
         ) {
             public val mounts: MutableMap<NodeParentPath, MountDefinition> = mutableMapOf()
 
-            public fun mountedAt(location: NodeParentPath, path: NodeParentPath = RootPath, overlayBuilder: CompositorMount.Overlay.Builder.() -> Unit) {
-                mounts[location] = MountDefinition(repositoryId, path, overlayBuilder)
+            public fun mountedAt(location: NodeParentPath, path: NodeParentPath = RootPath, state: FolderState = FolderState.defaultMountState()) {
+                mounts[location] = MountDefinition(repositoryId, path, state)
             }
 
-            public fun mountedAt(location: String, path: String = RootPath.toString(), overlayBuilder: CompositorMount.Overlay.Builder.() -> Unit) {
+            public fun mountedAt(location: String, path: String = RootPath.toString(), state: FolderState = FolderState.defaultMountState()) {
                 val locationPath = NodeParentPath.parse(location).getOrThrow()
                 val pathPath = NodeParentPath.parse(path).getOrThrow()
-                return mountedAt(locationPath, pathPath, overlayBuilder)
+                return mountedAt(locationPath, pathPath, state)
             }
 
             internal fun build(): Map<NodeParentPath, MountDefinition> {

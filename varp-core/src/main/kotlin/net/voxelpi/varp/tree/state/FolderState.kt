@@ -51,5 +51,13 @@ public data class FolderState(
         public fun defaultRootState(): FolderState {
             return FolderState(ComponentTemplate("root"), emptyList(), setOf("varp:root"), emptyMap())
         }
+
+        public fun defaultMountState(name: String = "mount"): FolderState {
+            return FolderState(ComponentTemplate(name), emptyList(), setOf("varp:mount"), emptyMap())
+        }
+
+        public fun emptyState(): FolderState {
+            return FolderState(ComponentTemplate(""), emptyList(), setOf(), emptyMap())
+        }
     }
 }
