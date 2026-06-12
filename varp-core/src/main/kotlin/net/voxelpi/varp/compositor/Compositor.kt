@@ -40,6 +40,9 @@ import net.voxelpi.varp.tree.state.FolderState
 import net.voxelpi.varp.tree.state.MutableTreeState
 import net.voxelpi.varp.tree.state.TreeState
 import net.voxelpi.varp.tree.state.WarpState
+import net.voxelpi.varp.util.Movement
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 public class Compositor(
     mounts: List<CompositorMount>,
@@ -51,11 +54,15 @@ public class Compositor(
 
     public override val eventScope: EventScope = eventScope()
 
+    override val state: TreeState
+        field = MutableTreeState()
+
     private val repositoriesEventScope: EventScope = eventScope()
     private val subscribedRepositories: MutableSet<Repository<*, *>> = mutableSetOf()
 
-    override val state: TreeState
-        field = MutableTreeState()
+    // Caches for nodes that are moved between repositories.
+    private val crossRepositoryWarpMoves: MutableSet<Movement<WarpPath>> = mutableSetOf()
+    private val crossRepositoryFolderMoves: MutableSet<Movement<FolderPath>> = mutableSetOf()
 
     init {
         for (mount in this.mounts.values) {
@@ -66,6 +73,8 @@ public class Compositor(
         // Handle any event in a mounted repository.
         // This is also how events are created when performing actions via the compositor.
         repositoriesEventScope.on { event: TreeUpdateEvent ->
+            val updatedRepository = event.tree as? Repository<*, *> ?: return@on
+
             val previousState = state.copy()
             val mounts = mounts().filter { it.repository == event.tree }
             // TODO: Handle internally.
@@ -73,8 +82,6 @@ public class Compositor(
             eventScope.post(TreeUpdateEvent(this, previousState, state))
         }
         repositoriesEventScope.on { event: WarpCreateEvent ->
-            // TODO: Handle cross-mount move.
-
             // We need to check for each mount point of the repository if the warp should be present in the compositor tree.
             // If yes, we add it to the compositor tree and call the warp create event.
             for (mount in mounts().filter { it.repository == event.warp.tree }) {
@@ -83,12 +90,18 @@ public class Compositor(
                     continue
                 }
                 state[compositorPath] = event.warp.state
-                eventScope.post(WarpCreateEvent(this[compositorPath]!!))
+
+                val crossRepositoryMove = crossRepositoryWarpMoves.find { it.to == compositorPath }
+                if (crossRepositoryMove != null) {
+                    // The creation of the warp was caused by a cross-repository compositor move.
+                    eventScope.post(WarpPathChangeEvent(this[compositorPath]!!, newPath = crossRepositoryMove.to, oldPath = crossRepositoryMove.from))
+                } else {
+                    // Post a create event in the compositor event scope.
+                    eventScope.post(WarpCreateEvent(this[compositorPath]!!))
+                }
             }
         }
         repositoriesEventScope.on { event: FolderCreateEvent ->
-            // TODO: Handle cross-mount move.
-
             // We need to check for each mount point of the repository if the folder should be present in the compositor tree.
             // If yes, we add it to the compositor tree and call the folder create event.
             for (mount in mounts().filter { it.repository == event.folder.tree }) {
@@ -99,7 +112,15 @@ public class Compositor(
                 when (compositorPath) {
                     is FolderPath -> {
                         state[compositorPath] = event.folder.state
-                        eventScope.post(FolderCreateEvent(this[compositorPath]!!))
+
+                        val crossRepositoryMove = crossRepositoryFolderMoves.find { it.to == compositorPath }
+                        if (crossRepositoryMove != null) {
+                            // The creation of the folder was caused by a cross-repository compositor move.
+                            eventScope.post(FolderPathChangeEvent(this[compositorPath]!!, newPath = crossRepositoryMove.to, oldPath = crossRepositoryMove.from))
+                        } else {
+                            // Post a create event in the compositor event scope.
+                            eventScope.post(FolderCreateEvent(this[compositorPath]!!))
+                        }
                     }
                     RootPath -> {
                         // This shouldn't be possible, as the mount source folder must exist when loading the tree.
@@ -109,8 +130,6 @@ public class Compositor(
             }
         }
         repositoriesEventScope.on { event: WarpDeleteEvent ->
-            // TODO: Handle cross-mount move.
-
             // We need to check for each mount point of the repository if the warp is present in the compositor tree.
             // If yes, we remove it from the compositor tree and call the warp delete event.
             for (mount in mounts().filter { it.repository == event.warp.tree }) {
@@ -118,9 +137,15 @@ public class Compositor(
                     // The warp is not present in the compositor tree.
                     continue
                 }
-                eventScope.post(WarpDeleteEvent(this[compositorPath]!!))
+
+                val crossRepositoryMove = crossRepositoryWarpMoves.find { it.from == compositorPath }
+                if (crossRepositoryMove != null) {
+                    eventScope.post(WarpDeleteEvent(this[compositorPath]!!))
+                }
                 val previousState = state.delete(compositorPath)!!
-                eventScope.post(WarpPostDeleteEvent(compositorPath, previousState))
+                if (crossRepositoryMove != null) {
+                    eventScope.post(WarpPostDeleteEvent(compositorPath, previousState))
+                }
             }
         }
         repositoriesEventScope.on { event: FolderDeleteEvent ->
@@ -660,6 +685,10 @@ public class Compositor(
     }
 
     override suspend fun update(path: WarpPath, newState: WarpState): Result<Unit> = runCatching {
+        if (path !in this) {
+            throw WarpNotFoundException(path)
+        }
+
         // Update the warp in the mounted repository.
         // The compositor state is then updated by the event handler for that repository.
         val (mount, repositoryPath) = toRepositoryLocation(path)
@@ -744,6 +773,18 @@ public class Compositor(
         src: WarpPath,
         dst: WarpPath,
     ): Result<Unit> = runCatching {
+        // Early exit if move operation is a no-op.
+        if (src == dst) {
+            return@runCatching
+        }
+
+        if (src !in this) {
+            throw WarpNotFoundException(src)
+        }
+        if (dst in this) {
+            throw WarpAlreadyExistsException(src)
+        }
+
         val (srcMount, srcRepositoryPath) = toRepositoryLocation(src)
         val (dstMount, dstRepositoryPath) = toRepositoryLocation(dst)
 
@@ -752,16 +793,22 @@ public class Compositor(
             val mount = srcMount // = dstMount
             mount.repository.move(srcRepositoryPath, dstRepositoryPath).getOrThrow()
         } else {
-            // The warp is moved into a different mount.
-            val state = this.state[src] ?: throw WarpNotFoundException(src)
-            if (dst in this) {
-                throw WarpAlreadyExistsException(dst)
-            }
-
             // Move the warp, by deleting it from one repository and creating it in the other.
-            // TODO: This currently causes a create and a delete event to be fired in the compositor instead of a single move event.
-            srcMount.repository.delete(srcRepositoryPath).getOrThrow()
-            dstMount.repository.create(dstRepositoryPath, state).getOrThrow()
+            // We mark the movement, so that the creation / deletion events of the repositories are transformed into a single move event.
+            val movement = Movement(from = src, to = dst)
+            crossRepositoryWarpMoves += movement
+            try {
+                val state = srcMount.repository.delete(srcRepositoryPath).getOrThrow()
+                dstMount.repository.create(dstRepositoryPath, state).onFailure { exception ->
+                    // Try to restore the warp at the previous location, then rethrow the exception.
+                    srcMount.repository.create(dstRepositoryPath, state).onFailure {
+                        logger.error("Failed to restore warp $src after failed move to $dst", it)
+                    }
+                    throw exception
+                }
+            } finally {
+                crossRepositoryWarpMoves -= movement
+            }
         }
     }
 
@@ -780,86 +827,96 @@ public class Compositor(
             return@runCatching
         }
 
+        if (src !in this) {
+            throw FolderNotFoundException(src)
+        }
+        if (dst in this) {
+            throw FolderAlreadyExistsException(src)
+        }
+
         // Check that the destination is not a subpath of the source.
         if (dst.isProperSubpathOf(src)) {
             throw FolderMoveIntoChildException(src, dst)
         }
 
-        if (moveMounts && dst in this) {
-            throw FolderAlreadyExistsException(dst)
-        }
+        // Create a backup of the current state in case of a rollback.
+        val rollbackState = state.copy()
 
         val (srcMount, srcRepositoryPath) = toRepositoryLocation(src)
         val (dstMount, dstRepositoryPath) = toRepositoryLocation(dst)
-        check(srcRepositoryPath is FolderPath) { "Cannot move folder into subpath." }
-
-        // Handle the case when the source and destination mount are the same,
-        // in which case the move is handled by the shared repository.
-        // TODO: What about mounts in subpaths?!?
-        if (srcMount == dstMount) {
-            // The folder doesn't change its mount during the move operation, the move is therefore handled by the repository.
-            val mount = srcMount // = dstMount
-            dstRepositoryPath as FolderPath // Handled by destination does not exist check.
-            mount.repository.move(srcRepositoryPath, dstRepositoryPath).getOrThrow()
-            return@runCatching
+        check(dstRepositoryPath is FolderPath) // Always the case, as the destination does not exist at this point.
+        if (srcMount.repository.id == dstMount.repository.id && dstRepositoryPath.isProperSubpathOf(srcRepositoryPath)) {
+            // The move results in a repository destination path that is a subpath of the source in the repository.
+            throw FolderMoveIntoChildException(src, dst)
         }
 
+        // Collect all nodes that are being moved.
         val movedTree = subtree(src, includeNestedMounts = !moveMounts)!!
-        val rootIsMount = src in mounts.keys
 
-        // Handle case where the mount directory is a root directory.
-        if (rootIsMount && moveMounts) {
-            eventScope.post(CompositorRepositoryUnmountEvent(this, srcMount))
-            val newMount = mounts.remove(src)!!.copy(targetPath = dst)
-            mounts[dst] = newMount
-            eventScope.post(CompositorRepositoryMountEvent(this, newMount))
-            return@runCatching
-        }
-
+        // Collect all mounts that are affected by this move operation.
         val movedMounts = mounts()
             .filter { it.targetPath.isSubpathOf(src) }
             .sortedBy { it.targetPath.value.length }
+        val rootIsMount = src in mounts.keys
 
         // Unmount all contained mounts.
         for (mount in movedMounts.reversed()) {
             eventScope.post(CompositorRepositoryUnmountEvent(this, mount))
             mounts.keys -= mount.targetPath
+
+            // Remove mount content from the state.
+            state.delete(mount.targetPath as FolderPath) // targetPath is a subpath of src which is a folder path.
         }
 
-        // Remove the move root node from the src repository.
-        // (Unless the move root node is a mount point, in which case just the mount definition is moved).
-        if (!rootIsMount) {
-            // Delete the move root node (and its content).
-            srcMount.repository.delete(srcRepositoryPath).getOrThrow()
-        }
-
-        // Create the root node in the new repository (unless it is a mount target und moveMounts is true).
-        if (!rootIsMount && moveMounts) {
-            when (dstRepositoryPath) {
-                is FolderPath -> dstMount.repository.create(dstRepositoryPath, movedTree.root).getOrThrow()
-                RootPath -> dstMount.repository.update(dstRepositoryPath, movedTree.root).getOrThrow()
+        // Move the folder.
+        try {
+            if (srcMount.repository.id == dstMount.repository.id) {
+                // The source and destination repository are the same, the move can therefore be handled by the shared repository.
+                check(srcRepositoryPath is FolderPath) // The source can't be a parent of the destination, and is therefore always a FolderPath.
+                val mount = srcMount // = dstMount
+                mount.repository.move(srcRepositoryPath, dstRepositoryPath).getOrThrow()
+            } else {
+                // The folder changes repository during the move, we therefore need to delete it in the old repository and create it in the new repository.
+                if (!rootIsMount || !moveMounts) {
+                    dstMount.repository.create(dstRepositoryPath, movedTree).getOrThrow()
+                    if (!rootIsMount) {
+                        check(srcRepositoryPath is FolderPath)
+                        srcMount.repository.delete(srcRepositoryPath).getOrThrow()
+                    }
+                }
             }
-        }
-
-        // Create all new content nodes.
-        for ((folderPath, folderState) in movedTree.folders.toList().sortedBy { it.first.value.length }) {
-            dstMount.repository.create(folderPath, folderState).getOrThrow()
-        }
-        for ((warpPath, warpState) in movedTree.warps.toList().sortedBy { it.first.value.length }) {
-            dstMount.repository.create(warpPath, warpState).getOrThrow()
-        }
-
-        // Mount all mounts at their new locations.
-        for (oldMount in movedMounts) {
-            if (oldMount.targetPath == src && !moveMounts) {
-                continue
+        } catch (exception: Exception) {
+            // Rollback to the previous state.
+            this.state.update(rollbackState)
+            for (mount in movedMounts) {
+                mounts[mount.targetPath] = mount
+                eventScope.post(CompositorRepositoryMountEvent(this, mount))
             }
-            val newMount = oldMount.copy(
-                targetPath = dst / (oldMount.sourcePath.relativeTo(src)!!),
-            )
-            mounts[newMount.targetPath] = newMount
-            // TODO: Place content.
-            eventScope.post(CompositorRepositoryMountEvent(this, newMount))
+
+            // Rethrow the exception.
+            throw exception
+        }
+
+        if (moveMounts) {
+            // Mount all mounts at their new locations.
+            for (oldMount in movedMounts) {
+                val newMount = oldMount.copy(
+                    targetPath = dst / (oldMount.sourcePath.relativeTo(src)!!),
+                )
+                state[newMount.targetPath] = newMount.repository.state.subtree(newMount.sourcePath) ?: run {
+                    // The source did already exist before and wasn't modified during the move.
+                    logger.warn("Mount ${newMount.targetPath} is missing source ${newMount.repository.id}:${newMount.sourcePath}")
+                    TreeState.empty()
+                }
+                mounts[newMount.targetPath] = newMount
+                eventScope.post(CompositorRepositoryMountEvent(this, newMount))
+            }
+
+            // If the move root was a mount point, then no repository was ever modified.
+            // We therefore need to manually call the move event.
+            if (rootIsMount) {
+                eventScope.post(FolderPathChangeEvent(Folder(this, dst), newPath = dst, oldPath = src))
+            }
         }
     }
 
@@ -933,5 +990,9 @@ public class Compositor(
         public fun unregister(path: NodeParentPath): CompositorMount? {
             return mounts.remove(path)
         }
+    }
+
+    public companion object {
+        private val logger: Logger = LoggerFactory.getLogger(Compositor::class.java)
     }
 }
