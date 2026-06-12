@@ -2,6 +2,7 @@ package net.voxelpi.varp.repository
 
 import net.kyori.adventure.key.Key
 import net.voxelpi.varp.tree.path.FolderPath
+import net.voxelpi.varp.tree.path.NodeParentPath
 import net.voxelpi.varp.tree.path.WarpPath
 import net.voxelpi.varp.tree.state.FolderState
 import net.voxelpi.varp.tree.state.MutableTreeState
@@ -25,7 +26,7 @@ public object EphemeralStorage : Storage<Unit, StorageHandle> {
 
     override suspend fun loadTree(config: Unit, handle: StorageHandle): Result<TreeState> = runCatching { MutableTreeState() }
 
-    override suspend fun updateTree(config: Unit, handle: StorageHandle, state: TreeState): Result<Unit> = runCatching {}
+    override suspend fun updateTree(config: Unit, handle: StorageHandle, path: NodeParentPath, state: TreeState): Result<Unit> = runCatching {}
 
     override suspend fun createWarp(config: Unit, handle: StorageHandle, path: WarpPath, state: WarpState): Result<Unit> = runCatching {}
 

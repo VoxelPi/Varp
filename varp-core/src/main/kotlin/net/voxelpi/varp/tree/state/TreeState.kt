@@ -44,7 +44,7 @@ public interface TreeState {
      */
     public fun subtree(
         root: NodeParentPath,
-        excludedPaths: Set<NodeParentPath>,
+        excludedPaths: Set<NodeParentPath> = emptySet(),
     ): TreeState? {
         if (root in excludedPaths) {
             return null
@@ -62,5 +62,12 @@ public interface TreeState {
                 .toMutableMap(),
             rootState,
         )
+    }
+
+    public companion object {
+
+        public fun empty(): TreeState {
+            return MutableTreeState()
+        }
     }
 }

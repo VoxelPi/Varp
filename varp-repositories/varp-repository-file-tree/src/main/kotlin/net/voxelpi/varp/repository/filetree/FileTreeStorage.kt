@@ -138,10 +138,18 @@ object FileTreeStorage : Storage<FileTreeStorageConfig, StorageHandle> {
     }
 
     @OptIn(ExperimentalPathApi::class)
-    override suspend fun updateTree(config: FileTreeStorageConfig, handle: StorageHandle, state: TreeState): Result<Unit> = runCatching {
-        val dataPath = config.dataDirectory()
+    override suspend fun updateTree(
+        config: FileTreeStorageConfig,
+        handle: StorageHandle,
+        path: NodeParentPath,
+        state: TreeState,
+    ): Result<Unit> = runCatching {
+        val dataPath = RootPath.directory(config)
         val backupPath = config.tempDirectory() / "backup_${System.nanoTime()}"
         var backupCreated = false
+
+        val warps = state.warps.mapKeys { path / it.key }
+        val folders = state.folders.mapKeys { path / it.key }
 
         try {
             // Move existing state to backup-location.
@@ -152,12 +160,15 @@ object FileTreeStorage : Storage<FileTreeStorageConfig, StorageHandle> {
 
             // Create the new state.
             dataPath.createDirectories()
-            updateRoot(config, handle, state.root)
+            when (path) {
+                is FolderPath -> createFolder(config, handle, path, state.root)
+                RootPath -> updateRoot(config, handle, state.root)
+            }
 
-            for ((path, state) in state.folders) {
+            for ((path, state) in folders) {
                 createFolder(config, handle, path, state).getOrThrow()
             }
-            for ((path, state) in state.warps) {
+            for ((path, state) in warps) {
                 createWarp(config, handle, path, state).getOrThrow()
             }
         } catch (exception: Exception) {

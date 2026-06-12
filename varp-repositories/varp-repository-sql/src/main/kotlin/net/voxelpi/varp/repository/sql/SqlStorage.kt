@@ -149,15 +149,24 @@ object SqlStorage : Storage<SqlStorageConfig, SqlStorageHandle> {
     override suspend fun updateTree(
         config: SqlStorageConfig,
         handle: SqlStorageHandle,
+        path: NodeParentPath,
         state: TreeState,
     ): Result<Unit> = runCatching {
-        val warps = state.warps.toList()
-        val folders = state.folders.toList() + listOf(Pair(RootPath, state.root))
+        val warps = state.warps.mapKeys { path / it.key }.toList()
+        val folders = state.folders.mapKeys { path / it.key }.toList() + listOf(Pair(path, state.root))
 
         transaction {
             // Delete existing content
-            WarpTable.deleteAll()
-            FolderTable.deleteAll()
+            when (path) {
+                is FolderPath -> {
+                    WarpTable.deleteWhere { WarpTable.path like "$path%" }
+                    FolderTable.deleteWhere { FolderTable.path like "$path%" }
+                }
+                RootPath -> {
+                    WarpTable.deleteAll()
+                    FolderTable.deleteAll()
+                }
+            }
 
             // Create new content.
             FolderTable.batchInsert(folders) { (path, state) ->

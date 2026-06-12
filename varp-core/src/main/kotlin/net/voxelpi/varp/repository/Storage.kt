@@ -2,6 +2,7 @@ package net.voxelpi.varp.repository
 
 import net.kyori.adventure.key.Key
 import net.voxelpi.varp.tree.path.FolderPath
+import net.voxelpi.varp.tree.path.NodeParentPath
 import net.voxelpi.varp.tree.path.WarpPath
 import net.voxelpi.varp.tree.state.FolderState
 import net.voxelpi.varp.tree.state.TreeState
@@ -80,15 +81,26 @@ public interface Storage<C : Any, H : StorageHandle> {
     public suspend fun loadTree(config: C, handle: H): Result<TreeState>
 
     /**
-     * Replaces the complete persisted tree state with [state].
+     * Replaces the persisted subtree rooted at [path] with [state].
      *
-     * This operation is a full-tree update: all currently stored nodes are removed and the nodes from
-     * [state] become the new persisted repository contents.
+     * The supplied [state] is interpreted relative to [path]. The root folder of [state] replaces the
+     * node at [path], and all folders and warps contained in [state] become the new descendants of that
+     * node.
      *
-     * Implementations must not leave the backend in a partially replaced state. If the operation
-     * fails, the previously stored tree should remain available as if the operation had not happened.
+     * If [path] is the root path, this operation replaces the complete persisted tree state. In this case,
+     * all currently stored nodes are removed and the nodes from [state] become the new repository
+     * contents.
+     *
+     * If [path] refers to a folder, only that folder and its descendants are replaced. Nodes outside the
+     * subtree rooted at [path] must remain unchanged.
+     *
+     * Implementations must not leave the backend in a partially replaced state. If the operation fails,
+     * the previously stored subtree should remain available as if the operation had not happened.
+     *
+     * The repository layer guarantees that [path] exists and refers to a container node (either the root
+     * folder or an existing folder).
      */
-    public suspend fun updateTree(config: C, handle: H, state: TreeState): Result<Unit>
+    public suspend fun updateTree(config: C, handle: H, path: NodeParentPath, state: TreeState): Result<Unit>
 
     /**
      * Creates a new warp at [path] with the given [state].

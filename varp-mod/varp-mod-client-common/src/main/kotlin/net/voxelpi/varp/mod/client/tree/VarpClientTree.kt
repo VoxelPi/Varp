@@ -75,6 +75,10 @@ class VarpClientTree(
         return Result.success(this[path]!!)
     }
 
+    override suspend fun create(path: FolderPath, state: TreeState): Result<Folder> {
+        TODO("Not yet implemented")
+    }
+
     override suspend fun delete(path: WarpPath): Result<WarpState> {
         val previousState = state[path] ?: return Result.failure(WarpNotFoundException(path))
         clientNetworkHandler.sendServerboundPacket(VarpServerboundDeleteWarpPacket(path))

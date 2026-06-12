@@ -1,6 +1,7 @@
 package net.voxelpi.varp.repository
 
 import net.voxelpi.varp.tree.path.FolderPath
+import net.voxelpi.varp.tree.path.NodeParentPath
 import net.voxelpi.varp.tree.path.WarpPath
 import net.voxelpi.varp.tree.state.FolderState
 import net.voxelpi.varp.tree.state.TreeState
@@ -10,6 +11,7 @@ public object StorageEvents {
 
     @JvmRecord
     public data class TreeStateChangeEvent(
+        val path: NodeParentPath,
         val newState: TreeState,
     )
 

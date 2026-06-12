@@ -6,6 +6,8 @@ import net.voxelpi.event.EventScopeProvider
 import net.voxelpi.event.eventScope
 import net.voxelpi.event.post
 import net.voxelpi.varp.tree.path.FolderPath
+import net.voxelpi.varp.tree.path.NodeParentPath
+import net.voxelpi.varp.tree.path.RootPath
 import net.voxelpi.varp.tree.path.WarpPath
 import net.voxelpi.varp.tree.state.FolderState
 import net.voxelpi.varp.tree.state.TreeState
@@ -110,22 +112,35 @@ public data class StorageInstance<C : Any, H : StorageHandle>(
     public suspend fun loadTree(): Result<TreeState> = runCatching {
         val handle = handleOrThrow()
         val state = storage.loadTree(config, handle).getOrThrow()
-        eventScope.post(StorageEvents.TreeStateChangeEvent(state))
+        eventScope.post(StorageEvents.TreeStateChangeEvent(RootPath, state))
         return@runCatching state
     }
 
     /**
-     * Replaces the complete persisted tree state with [state].
+     * Replaces the subtree rooted at [path] with [state].
+     *
+     * The supplied [state] is interpreted relative to [path]. The root folder of [state] replaces the
+     * node at [path], and all folders and warps contained in [state] become the new descendants of that
+     * node.
+     *
+     * If [path] is [RootPath], this operation replaces the complete persisted tree state. In this case,
+     * all currently stored nodes are removed and the nodes from [state] become the new repository
+     * contents.
+     *
+     * If [path] refers to a folder, only that folder and its descendants are replaced. Nodes outside the
+     * subtree rooted at [path] remain unchanged.
      *
      * Callers must only call this method while the instance is open.
+     * They must guarantee that [path] exists and refers to a container node (either the root folder
+     * or an existing folder).
      *
-     * The underlying storage is expected to apply the replacement safely: if the operation fails, the
-     * storage should not be left in a partially replaced state.
+     * The underlying storage is expected to apply the replacement safely. If the operation fails, the
+     * previously stored subtree should remain available as if the operation had not happened.
      */
-    public suspend fun updateTree(state: TreeState): Result<Unit> = runCatching {
+    public suspend fun updateTree(path: NodeParentPath, state: TreeState): Result<Unit> = runCatching {
         val handle = handleOrThrow()
-        storage.updateTree(config, handle, state).getOrThrow()
-        eventScope.post(StorageEvents.TreeStateChangeEvent(state))
+        storage.updateTree(config, handle, path, state).getOrThrow()
+        eventScope.post(StorageEvents.TreeStateChangeEvent(path, state))
     }
 
     /**

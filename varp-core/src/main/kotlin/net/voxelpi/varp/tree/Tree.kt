@@ -149,6 +149,11 @@ public interface Tree : EventScopeProvider {
     public suspend fun create(path: FolderPath, state: FolderState): Result<Folder>
 
     /**
+     * Creates a new folder at the given [path] with the given [state].
+     */
+    public suspend fun create(path: FolderPath, state: TreeState): Result<Folder>
+
+    /**
      * Deletes the [Warp] at the given [path].
      */
     public suspend fun delete(path: WarpPath): Result<WarpState>

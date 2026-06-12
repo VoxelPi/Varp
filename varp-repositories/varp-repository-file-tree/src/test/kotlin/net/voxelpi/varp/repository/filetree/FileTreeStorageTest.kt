@@ -61,7 +61,7 @@ internal class FileTreeStorageTest {
         }
 
         runBlocking { storage.open().getOrThrow() }
-        runBlocking { storage.updateTree(expectedState) }
+        runBlocking { storage.updateTree(RootPath, expectedState) }
         val actualState = runBlocking { storage.loadTree().getOrThrow() }
         runBlocking { storage.close().getOrThrow() }
 

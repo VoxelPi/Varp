@@ -604,6 +604,13 @@ public class Compositor(
     // region repository functions
 
     override suspend fun create(path: WarpPath, state: WarpState): Result<Warp> = runCatching {
+        if (path in this) {
+            throw WarpAlreadyExistsException(path)
+        }
+        if (path.parent !in this) {
+            throw NodeParentNotFoundException(path.parent)
+        }
+
         // Create the warp in the mounted repository.
         // The compositor state is then updated by the event handler for that repository.
         val (mount, repositoryPath) = toRepositoryLocation(path)
@@ -612,6 +619,13 @@ public class Compositor(
     }
 
     override suspend fun create(path: FolderPath, state: FolderState): Result<Folder> = runCatching {
+        if (path in this) {
+            throw FolderAlreadyExistsException(path)
+        }
+        if (path.parent !in this) {
+            throw NodeParentNotFoundException(path.parent)
+        }
+
         // Create the folder in the mounted repository.
         // The compositor state is then updated by the event handler for that repository.
         val (mount, repositoryPath) = toRepositoryLocation(path)
@@ -621,6 +635,25 @@ public class Compositor(
                 // This means that this path is mapped to a root path of a mounted repository, which always exist.
                 throw NodeParentAlreadyExistsException(repositoryPath)
             }
+        }
+
+        return@runCatching Folder(this, path)
+    }
+
+    override suspend fun create(path: FolderPath, state: TreeState): Result<Folder> = runCatching {
+        if (path in this) {
+            throw FolderAlreadyExistsException(path)
+        }
+        if (path.parent !in this) {
+            throw NodeParentNotFoundException(path.parent)
+        }
+
+        // Create the folder and its content in the mounted repository.
+        // The compositor state is then updated by the event handler for that repository.
+        val (mount, repositoryPath) = toRepositoryLocation(path)
+        when (repositoryPath) {
+            is FolderPath -> mount.repository.create(repositoryPath, state).getOrThrow()
+            RootPath -> mount.repository.update(RootPath, state).getOrThrow()
         }
 
         return@runCatching Folder(this, path)

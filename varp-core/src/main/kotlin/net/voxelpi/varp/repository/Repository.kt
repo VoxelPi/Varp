@@ -26,6 +26,7 @@ import net.voxelpi.varp.tree.Folder
 import net.voxelpi.varp.tree.Tree
 import net.voxelpi.varp.tree.Warp
 import net.voxelpi.varp.tree.path.FolderPath
+import net.voxelpi.varp.tree.path.NodeParentPath
 import net.voxelpi.varp.tree.path.RootPath
 import net.voxelpi.varp.tree.path.WarpPath
 import net.voxelpi.varp.tree.state.FolderState
@@ -118,8 +119,13 @@ public class Repository<C : Any, H : StorageHandle>(
         storage.loadTree().getOrThrow()
     }
 
-    public suspend fun update(newState: TreeState): Result<Unit> = runCatching {
-        storage.updateTree(newState).getOrThrow()
+    public suspend fun update(path: NodeParentPath, newState: TreeState): Result<Unit> = runCatching {
+        // Check that the parent exists.
+        if (path is FolderPath && path.parent !in this) {
+            throw NodeParentNotFoundException(path.parent)
+        }
+
+        storage.updateTree(path, newState).getOrThrow()
     }
 
     public override suspend fun create(path: WarpPath, state: WarpState): Result<Warp> = runCatching {
@@ -152,6 +158,23 @@ public class Repository<C : Any, H : StorageHandle>(
 
         // Update storage.
         storage.createFolder(path, state).getOrThrow()
+
+        return@runCatching this[path]!!
+    }
+
+    public override suspend fun create(path: FolderPath, state: TreeState): Result<Folder> = runCatching {
+        // Check that a folder doesn't already exist at that path.
+        if (path in this) {
+            throw FolderAlreadyExistsException(path)
+        }
+
+        // Check if the parent exists.
+        if (path.parent !in this) {
+            throw NodeParentNotFoundException(path.parent)
+        }
+
+        // Update storage.
+        storage.updateTree(path, state).getOrThrow()
 
         return@runCatching this[path]!!
     }

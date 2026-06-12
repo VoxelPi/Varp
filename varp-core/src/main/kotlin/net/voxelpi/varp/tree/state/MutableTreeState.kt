@@ -26,6 +26,18 @@ public data class MutableTreeState(
         }
     }
 
+    public operator fun set(path: NodeParentPath, state: TreeState) {
+        when (path) {
+            RootPath -> update(state)
+            is FolderPath -> {
+                delete(path)
+                this[path] = state
+                folders.putAll(state.folders.mapKeys { path / it.key })
+                warps.putAll(state.warps.mapKeys { path / it.key })
+            }
+        }
+    }
+
     public fun move(src: WarpPath, dst: WarpPath): WarpState? {
         val state = warps[src] ?: return null
         warps[dst] = state

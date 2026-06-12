@@ -38,6 +38,7 @@ class CompositorTest {
                 CompositorMount(NodeParentPath.parse("/data2/data3/").getOrThrow(), repo3, RootPath),
             ),
         )
+        compositor.load()
 
         compositor.create(
             FolderPath("/test_folder_0/"),
