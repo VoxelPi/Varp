@@ -1,6 +1,7 @@
 package net.voxelpi.varp.event.tree
 
 import net.voxelpi.varp.tree.Tree
+import net.voxelpi.varp.tree.path.NodeParentPath
 import net.voxelpi.varp.tree.state.TreeState
 
 /**
@@ -9,6 +10,7 @@ import net.voxelpi.varp.tree.state.TreeState
 @JvmRecord
 public data class TreeUpdateEvent(
     override val tree: Tree,
-    val previousState: TreeState,
+    val path: NodeParentPath,
+    val previousState: TreeState?,
     val newState: TreeState,
 ) : TreeEvent

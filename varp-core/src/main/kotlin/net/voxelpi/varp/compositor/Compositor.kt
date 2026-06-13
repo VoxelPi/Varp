@@ -75,11 +75,11 @@ public class Compositor(
         repositoriesEventScope.on { event: TreeUpdateEvent ->
             val updatedRepository = event.tree as? Repository<*, *> ?: return@on
 
-            val previousState = state.copy()
+            val previousState = state.subtree(event.path)
             val mounts = mounts().filter { it.repository == event.tree }
             // TODO: Handle internally.
 
-            eventScope.post(TreeUpdateEvent(this, previousState, state))
+            // eventScope.post(TreeUpdateEvent(this, previousState, state))
         }
         repositoriesEventScope.on { event: WarpCreateEvent ->
             // We need to check for each mount point of the repository if the warp should be present in the compositor tree.
@@ -233,21 +233,9 @@ public class Compositor(
                     continue
                 }
 
-                // Get the new state of the container.
-                var newState = if (compositorPath == mount.targetPath) {
-                    event.newState.modifiedCopy {
-                        // Use the overlay name if available.
-                        mount.state.name.let { name = it }
-                    }
-                } else {
-                    event.newState
-                }
-
-                // Get the old state of the container.
-                val oldState = if (compositorPath == mount.targetPath) {
-                    mount.state
-                } else {
-                    event.oldState
+                if (compositorPath == mount.targetPath) {
+                    // The state is provided by the mount point and not the repository, therefore it doesn't change.
+                    continue
                 }
 
                 // Update state.
@@ -255,8 +243,8 @@ public class Compositor(
 
                 // Fire event.
                 when (compositorPath) {
-                    is FolderPath -> eventScope.post(FolderStateChangeEvent(this[compositorPath]!!, oldState, newState))
-                    RootPath -> eventScope.post(RootStateChangeEvent(this[RootPath], oldState, newState))
+                    is FolderPath -> eventScope.post(FolderStateChangeEvent(this[compositorPath]!!, newState = event.newState, oldState = event.oldState))
+                    RootPath -> eventScope.post(RootStateChangeEvent(this[RootPath], newState = event.newState, oldState = event.oldState))
                 }
             }
         }
@@ -400,7 +388,7 @@ public class Compositor(
             }
         }
 
-        eventScope.post(TreeUpdateEvent(this, previousTreeState, state))
+        eventScope.post(TreeUpdateEvent(this, RootPath, previousTreeState, state))
         return Result.success(Unit)
     }
 

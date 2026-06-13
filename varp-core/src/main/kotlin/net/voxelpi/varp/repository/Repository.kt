@@ -51,9 +51,9 @@ public class Repository<C : Any, H : StorageHandle>(
 
     init {
         storage.on { event: StorageEvents.TreeStateChangeEvent ->
-            val previousState = state.copy()
-            state.update(event.newState)
-            eventScope.post(TreeUpdateEvent(this, previousState, state))
+            val previousState = state.subtree(event.path)
+            state[event.path] = event.newState
+            eventScope.post(TreeUpdateEvent(this, event.path, previousState, state))
         }
         storage.on { event: StorageEvents.WarpCreateEvent ->
             state[event.path] = event.state

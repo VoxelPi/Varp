@@ -171,7 +171,7 @@ class VarpClientTree(
         state.update(MutableTreeState(packet.warps.toMutableMap(), packet.folders.toMutableMap(), packet.root))
 
         // Post load event
-        eventScope.post(TreeUpdateEvent(this, previousState, state))
+        eventScope.post(TreeUpdateEvent(this, RootPath, previousState, state))
     }
 
     fun handlePacket(packet: VarpClientboundUpdateFolderPathPacket) {
