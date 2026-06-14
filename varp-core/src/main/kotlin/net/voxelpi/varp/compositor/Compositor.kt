@@ -35,6 +35,7 @@ import net.voxelpi.varp.tree.path.NodeParentPath
 import net.voxelpi.varp.tree.path.NodePath
 import net.voxelpi.varp.tree.path.RootPath
 import net.voxelpi.varp.tree.path.WarpPath
+import net.voxelpi.varp.tree.path.resolveLocalMovements
 import net.voxelpi.varp.tree.path.topLevelPaths
 import net.voxelpi.varp.tree.state.FolderState
 import net.voxelpi.varp.tree.state.MutableTreeState
@@ -278,16 +279,138 @@ public class Compositor(
                         state[newCompositorPath] = event.warp.state
                         eventScope.post(WarpCreateEvent(this[newCompositorPath]!!))
                     } else {
-                        // The warp remain not present in the compositor tree. Nothing to do here.
+                        // The warp remains not present in the compositor tree. Nothing to do here.
                     }
                 }
             }
         }
         repositoriesEventScope.on { event: FolderPathChangeEvent ->
-            // TODO: Handle internally.
-            // TODO: The new path could be affected by a mount.
+            val updatedRepository = event.folder.tree as? Repository<*, *> ?: return@on
+            val movedFolderSubtree = event.folder.subtreeState()
 
-            eventScope.post(FolderPathChangeEvent(this[event.folder.path]!!, event.newPath, event.oldPath))
+            // Update all mounts of that repository that have a source path that is a subpath of the old folder path.
+            // This itself doesn't cause any changes / events in the compositor tree.
+            val affectedMountsBySource = mounts()
+                .filter { it.repository.id == updatedRepository.id }
+                .filter { it.sourcePath.isSubpathOf(event.oldPath) }
+            this.mounts -= affectedMountsBySource.map { it.targetPath }.toSet()
+            this.mounts += affectedMountsBySource
+                .map { it.copy(sourcePath = event.newPath / it.sourcePath.relativeTo(event.oldPath)!!) }
+                .associateBy { it.targetPath }
+
+            // We need to find all represants of the moved folder in the compositor tree and move them accordingly.
+            // Note that one represntative could be a subnode of another represantative.
+            // The total number of representatives can also change:
+            // - Previously visible represants can become shadowed by other mounts which causes a folder (and its content) to be "created".
+            // - Represants that where previously shadowed can become visible which causes a folder (and its content) to be "deleted".
+            val localCompositorMoves = mutableListOf<Movement<FolderPath?>>()
+            for (mount in mounts().sortedBy { it.targetPath.value.length }.filter { it.repository.id == updatedRepository.id }) {
+                val oldCompositorPath = toCompositorPath(mount, event.oldPath)
+                val newCompositorPath = toCompositorPath(mount, event.newPath)
+                if (oldCompositorPath == null && newCompositorPath == null) {
+                    // We can the ignore the movement, if the represant has no effect on the compositor tree.
+                    continue
+                }
+                if (newCompositorPath !is FolderPath) {
+                    // Should not be possible, as the root must always exist.
+                    logger.error("Encountered missing root during folder move in compositor $oldCompositorPath -> $newCompositorPath (caused by ${event.oldPath} -> ${event.newPath} in '${updatedRepository.id}').")
+                    continue
+                }
+                if (oldCompositorPath !is FolderPath) {
+                    // Should not be possible, as the root can never be moved.
+                    logger.error("Encountered moved root during folder move in compositor $oldCompositorPath -> $newCompositorPath. (caused by ${event.oldPath} -> ${event.newPath} in '${updatedRepository.id}')")
+                    continue
+                }
+                localCompositorMoves += Movement(from = oldCompositorPath, to = newCompositorPath)
+            }
+
+            // Transform list of local movements to list of global movements.
+            val globalCompositorMoves = resolveLocalMovements(localCompositorMoves)
+                .sortedBy { it.from?.level ?: it.to?.level }
+
+            // Call Delete events for all folders that will be deleted.
+            for (move in globalCompositorMoves) {
+                if (move.from != null && move.to == null) {
+                    eventScope.post(FolderDeleteEvent(Folder(this, move.from)))
+                }
+            }
+
+            // Update the compositor tree state.
+            for (move in localCompositorMoves.sortedByDescending { it.from?.level ?: it.to?.level }) {
+                if (move.from != null) {
+                    if (move.to != null) {
+                        // Both the old and the new path are present in the compositor tree,
+                        // we therefore just move the state in the compositor tree.
+                        this.state.move(move.from, move.to)
+                    } else {
+                        // Whilst the warp was previously present in the compositor tree,
+                        // it was moved into a location that is no longer present in the compositor tree.
+                        // We therefore delete the warp from the compositor tree.
+                        this.state.delete(move.from) ?: FolderState.emptyState()
+                    }
+                } else {
+                    if (move.to != null) {
+                        // Whilst the folder was previously not present in the compositor tree,
+                        // it was moved into a location that is now present in the compositor tree.
+                        // We therefore create the folder in the compositor tree.
+                        this.state[move.to] = movedFolderSubtree
+                    } else {
+                        // The folder remains not present in the compositor tree. Nothing to do here.
+                        // Already filtered, can never happen.
+                    }
+                }
+            }
+
+            // Update the compositor mounts
+            val changedMounts  = this.mounts
+                .filter { (targetPath, _) -> globalCompositorMoves.any { it.from != null && targetPath.isSubpathOf(it.from) } }
+            this.mounts -= changedMounts.keys
+
+            // Remove mounts that would replace an existing mount.
+            val removedMounts = changedMounts.values
+                .filter { mount -> globalCompositorMoves.any { it.from != null && mount.targetPath.isSubpathOf(it.from) && it.to == null } }
+            for (removedMount in removedMounts) {
+                logger.warn("Removed mount ${removedMount.targetPath} (${removedMount.repository.id}:${removedMount.sourcePath}) because of a repository move (${event.oldPath} -> ${event.newPath} in '${updatedRepository.id}')")
+                eventScope.post(CompositorRepositoryUnmountEvent(this, removedMount))
+            }
+
+            // Recreate moved mounts at their new locations.
+            val preservedMounts = changedMounts.values
+                .mapNotNull { mount ->
+                    val movement = globalCompositorMoves.last { it.from != null && mount.targetPath.isSubpathOf(it.from) }
+                    if (movement.to == null) {
+                        return@mapNotNull null
+                    }
+                    mount.copy(targetPath = movement.to / mount.targetPath.relativeTo(movement.from!!)!!)
+                }
+                .associateBy { it.targetPath }
+            this.mounts += preservedMounts
+
+            // Fire events.
+            for (move in localCompositorMoves.sortedByDescending { it.from?.level ?: it.to?.level }) {
+                if (move.from != null) {
+                    if (move.to != null) {
+                        // Both the old and the new path are present in the compositor tree,
+                        // we therefore just move the state in the compositor tree.
+                        eventScope.post(FolderPathChangeEvent(Folder(this, move.to), newPath = move.to, oldPath = move.from))
+                    } else {
+                        // Whilst the warp was previously present in the compositor tree,
+                        // it was moved into a location that is no longer present in the compositor tree.
+                        // We therefore delete the warp from the compositor tree.
+                        eventScope.post(FolderPostDeleteEvent(move.from, movedFolderSubtree.root))
+                    }
+                } else {
+                    if (move.to != null) {
+                        // Whilst the folder was previously not present in the compositor tree,
+                        // it was moved into a location that is now present in the compositor tree.
+                        // We therefore create the folder in the compositor tree.
+                        eventScope.post(FolderCreateEvent(Folder(this, move.to)))
+                    } else {
+                        // The folder remains not present in the compositor tree. Nothing to do here.
+                        // Already filtered, can never happen.
+                    }
+                }
+            }
         }
     }
 
