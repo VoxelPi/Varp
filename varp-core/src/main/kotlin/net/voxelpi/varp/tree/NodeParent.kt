@@ -2,6 +2,7 @@ package net.voxelpi.varp.tree
 
 import net.voxelpi.varp.tree.path.NodeParentPath
 import net.voxelpi.varp.tree.state.FolderState
+import net.voxelpi.varp.tree.state.TreeState
 import net.voxelpi.varp.tree.state.WarpState
 
 /**
@@ -15,6 +16,11 @@ public sealed interface NodeParent : Node {
     override val path: NodeParentPath
 
     override val state: FolderState
+
+    /**
+     * Returns the state of the subtree, rooted at this node.
+     */
+    public fun subtreeState(): TreeState
 
     /**
      * Modifies the state of the folder.

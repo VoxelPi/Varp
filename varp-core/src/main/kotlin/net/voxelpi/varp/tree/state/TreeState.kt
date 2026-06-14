@@ -22,6 +22,14 @@ public interface TreeState {
         }
     }
 
+    public fun copy(): TreeState {
+        return MutableTreeState(
+            warps.toMutableMap(),
+            folders.toMutableMap(),
+            root,
+        )
+    }
+
     public operator fun get(path: WarpPath): WarpState? {
         return warps[path]
     }

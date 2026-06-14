@@ -2,9 +2,11 @@ package net.voxelpi.varp.tree
 
 import net.voxelpi.varp.DuplicatesStrategy
 import net.voxelpi.varp.exception.tree.FolderAlreadyExistsException
+import net.voxelpi.varp.exception.tree.FolderNotFoundException
 import net.voxelpi.varp.tree.path.FolderPath
 import net.voxelpi.varp.tree.path.NodeParentPath
 import net.voxelpi.varp.tree.state.FolderState
+import net.voxelpi.varp.tree.state.TreeState
 
 public class Folder internal constructor(
     override val tree: Tree,
@@ -22,6 +24,10 @@ public class Folder internal constructor(
      */
     override val state: FolderState
         get() = tree.state[path]!!
+
+    override fun subtreeState(): TreeState {
+        return tree.state.subtree(this.path) ?: throw FolderNotFoundException(this.path)
+    }
 
     /**
      * Modifies the state of the folder.

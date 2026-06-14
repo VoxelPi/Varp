@@ -91,12 +91,4 @@ public data class MutableTreeState(
         folders.putAll(newState.folders)
         warps.putAll(newState.warps)
     }
-
-    public fun copy(): TreeState {
-        return MutableTreeState(
-            warps.toMutableMap(),
-            folders.toMutableMap(),
-            root,
-        )
-    }
 }

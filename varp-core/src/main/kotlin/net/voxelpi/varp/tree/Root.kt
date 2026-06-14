@@ -2,6 +2,7 @@ package net.voxelpi.varp.tree
 
 import net.voxelpi.varp.tree.path.RootPath
 import net.voxelpi.varp.tree.state.FolderState
+import net.voxelpi.varp.tree.state.TreeState
 
 @ConsistentCopyVisibility
 @JvmRecord
@@ -20,6 +21,10 @@ public data class Root internal constructor(
      */
     override val state: FolderState
         get() = tree.state.root
+
+    override fun subtreeState(): TreeState {
+        return tree.state.copy()
+    }
 
     /**
      * Modifies the state of the root folder.
