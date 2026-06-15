@@ -76,7 +76,16 @@ public class Compositor(
         repositoriesEventScope.on { event: TreeUpdateEvent ->
             val updatedRepository = event.tree as? Repository<*, *> ?: return@on
 
-            val previousState = state.subtree(event.path)
+            // Collect all representatives of the deleted folder in the compositor tree.
+            val compositorPaths = mounts()
+                .filter { it.repository.id == updatedRepository.id }
+                .mapNotNull { toCompositorPath(it, event.path) }
+
+            // Collect all mounts that need to be removed because they have a source path that is a proper subpath of the deleted node.
+            val mountsWithIncludedSource = mounts()
+                .filter { it.repository.id == updatedRepository.id }
+                .filter { it.sourcePath.isSubpathOf(event.path) }
+
             val mounts = mounts().filter { it.repository == event.tree }
             // TODO: Handle internally.
 
@@ -218,6 +227,27 @@ public class Compositor(
                 val previousState = state.delete(compositorPath)!!
                 if (crossRepositoryMove == null) {
                     eventScope.post(FolderPostDeleteEvent(compositorPath, previousState))
+                }
+            }
+
+            // It is possible that content that was previously hidden by a mount has become visible now that the mounts were removed.
+            val topLevelRemovedMountPaths = topLevelPaths(removedMounts.keys)
+            for (targetPath in topLevelRemovedMountPaths) {
+                if (targetPath.parent !in this) {
+                    continue
+                }
+
+                val mount = removedMounts[targetPath]!!
+                val (parentMount, parentRepositoryPath) = toRepositoryLocation(targetPath)
+                val repositorySubTree = parentMount.repository.state.subtree(parentRepositoryPath) ?: continue
+
+                state[targetPath] = repositorySubTree
+                eventScope.post(FolderCreateEvent(Folder(this, targetPath)))
+                for (folder in repositorySubTree.folders.keys.sortedBy { it.level }) {
+                    eventScope.post(FolderCreateEvent(Folder(this, folder)))
+                }
+                for (warp in repositorySubTree.warps.keys.sortedBy { it.level }) {
+                    eventScope.post(WarpCreateEvent(Warp(this, warp)))
                 }
             }
         }
