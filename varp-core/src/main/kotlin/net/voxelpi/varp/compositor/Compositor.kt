@@ -140,17 +140,19 @@ public class Compositor(
                 }
 
                 val crossRepositoryMove = crossRepositoryWarpMoves.find { it.from == compositorPath }
-                if (crossRepositoryMove != null) {
+                if (crossRepositoryMove == null) {
                     eventScope.post(WarpDeleteEvent(this[compositorPath]!!))
                 }
                 val previousState = state.delete(compositorPath)!!
-                if (crossRepositoryMove != null) {
+                if (crossRepositoryMove == null) {
                     eventScope.post(WarpPostDeleteEvent(compositorPath, previousState))
                 }
             }
         }
         repositoriesEventScope.on { event: FolderDeleteEvent ->
-            // TODO: Handle cross-mount move.
+            // Fhe following two kinds of folders in the compositor tree must be removed:
+            // 1. All folders that are direct representatives in the compositor tree of that folder.
+            // 2. All mount points that have a source that is a subnode of that folder.
 
             // Collect all representatives of the deleted folder in the compositor tree.
             val compositorPaths = mounts()
@@ -208,9 +210,15 @@ public class Compositor(
 
             // Delete all folders that were previously selected.
             for (compositorPath in removedCompositorFolders) {
-                eventScope.post(FolderDeleteEvent(this[compositorPath]!!))
+                val crossRepositoryMove = crossRepositoryFolderMoves.find { it.from == compositorPath }
+
+                if (crossRepositoryMove == null) {
+                    eventScope.post(FolderDeleteEvent(this[compositorPath]!!))
+                }
                 val previousState = state.delete(compositorPath)!!
-                eventScope.post(FolderPostDeleteEvent(compositorPath, previousState))
+                if (crossRepositoryMove == null) {
+                    eventScope.post(FolderPostDeleteEvent(compositorPath, previousState))
+                }
             }
         }
         repositoriesEventScope.on { event: WarpStateChangeEvent ->
