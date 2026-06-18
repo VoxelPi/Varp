@@ -34,6 +34,20 @@ public sealed interface NodePath {
     public fun isProperSubpathOf(other: NodeParentPath): Boolean
 
     /**
+     * Returns `true` if this path is equal to or refers to a descendant node of the [others].
+     */
+    public fun isSubpathOfAny(others: Collection<NodeParentPath>): Boolean {
+        return others.any { isSubpathOf(it) }
+    }
+
+    /**
+     * Returns `true` if this path refers to a descendant node of the [others], excluding equality.
+     */
+    public fun isProperSubpathOfAny(others: Collection<NodeParentPath>): Boolean {
+        return others.any { isProperSubpathOf(it) }
+    }
+
+    /**
      * Returns this path as if the given [path] is the root path.
      * If the given [path] is not a parent of this path, null is returned.
      */
