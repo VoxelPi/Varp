@@ -76,20 +76,115 @@ public class Compositor(
         repositoriesEventScope.on { event: TreeUpdateEvent ->
             val updatedRepository = event.tree as? Repository<*, *> ?: return@on
 
-            // Collect all representatives of the deleted folder in the compositor tree.
-            val compositorPaths = mounts()
+            // STEP 1: Find & delete all nodes that need to be deleted.
+
+            // Find all folders & warps that were deleted in the repository.
+            val removedRepositoryFolders = event.previousState?.let {
+                topLevelPaths(event.previousState.folders.keys - event.newState.folders.keys).map { event.path / it }
+            } ?: emptySet()
+            val removedRepositoryWarps = event.previousState?.let {
+                (event.previousState.warps.keys - event.newState.warps.keys).map { event.path / it }
+            }?.filter { warp -> !warp.isSubpathOfAny(removedRepositoryFolders) } ?: emptySet()
+
+            // Find all representatives of the deleted nodes.
+            val removedCompositorFolders = mounts()
+                .filter { it.repository.id != updatedRepository.id }
+                .flatMap { mount -> removedRepositoryFolders.mapNotNull { toCompositorPath(mount, it) } }
+                .toSet()
+            val removedCompositorWarps = mounts()
+                .filter { it.repository.id != updatedRepository.id }
+                .flatMap { mount -> removedRepositoryWarps.mapNotNull { toCompositorPath(mount, it) } }
+                .toSet()
+
+            // Collect all mounts that need to be removed because they have a source path that is a proper subpath of a deleted node in the repository.
+            val removedMounts = mounts()
                 .filter { it.repository.id == updatedRepository.id }
-                .mapNotNull { toCompositorPath(it, event.path) }
+                .filter { it.sourcePath.isProperSubpathOfAny(removedRepositoryFolders) }
+                .toSet()
 
-            // Collect all mounts that need to be removed because they have a source path that is a proper subpath of the deleted node.
-            val mountsWithIncludedSource = mounts()
-                .filter { it.repository.id == updatedRepository.id }
-                .filter { it.sourcePath.isSubpathOf(event.path) }
+            // Remove the deleted nodes.
+            handleRemoveFolders(removedCompositorFolders, removedMounts)
+            for (warpPath in removedCompositorWarps) {
+                eventScope.post(WarpDeleteEvent(Warp(this, warpPath)))
+                val previousState = this.state.delete(warpPath)!!
+                eventScope.post(WarpPostDeleteEvent(warpPath, previousState))
+            }
 
-            val mounts = mounts().filter { it.repository == event.tree }
-            // TODO: Handle internally.
+            // Step 2: Find and create all nodes that need to be created.
 
-            // eventScope.post(TreeUpdateEvent(this, previousState, state))
+            // Find all folders & warps that were created in the repository.
+            val createdRepositoryFolders = (event.newState.folders - (event.previousState?.folders?.keys ?: emptySet())).mapKeys { event.path / it.key }
+            val createdRepositoryWarps = (event.newState.warps - (event.previousState?.warps?.keys ?: emptySet())).mapKeys { event.path / it.key }
+
+            // Find all representatives of the created nodes.
+            val createdCompositorFolders = mounts()
+                .filter { it.repository.id != updatedRepository.id }
+                .flatMap { mount -> createdRepositoryFolders.mapNotNull { (path, state) -> (toCompositorPath(mount, path) as? FolderPath)?.let { Pair(it, state) } } }
+                .toMap()
+            val createdCompositorWarps = mounts()
+                .filter { it.repository.id != updatedRepository.id }
+                .flatMap { mount -> createdRepositoryWarps.mapNotNull { (path, state) -> toCompositorPath(mount, path)?.let { Pair(it, state) } } }
+                .toMap()
+
+            // Create the representatives
+            for ((folderPath, folderState) in createdCompositorFolders.toList().sortedBy { it.first.value.length }) {
+                state[folderPath] = folderState
+
+                // Post a create event in the compositor event scope.
+                eventScope.post(FolderCreateEvent(Folder(this, folderPath)))
+            }
+            for ((warpPath, warpState) in createdCompositorWarps.toList().sortedBy { it.first.value.length }) {
+                state[warpPath] = warpState
+
+                // Post a create event in the compositor event scope.
+                eventScope.post(WarpCreateEvent(Warp(this, warpPath)))
+            }
+
+            // Step 3: Find and update the state of all nodes that were modified in the repository.
+            if (event.previousState != null) {
+                // Find all nodes that were modified in the repository.
+                val existingRepositoryFolders = event.newState.folders.keys
+                    .intersect(event.previousState.folders.keys)
+                    .associate { relativePath -> event.path / relativePath to Pair(event.previousState[relativePath]!!, event.newState[relativePath]!!) } + (RootPath to Pair(event.previousState.root, event.previousState.root))
+                val existingRepositoryWarps = event.newState.warps.keys
+                    .intersect(event.previousState.warps.keys)
+                    .associate { relativePath -> event.path / relativePath to Pair(event.previousState[relativePath]!!, event.newState[relativePath]!!) }
+
+                val modifiedRepositoryFolders = existingRepositoryFolders
+                    .filterValues { it.first != it.second }
+                val modifiedRepositoryWarps = existingRepositoryWarps
+                    .filterValues { it.first != it.second }
+
+                // Find all representatives of the modified nodes.
+                val modifiedCompositorFolders = mounts()
+                    .filter { it.repository.id != updatedRepository.id }
+                    .flatMap { mount -> modifiedRepositoryFolders.mapNotNull { (path, change) -> toCompositorPath(mount, path)?.let { Pair(it, change) } } }
+                    .toMap()
+                    .filterKeys { it !in this.mounts.keys } // Ignore folders that are mount points, as these have their state defined by the mount (that doesn't change).
+                val modifiedCompositorWarps = mounts()
+                    .filter { it.repository.id != updatedRepository.id }
+                    .flatMap { mount -> modifiedRepositoryWarps.mapNotNull { (path, change) -> toCompositorPath(mount, path)?.let { Pair(it, change) } } }
+                    .toMap()
+
+                // Update the representatives
+                for ((folderPath, folderChange) in modifiedCompositorFolders) {
+                    val (previousState, newState) = folderChange
+                    state[folderPath] = newState
+
+                    // Fire event.
+                    when (folderPath) {
+                        is FolderPath -> eventScope.post(FolderStateChangeEvent(Folder(this, folderPath), newState = newState, oldState = previousState))
+                        RootPath -> eventScope.post(RootStateChangeEvent(this[RootPath], newState = newState, oldState = previousState))
+                    }
+                }
+                for ((warpPath, warpChange) in modifiedCompositorWarps) {
+                    val (previousState, newState) = warpChange
+                    state[warpPath] = newState
+
+                    // Fire event.
+                    eventScope.post(WarpStateChangeEvent(Warp(this, warpPath), newState = newState, oldState = previousState))
+                }
+            }
         }
         repositoriesEventScope.on { event: WarpCreateEvent ->
             // We need to check for each mount point of the repository if the warp should be present in the compositor tree.
@@ -167,89 +262,16 @@ public class Compositor(
             val compositorPaths = mounts()
                 .filter { it.repository == event.folder.tree }
                 .mapNotNull { toCompositorPath(it, event.folder.path) }
+                .toSet()
 
             // Collect all mounts that need to be removed because they have a source path that is a proper subpath of the deleted node.
             val removedMounts = mounts()
                 .filter { it.repository == event.folder.tree }
                 .filter { it.sourcePath.isProperSubpathOf(event.folder.path) }
-                .associateBy { it.targetPath }
+                .toSet()
 
-            // Find top level nodes from the union of the above two sets.
-            val removedCompositorFolders = topLevelPaths(compositorPaths + removedMounts.keys)
-
-            // Handle the case where the root node should be "removed".
-            if (RootPath in removedCompositorFolders) {
-                // Unmount everything.
-                for (mount in mounts().sortedByDescending { it.targetPath.value.length }) {
-                    eventScope.post(CompositorRepositoryUnmountEvent(this, mount))
-                }
-                this.mounts.clear()
-
-                // Fire a delete event for each warp directly in the root.
-                for (warp in warps(RootPath, recursive = false)) {
-                    eventScope.post(WarpDeleteEvent(this[warp.path]!!))
-                    val previousState = this.state.delete(warp.path)!!
-                    eventScope.post(WarpPostDeleteEvent(warp.path, previousState))
-                }
-                // Fire a delete event for each folder directly in the root.
-                for (folder in folders(RootPath, recursive = false)) {
-                    eventScope.post(FolderDeleteEvent(this[folder.path]!!))
-                    val previousState = this.state.delete(folder.path)!!
-                    eventScope.post(FolderPostDeleteEvent(folder.path, previousState))
-                }
-                // Reset the root node.
-                val previousRootState = this.state.root
-                this.state.clear()
-                eventScope.post(RootStateChangeEvent(this.root, this.state.root, previousRootState))
-
-                return@on
-            }
-
-            // We can cast to folder path, now that we now that the root path is not present.
-            @Suppress("UNCHECKED_CAST")
-            removedCompositorFolders as Set<FolderPath>
-            @Suppress("UNCHECKED_CAST")
-            removedMounts as MutableMap<FolderPath, CompositorMount>
-
-            // Unmount all mounts that were previously selected.
-            for (mount in removedMounts.values.sortedByDescending { it.targetPath.value.length }) {
-                eventScope.post(CompositorRepositoryUnmountEvent(this, mount))
-                this.mounts -= mount.targetPath
-            }
-
-            // Delete all folders that were previously selected.
-            for (compositorPath in removedCompositorFolders) {
-                val crossRepositoryMove = crossRepositoryFolderMoves.find { it.from == compositorPath }
-
-                if (crossRepositoryMove == null) {
-                    eventScope.post(FolderDeleteEvent(this[compositorPath]!!))
-                }
-                val previousState = state.delete(compositorPath)!!
-                if (crossRepositoryMove == null) {
-                    eventScope.post(FolderPostDeleteEvent(compositorPath, previousState))
-                }
-            }
-
-            // It is possible that content that was previously hidden by a mount has become visible now that the mounts were removed.
-            val topLevelRemovedMountPaths = topLevelPaths(removedMounts.keys)
-            for (targetPath in topLevelRemovedMountPaths) {
-                if (targetPath.parent !in this) {
-                    continue
-                }
-
-                val mount = removedMounts[targetPath]!!
-                val (parentMount, parentRepositoryPath) = toRepositoryLocation(targetPath)
-                val repositorySubTree = parentMount.repository.state.subtree(parentRepositoryPath) ?: continue
-
-                state[targetPath] = repositorySubTree
-                eventScope.post(FolderCreateEvent(Folder(this, targetPath)))
-                for (folder in repositorySubTree.folders.keys.sortedBy { it.level }) {
-                    eventScope.post(FolderCreateEvent(Folder(this, folder)))
-                }
-                for (warp in repositorySubTree.warps.keys.sortedBy { it.level }) {
-                    eventScope.post(WarpCreateEvent(Warp(this, warp)))
-                }
-            }
+            // Remove the given nodes.
+            handleRemoveFolders(compositorPaths, removedMounts)
         }
         repositoriesEventScope.on { event: WarpStateChangeEvent ->
             // We need to check for each mount point of the repository if the warp is present in the compositor tree.
@@ -260,7 +282,7 @@ public class Compositor(
                     continue
                 }
                 state[compositorPath] = event.warp.state
-                eventScope.post(WarpStateChangeEvent(this[compositorPath]!!, event.oldState, event.newState))
+                eventScope.post(WarpStateChangeEvent(this[compositorPath]!!, newState = event.newState, oldState = event.oldState))
             }
         }
         repositoriesEventScope.on { event: NodeParentStateChangeEvent ->
@@ -300,7 +322,7 @@ public class Compositor(
                         // Both the old and the new path are present in the compositor tree,
                         // we therefore just move the state in the compositor tree.
                         state.move(oldCompositorPath, newCompositorPath)
-                        eventScope.post(WarpPathChangeEvent(this[newCompositorPath]!!, newCompositorPath, oldCompositorPath))
+                        eventScope.post(WarpPathChangeEvent(this[newCompositorPath]!!, newPath = newCompositorPath, oldPath = oldCompositorPath))
                     } else {
                         // Whilst the warp was previously present in the compositor tree,
                         // it was moved into a location that is no longer present in the compositor tree.
@@ -400,7 +422,7 @@ public class Compositor(
             }
 
             // Update the compositor mounts
-            val changedMounts  = this.mounts
+            val changedMounts = this.mounts
                 .filter { (targetPath, _) -> globalCompositorMoves.any { it.from != null && targetPath.isSubpathOf(it.from) } }
             this.mounts -= changedMounts.keys
 
@@ -410,6 +432,7 @@ public class Compositor(
             for (removedMount in removedMounts) {
                 logger.warn("Removed mount ${removedMount.targetPath} (${removedMount.repository.id}:${removedMount.sourcePath}) because of a repository move (${event.oldPath} -> ${event.newPath} in '${updatedRepository.id}')")
                 eventScope.post(CompositorRepositoryUnmountEvent(this, removedMount))
+                removeMountFromEventBus(removedMount)
             }
 
             // Recreate moved mounts at their new locations.
@@ -457,14 +480,28 @@ public class Compositor(
      * This means that all mounts are removed, and the tree state is cleared.
      */
     public fun clear() {
-        // Remove all mounts.
-        for (mount in mounts()) {
+        // Unmount everything.
+        for (mount in mounts().sortedByDescending { it.targetPath.value.length }) {
             eventScope.post(CompositorRepositoryUnmountEvent(this, mount))
         }
-        mounts.clear()
+        this.mounts.clear()
 
-        // Clear the compositor tree state.
-        state.clear()
+        // Fire a delete event for each warp directly in the root.
+        for (warp in warps(RootPath, recursive = false)) {
+            eventScope.post(WarpDeleteEvent(this[warp.path]!!))
+            val previousState = this.state.delete(warp.path)!!
+            eventScope.post(WarpPostDeleteEvent(warp.path, previousState))
+        }
+        // Fire a delete event for each folder directly in the root.
+        for (folder in folders(RootPath, recursive = false)) {
+            eventScope.post(FolderDeleteEvent(this[folder.path]!!))
+            val previousState = this.state.delete(folder.path)!!
+            eventScope.post(FolderPostDeleteEvent(folder.path, previousState))
+        }
+        // Reset the root node.
+        val previousRootState = this.state.root
+        this.state.clear()
+        eventScope.post(RootStateChangeEvent(this.root, this.state.root, previousRootState))
     }
 
     public suspend fun load(): Result<Unit> {
@@ -551,6 +588,61 @@ public class Compositor(
 
         eventScope.post(TreeUpdateEvent(this, RootPath, previousTreeState, state))
         return Result.success(Unit)
+    }
+
+    private fun handleRemoveFolders(removedFolders: Set<NodeParentPath>, removedMounts: Set<CompositorMount>) {
+        // Handle the case where the root node should be "removed".
+        if (RootPath in removedFolders || removedMounts.any { it.targetPath == RootPath }) {
+            clear()
+            return
+        }
+
+        // We can cast to folder path, now that we now that the root path is not present.
+        @Suppress("UNCHECKED_CAST")
+        val removedFolders = topLevelPaths((removedFolders + removedMounts.map { it.targetPath }.toSet()) as Set<FolderPath>)
+
+        // Get all mounts that will be removed.
+        val removedMounts = removedMounts + mounts().filter { it.targetPath.isSubpathOfAny(removedFolders) }.toSet()
+
+        // Unmount all mounts that were previously selected.
+        for (mount in removedMounts.sortedByDescending { it.targetPath.value.length }) {
+            eventScope.post(CompositorRepositoryUnmountEvent(this, mount))
+            this.mounts -= mount.targetPath
+            removeMountFromEventBus(mount)
+        }
+
+        // Delete all folders that were previously selected.
+        for (compositorPath in removedFolders) {
+            val crossRepositoryMove = crossRepositoryFolderMoves.find { it.from == compositorPath }
+
+            if (crossRepositoryMove == null) {
+                eventScope.post(FolderDeleteEvent(this[compositorPath]!!))
+            }
+            val previousState = state.delete(compositorPath)!!
+            if (crossRepositoryMove == null) {
+                eventScope.post(FolderPostDeleteEvent(compositorPath, previousState))
+            }
+        }
+
+        // It is possible that content that was previously hidden by a mount has become visible now that the mounts were removed.
+        val topLevelRemovedMountPaths = topLevelPaths(removedMounts.map { it.targetPath as FolderPath })
+        for (targetPath in topLevelRemovedMountPaths) {
+            if (targetPath.parent !in this) {
+                continue
+            }
+
+            val (parentMount, parentRepositoryPath) = toRepositoryLocation(targetPath)
+            val repositorySubTree = parentMount.repository.state.subtree(parentRepositoryPath) ?: continue
+
+            state[targetPath] = repositorySubTree
+            eventScope.post(FolderCreateEvent(Folder(this, targetPath)))
+            for (folder in repositorySubTree.folders.keys.sortedBy { it.level }) {
+                eventScope.post(FolderCreateEvent(Folder(this, folder)))
+            }
+            for (warp in repositorySubTree.warps.keys.sortedBy { it.level }) {
+                eventScope.post(WarpCreateEvent(Warp(this, warp)))
+            }
+        }
     }
 
     /**
@@ -731,48 +823,6 @@ public class Compositor(
             subscribedRepositories -= repository
             repository.eventScope.unregister(repositoriesEventScope)
         }
-    }
-
-    /**
-     * Removes a mount from the compositor and updates the tree.
-     * This also removes all mounts that targeted a subpath of the mount.
-     * Also adds nodes that were previously shadowed by the mount back to the tree.
-     */
-    private fun removeMount(mount: CompositorMount): Result<Unit> = runCatching {
-        // Remove all mounts that target a subpath of the mount.
-        // This includes the mount itself.
-        mounts()
-            .filter { it.targetPath.isSubpathOf(it.targetPath) }
-            .sortedByDescending { it.targetPath.value.length }
-            .forEach { subMount ->
-                eventScope.post(CompositorRepositoryUnmountEvent(this, mount))
-                mounts -= subMount.targetPath
-            }
-
-        // Handle the case when the root mount was removed.
-        if (mount.targetPath !is FolderPath) {
-            // Target path is the root path, the compositor tree is therefore now empty.
-            state.clear()
-            return@runCatching
-        }
-
-        // Update the compositor tree state.
-        state.delete(mount.targetPath)
-
-        // Add nodes that were previously shadowed by the mount.
-        // TODO: Should they cause create events?
-        val (parentMount, parentRepositoryPath) = toRepositoryLocation(mount.targetPath)
-        state.folders += parentMount.repository.state.folders
-            .filter { it.key.isSubpathOf(parentRepositoryPath) } // We already handled the case where the compositor path was the root path and can therefore cast to folder path.
-            .mapKeys { toCompositorPath(parentMount, it.key)!! as FolderPath } // Null-safe, because there are no sub-mounts that could shadow it.
-        state.warps += parentMount.repository.state.warps
-            .filter { it.key.isSubpathOf(parentRepositoryPath) }
-            .mapKeys { toCompositorPath(parentMount, it.key)!! } // Null-safe, because there are no sub-mounts that could shadow it.
-    }
-
-    private fun removeMounts(mounts: Collection<CompositorMount>, additionalDeletedPaths: Set<NodeParentPath>): Result<Unit> = runCatching {
-        val mounts = mounts.associateBy { it.targetPath }
-        val topLevelPaths = topLevelPaths(mounts.keys)
     }
 
     // region repository functions
