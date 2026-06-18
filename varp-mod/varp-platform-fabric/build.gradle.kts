@@ -72,12 +72,12 @@ loom {
 
     runs {
         named("client") {
-            setIdeConfigGenerated(true)
-            setRunDir("run/client")
+            generateRunConfig.set(true)
+            runDirectory = file("run/client")
         }
         named("server") {
-            setIdeConfigGenerated(true)
-            setRunDir("run/server")
+            generateRunConfig.set(true)
+            runDirectory = file("run/server")
         }
     }
 }

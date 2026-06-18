@@ -47,9 +47,9 @@
 
   "depends": {
     "adventure-platform-fabric": ">=6.9.0",
-    "fabricloader": ">=0.19.2",
-    "fabric-api": ">=0.147.0+26.1.2",
-    "fabric-language-kotlin": ">=1.13.11+kotlin.2.3.21",
+    "fabricloader": ">=0.19.3",
+    "fabric-api": ">=0.152.1+26.1.2",
+    "fabric-language-kotlin": ">=1.13.12+kotlin.2.4.0",
     "minecraft": "~26.1"
   }
 }
