@@ -164,11 +164,11 @@ class VarpClientTree(
 
     fun handlePacket(packet: VarpClientboundSyncTreePacket) {
         // Enable client support.
-        client.logger.debug("Received state sync packet: ${packet.folders.size} folders, ${packet.warps.size} warps.")
+        client.logger.debug("Received state sync packet: ${packet.state.folders.size} folders, ${packet.state.warps.size} warps.")
 
         // Update state.
         val previousState = state.copy()
-        state.update(MutableTreeState(packet.warps.toMutableMap(), packet.folders.toMutableMap(), packet.root))
+        state.update(packet.state)
 
         // Post load event
         eventScope.post(TreeUpdateEvent(this, RootPath, previousState, state))

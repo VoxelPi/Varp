@@ -10,6 +10,7 @@ import net.voxelpi.varp.tree.path.NodePath
 import net.voxelpi.varp.tree.path.RootPath
 import net.voxelpi.varp.tree.path.WarpPath
 import net.voxelpi.varp.tree.state.FolderState
+import net.voxelpi.varp.tree.state.TreeState
 import net.voxelpi.varp.tree.state.WarpState
 
 public fun GsonBuilder.varpSerializers(): GsonBuilder {
@@ -25,6 +26,8 @@ public fun GsonBuilder.varpSerializers(): GsonBuilder {
     registerTypeAdapter(WarpPath::class.java, WarpPathSerializer)
     registerTypeAdapter(FolderPath::class.java, FolderPathSerializer)
     registerTypeAdapter(RootPath::class.java, RootPathSerializer)
+
+    registerTypeHierarchyAdapter(TreeState::class.java, TreeStateSerializer)
 
     return this
 }
