@@ -107,12 +107,12 @@ public class TreeBuilder {
 }
 
 /**
- * Creates a new tree state.
+ * Creates a new mutable tree state.
  */
-public fun treeState(
+public fun mutableTreeState(
     root: FolderState,
     content: TreeBuilder.() -> Unit,
-): TreeState {
+): MutableTreeState {
     val rootBuilder = TreeBuilder()
     rootBuilder.content()
 
@@ -153,6 +153,14 @@ public fun treeState(
  * Creates a new tree state.
  */
 public fun treeState(
+    root: FolderState,
+    content: TreeBuilder.() -> Unit,
+): TreeState = mutableTreeState(root, content)
+
+/**
+ * Creates a new tree state.
+ */
+public fun treeState(
     name: ComponentTemplate,
     description: List<ComponentTemplate> = emptyList(),
     tags: Set<String> = emptySet(),
@@ -170,3 +178,25 @@ public fun treeState(
     properties: Map<String, String> = emptyMap(),
     content: TreeBuilder.() -> Unit,
 ): TreeState = treeState(FolderState(ComponentTemplate(name), description.map { ComponentTemplate((it)) }, tags, properties), content)
+
+/**
+ * Creates a new mutable tree state.
+ */
+public fun mutableTreeState(
+    name: ComponentTemplate,
+    description: List<ComponentTemplate> = emptyList(),
+    tags: Set<String> = emptySet(),
+    properties: Map<String, String> = emptyMap(),
+    content: TreeBuilder.() -> Unit,
+): MutableTreeState = mutableTreeState(FolderState(name, description, tags, properties), content)
+
+/**
+ * Creates a new mutable tree state.
+ */
+public fun mutableTreeState(
+    name: String = "root",
+    description: List<String> = emptyList(),
+    tags: Set<String> = emptySet(),
+    properties: Map<String, String> = emptyMap(),
+    content: TreeBuilder.() -> Unit,
+): MutableTreeState = mutableTreeState(FolderState(ComponentTemplate(name), description.map { ComponentTemplate((it)) }, tags, properties), content)

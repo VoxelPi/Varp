@@ -55,7 +55,7 @@ public class VarpEnvironment internal constructor() {
         repositories.clear()
 
         // Load new repositories.
-        repositories.putAll(definition.repositories.mapValues { (id, def) -> Repository(id, def.storage) })
+        repositories.putAll(definition.repositories.mapValues { (id, def) -> Repository(id, def.storage, def.defaultState) })
 
         // Open all currently loaded repositories.
         supervisorScope {

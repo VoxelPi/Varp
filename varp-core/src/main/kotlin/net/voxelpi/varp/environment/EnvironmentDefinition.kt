@@ -5,6 +5,8 @@ import net.voxelpi.varp.repository.StorageHandle
 import net.voxelpi.varp.tree.path.NodeParentPath
 import net.voxelpi.varp.tree.path.RootPath
 import net.voxelpi.varp.tree.state.FolderState
+import net.voxelpi.varp.tree.state.MutableTreeState
+import net.voxelpi.varp.tree.state.TreeState
 
 @JvmRecord
 public data class EnvironmentDefinition(
@@ -23,12 +25,11 @@ public data class EnvironmentDefinition(
             config: C,
             builder: RepositoryBuilder.() -> Unit = {},
         ): RepositoryDefinition<C, H> {
-            val repositoryDefinition = RepositoryDefinition(storage.createInstance(config))
-            repositories[id] = repositoryDefinition
-
-            val repositoryMounts = RepositoryBuilder(id).apply(builder).build()
+            val (repositoryMounts, defaultState) = RepositoryBuilder(id).apply(builder).build()
             mounts.putAll(repositoryMounts)
 
+            val repositoryDefinition = RepositoryDefinition(storage.createInstance(config), defaultState)
+            repositories[id] = repositoryDefinition
             return repositoryDefinition
         }
 
@@ -37,12 +38,11 @@ public data class EnvironmentDefinition(
             storage: Storage<Unit, H>,
             builder: RepositoryBuilder.() -> Unit = {},
         ): RepositoryDefinition<Unit, H> {
-            val repositoryDefinition = RepositoryDefinition(storage.createInstance(Unit))
-            repositories[id] = repositoryDefinition
-
-            val repositoryMounts = RepositoryBuilder(id).apply(builder).build()
+            val (repositoryMounts, defaultState) = RepositoryBuilder(id).apply(builder).build()
             mounts.putAll(repositoryMounts)
 
+            val repositoryDefinition = RepositoryDefinition(storage.createInstance(Unit), defaultState)
+            repositories[id] = repositoryDefinition
             return repositoryDefinition
         }
 
@@ -55,6 +55,8 @@ public data class EnvironmentDefinition(
         ) {
             public val mounts: MutableMap<NodeParentPath, MountDefinition> = mutableMapOf()
 
+            public var defaultState: TreeState = MutableTreeState()
+
             public fun mountedAt(location: NodeParentPath, path: NodeParentPath = RootPath, state: FolderState = FolderState.defaultMountState()) {
                 mounts[location] = MountDefinition(repositoryId, path, state)
             }
@@ -65,8 +67,8 @@ public data class EnvironmentDefinition(
                 return mountedAt(locationPath, pathPath, state)
             }
 
-            internal fun build(): Map<NodeParentPath, MountDefinition> {
-                return mounts
+            internal fun build(): Pair<Map<NodeParentPath, MountDefinition>, TreeState> {
+                return Pair(mounts, defaultState)
             }
         }
     }

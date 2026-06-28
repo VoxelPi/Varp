@@ -30,7 +30,6 @@ import net.voxelpi.varp.tree.path.NodeParentPath
 import net.voxelpi.varp.tree.path.RootPath
 import net.voxelpi.varp.tree.path.WarpPath
 import net.voxelpi.varp.tree.state.FolderState
-import net.voxelpi.varp.tree.state.MutableTreeState
 import net.voxelpi.varp.tree.state.TreeState
 import net.voxelpi.varp.tree.state.WarpState
 
@@ -40,12 +39,13 @@ import net.voxelpi.varp.tree.state.WarpState
 public class Repository<C : Any, H : StorageHandle>(
     public val id: String,
     public val storage: StorageInstance<C, H>,
+    public val defaultState: TreeState = TreeState.empty(),
 ) : Tree {
 
-    public constructor(id: String, storage: Storage<C, H>, config: C) : this(id, StorageInstance(storage, config))
+    public constructor(id: String, storage: Storage<C, H>, config: C, defaultState: TreeState = TreeState.empty()) : this(id, StorageInstance(storage, config), defaultState)
 
     public override val state: TreeState
-        field = MutableTreeState()
+        field = defaultState.mutableCopy()
 
     override val eventScope: EventScope = eventScope()
 
@@ -102,7 +102,7 @@ public class Repository<C : Any, H : StorageHandle>(
      * Opens the storage instance of this repository.
      */
     public suspend fun open(): Result<Unit> = runCatching {
-        storage.open().getOrThrow()
+        storage.open(defaultState).getOrThrow()
     }
 
     /**

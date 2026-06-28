@@ -78,9 +78,9 @@ public data class StorageInstance<C : Any, H : StorageHandle>(
      *
      * @return the newly opened storage handle.
      */
-    public suspend fun open(): Result<H> = runCatching {
+    public suspend fun open(defaultState: TreeState = TreeState.empty()): Result<H> = runCatching {
         check(!isOpen) { "Storage is already open" }
-        val handle = storage.open(config).getOrThrow()
+        val handle = storage.open(config, defaultState).getOrThrow()
         handle.eventScope.register(eventScope)
         this.handle = handle
         return@runCatching handle

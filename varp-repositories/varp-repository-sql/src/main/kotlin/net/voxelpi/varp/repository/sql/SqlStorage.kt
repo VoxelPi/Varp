@@ -25,8 +25,8 @@ import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.batchInsert
 import org.jetbrains.exposed.v1.jdbc.deleteAll
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
+import org.jetbrains.exposed.v1.jdbc.exists
 import org.jetbrains.exposed.v1.jdbc.insert
-import org.jetbrains.exposed.v1.jdbc.insertIgnore
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.jdbc.update
@@ -40,7 +40,7 @@ object SqlStorage : Storage<SqlStorageConfig, SqlStorageHandle> {
     override val configType: KClass<SqlStorageConfig>
         get() = SqlStorageConfig::class
 
-    override suspend fun open(config: SqlStorageConfig): Result<SqlStorageHandle> = runCatching {
+    override suspend fun open(config: SqlStorageConfig, defaultState: TreeState): Result<SqlStorageHandle> = runCatching {
         // Create a configuration depending on the driver.
         val hikariConfig = HikariConfig().apply {
             when (config.driver) {
@@ -66,7 +66,7 @@ object SqlStorage : Storage<SqlStorageConfig, SqlStorageHandle> {
         // Create the connection pool.
         val dataSource = runCatching { HikariDataSource(hikariConfig) }
             .getOrElse { return Result.failure(it) }
-        val handle = SqlStorageHandle(eventScope(), dataSource)
+        val handle = SqlStorageHandle(defaultState, eventScope(), dataSource)
 
         // Check if the connection was successful.
         if (!handle.isConnected()) {
@@ -76,19 +76,11 @@ object SqlStorage : Storage<SqlStorageConfig, SqlStorageHandle> {
         // Set up the database.
         Database.connect(dataSource)
 
-        transaction {
+        // Create default state if the storage is not yet initialized.
+        if (!FolderTable.exists() || !WarpTable.exists()) {
             // Create all tables if they do not already exist.
             SchemaUtils.create(WarpTable, FolderTable)
-
-            // Create a default root folder if it doesn't exist yet.
-            val defaultRootState = FolderState.defaultRootState()
-            FolderTable.insertIgnore { entry ->
-                entry[path] = RootPath.toString()
-                entry[name] = defaultRootState.name.originalMessage
-                entry[description] = defaultRootState.description.joinToString("\n") { it.originalMessage }
-                entry[tags] = defaultRootState.tags.joinToString(",")
-                entry[properties] = defaultRootState.properties.map { "${it.key}=${it.value}" }.joinToString("\n")
-            }
+            updateTree(config, handle, RootPath, defaultState)
         }
 
         return@runCatching handle

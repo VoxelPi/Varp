@@ -23,6 +23,10 @@ public interface TreeState {
     }
 
     public fun copy(): TreeState {
+        return mutableCopy()
+    }
+
+    public fun mutableCopy(): MutableTreeState {
         return MutableTreeState(
             warps.toMutableMap(),
             folders.toMutableMap(),

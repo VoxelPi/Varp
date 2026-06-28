@@ -46,15 +46,15 @@ object FileTreeStorage : Storage<FileTreeStorageConfig, StorageHandle> {
     const val WARP_FILE_SUFFIX = ".warp"
     const val FOLDER_FILE_NAME = "folder"
 
-    override suspend fun open(config: FileTreeStorageConfig): Result<StorageHandle> = runCatching {
-        val handle = StorageHandle.Simple()
+    override suspend fun open(config: FileTreeStorageConfig, defaultState: TreeState): Result<StorageHandle> = runCatching {
+        val handle = StorageHandle.Simple(defaultState)
 
         config.dataDirectory().createDirectories()
         config.tempDirectory().createDirectories()
 
-        // Create root state if it does not already exist.
+        // Create default root state if the storage is not yet initialized.
         if (RootPath.file(config).notExists() || !RootPath.file(config).isRegularFile()) {
-            RootPath.file(config).writeNodeState(config, FolderState.defaultRootState())
+            updateTree(config, handle, RootPath, defaultState)
         }
 
         return@runCatching handle

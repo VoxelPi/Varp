@@ -56,7 +56,7 @@ public interface Storage<C : Any, H : StorageHandle> {
      * The returned handle is passed back to all other storage methods and should remain valid until
      * [close] is called.
      */
-    public suspend fun open(config: C): Result<H>
+    public suspend fun open(config: C, defaultState: TreeState): Result<H>
 
     /**
      * Closes a handle previously returned by [open].

@@ -5,7 +5,6 @@ import net.voxelpi.varp.tree.path.FolderPath
 import net.voxelpi.varp.tree.path.NodeParentPath
 import net.voxelpi.varp.tree.path.WarpPath
 import net.voxelpi.varp.tree.state.FolderState
-import net.voxelpi.varp.tree.state.MutableTreeState
 import net.voxelpi.varp.tree.state.TreeState
 import net.voxelpi.varp.tree.state.WarpState
 import kotlin.reflect.KClass
@@ -20,11 +19,11 @@ public object EphemeralStorage : Storage<Unit, StorageHandle> {
     override val configType: KClass<Unit>
         get() = Unit::class
 
-    override suspend fun open(config: Unit): Result<StorageHandle> = runCatching { StorageHandle.Simple() }
+    override suspend fun open(config: Unit, defaultState: TreeState): Result<StorageHandle> = runCatching { StorageHandle.Simple(defaultState) }
 
     override suspend fun close(config: Unit, handle: StorageHandle): Result<Unit> = runCatching {}
 
-    override suspend fun loadTree(config: Unit, handle: StorageHandle): Result<TreeState> = runCatching { MutableTreeState() }
+    override suspend fun loadTree(config: Unit, handle: StorageHandle): Result<TreeState> = runCatching { handle.defaultState }
 
     override suspend fun updateTree(config: Unit, handle: StorageHandle, path: NodeParentPath, state: TreeState): Result<Unit> = runCatching {}
 
