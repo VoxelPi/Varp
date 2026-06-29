@@ -88,14 +88,5 @@ public sealed interface NodeParentPath : NodePath {
                 }
             }
         }
-
-        @JvmStatic
-        public fun build(vararg folders: String): NodeParentPath {
-            return if (folders.isEmpty()) {
-                RootPath
-            } else {
-                FolderPath("/${folders.joinToString("/")}")
-            }
-        }
     }
 }

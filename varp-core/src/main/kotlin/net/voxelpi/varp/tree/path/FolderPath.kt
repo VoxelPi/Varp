@@ -106,10 +106,5 @@ public data class FolderPath(
         public fun parse(value: String): Result<FolderPath> {
             return runCatching { FolderPath(value) }
         }
-
-        @JvmStatic
-        public fun build(module: String, folder1: String, vararg folders: String): FolderPath {
-            return FolderPath("$module:$folder1/${folders.joinToString("/")}")
-        }
     }
 }

@@ -70,10 +70,5 @@ public data class WarpPath(
         public fun parse(path: String): Result<WarpPath> {
             return runCatching { WarpPath(path) }
         }
-
-        @JvmStatic
-        public fun build(module: String, vararg folders: String, warp: String): FolderPath {
-            return FolderPath("$module:${folders.joinToString("/")}/$warp")
-        }
     }
 }
