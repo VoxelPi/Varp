@@ -4,6 +4,7 @@ import kotlinx.coroutines.runBlocking
 import net.kyori.adventure.key.Key
 import net.voxelpi.varp.ComponentTemplate
 import net.voxelpi.varp.MinecraftLocation
+import net.voxelpi.varp.environment.VarpEnvironment
 import net.voxelpi.varp.repository.EphemeralStorage
 import net.voxelpi.varp.repository.Repository
 import net.voxelpi.varp.tree.path.FolderPath
@@ -12,8 +13,10 @@ import net.voxelpi.varp.tree.path.RootPath
 import net.voxelpi.varp.tree.path.WarpPath
 import net.voxelpi.varp.tree.state.FolderState
 import net.voxelpi.varp.tree.state.WarpState
+import net.voxelpi.varp.tree.state.treeState
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class CompositorTest {
@@ -117,5 +120,132 @@ class CompositorTest {
             ),
         )
         assertThrows<MissingMountException> { runBlocking { compositor.load() } }
+    }
+
+    @Test
+    fun `test init all representatives`() = runBlocking {
+        val environment = VarpEnvironment.build {
+            repository("root", EphemeralStorage) {
+                mountedAt("/")
+            }
+            repository("main", EphemeralStorage) {
+                mountedAt("/a/")
+                mountedAt("/b/")
+
+                defaultState = treeState("root") {
+                    warp("warp", Key.key("minecraft:overworld"), 1.0, 2.0, 3.0, 4f, 5f)
+                    folder("folder") {}
+                }
+            }
+        }.getOrThrow()
+
+        assert(RootPath.folder("a").warp("warp") in environment.compositor) { "Main warp not created" }
+        assert(RootPath.folder("b").warp("warp") in environment.compositor) { "Secondary warp not created" }
+        assert(RootPath.folder("a").folder("folder") in environment.compositor) { "Main folder not created" }
+        assert(RootPath.folder("b").folder("folder") in environment.compositor) { "Secondary folder not created" }
+    }
+
+    @Test
+    fun `test create all representatives`() = runBlocking {
+        val environment = VarpEnvironment.build {
+            repository("root", EphemeralStorage) {
+                mountedAt("/")
+            }
+            repository("main", EphemeralStorage) {
+                mountedAt("/a/")
+                mountedAt("/b/")
+            }
+        }.getOrThrow()
+
+        environment.compositor.create(RootPath.folder("a").warp("warp"), WarpState(Key.key("minecraft:overworld"), 1.0, 2.0, 3.0, 4f, 5f, "TEST")).getOrThrow()
+        assert(RootPath.folder("a").warp("warp") in environment.compositor) { "Main warp not created" }
+        assert(RootPath.folder("b").warp("warp") in environment.compositor) { "Secondary warp not created" }
+
+        environment.compositor.create(RootPath.folder("a").folder("folder"), FolderState("TEST")).getOrThrow()
+        assert(RootPath.folder("a").folder("folder") in environment.compositor) { "Main folder not created" }
+        assert(RootPath.folder("b").folder("folder") in environment.compositor) { "Secondary folder not created" }
+    }
+
+    @Test
+    fun `test delete all representatives`() = runBlocking {
+        val environment = VarpEnvironment.build {
+            repository("root", EphemeralStorage) {
+                mountedAt("/")
+            }
+            repository("main", EphemeralStorage) {
+                mountedAt("/a/")
+                mountedAt("/b/")
+
+                defaultState = treeState("root") {
+                    warp("warp", Key.key("minecraft:overworld"), 1.0, 2.0, 3.0, 4f, 5f)
+                    folder("folder") {}
+                }
+            }
+        }.getOrThrow()
+
+        environment.compositor.delete(RootPath.folder("a").warp("warp")).getOrThrow()
+        assert(RootPath.folder("a").warp("warp") !in environment.compositor) { "Main warp not deleted" }
+        assert(RootPath.folder("b").warp("warp") !in environment.compositor) { "Secondary warp not deleted" }
+        environment.compositor.delete(RootPath.folder("a").folder("folder")).getOrThrow()
+        assert(RootPath.folder("a").folder("folder") !in environment.compositor) { "Main folder not deleted" }
+        assert(RootPath.folder("b").folder("folder") !in environment.compositor) { "Secondary folder not deleted" }
+    }
+
+    @Test
+    fun `test move all representatives`() = runBlocking {
+        val environment = VarpEnvironment.build {
+            repository("root", EphemeralStorage) {
+                mountedAt("/")
+            }
+            repository("main", EphemeralStorage) {
+                mountedAt("/a/")
+                mountedAt("/b/")
+
+                defaultState = treeState("root") {
+                    warp("warp", Key.key("minecraft:overworld"), 1.0, 2.0, 3.0, 4f, 5f)
+                    folder("folder") {}
+                    folder("stuff") {}
+                }
+            }
+        }.getOrThrow()
+
+        environment.compositor.move(RootPath.folder("a").warp("warp"), RootPath.folder("a").folder("stuff").warp("warp")).getOrThrow()
+        assert(RootPath.folder("a").warp("warp") !in environment.compositor) { "Main warp not deleted" }
+        assert(RootPath.folder("b").warp("warp") !in environment.compositor) { "Secondary warp not deleted" }
+        assert(RootPath.folder("a").folder("stuff").warp("warp") in environment.compositor) { "Main warp not created" }
+        assert(RootPath.folder("b").folder("stuff").warp("warp") in environment.compositor) { "Secondary warp not created" }
+        environment.compositor.move(RootPath.folder("a").folder("folder"), RootPath.folder("a").folder("stuff").folder("folder")).getOrThrow()
+        assert(RootPath.folder("a").folder("folder") !in environment.compositor) { "Main folder not deleted" }
+        assert(RootPath.folder("b").folder("folder") !in environment.compositor) { "Secondary folder not deleted" }
+        assert(RootPath.folder("a").folder("stuff").folder("folder") in environment.compositor) { "Main folder not created" }
+        assert(RootPath.folder("b").folder("stuff").folder("folder") in environment.compositor) { "Secondary folder not created" }
+    }
+
+    @Test
+    fun `test update all representatives`() = runBlocking {
+        val environment = VarpEnvironment.build {
+            repository("root", EphemeralStorage) {
+                mountedAt("/")
+            }
+            repository("main", EphemeralStorage) {
+                mountedAt("/a/")
+                mountedAt("/b/")
+
+                defaultState = treeState("root") {
+                    warp("warp", Key.key("minecraft:overworld"), 1.0, 2.0, 3.0, 4f, 5f, name = "old_warp")
+                    folder("folder", name = "old_folder") {}
+                }
+            }
+        }.getOrThrow()
+
+        val newWarpState = WarpState(Key.key("minecraft:overworld"), 1.0, 2.0, 3.0, 4f, 5f, name = "new_warp")
+        environment.compositor.update(RootPath.folder("a").warp("warp"), newWarpState).getOrThrow()
+        assertEquals(newWarpState, environment.compositor.state[RootPath.folder("a").warp("warp")], "Main warp not modified")
+        assertEquals(newWarpState, environment.compositor.state[RootPath.folder("b").warp("warp")], "Secondary warp not modified")
+
+        val newFolderState = FolderState(name = "new_folder")
+        environment.compositor.update(RootPath.folder("a").folder("folder"), newFolderState).getOrThrow()
+        assertEquals(newFolderState, environment.compositor.state[RootPath.folder("a").folder("folder")], "Main folder not modified")
+        assertEquals(newFolderState, environment.compositor.state[RootPath.folder("b").folder("folder")], "Secondary folder not modified")
     }
 }
