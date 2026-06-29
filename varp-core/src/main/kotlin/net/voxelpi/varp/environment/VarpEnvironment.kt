@@ -7,6 +7,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
 import net.voxelpi.varp.compositor.Compositor
 import net.voxelpi.varp.compositor.CompositorMount
+import net.voxelpi.varp.environment.EnvironmentDefinition.Builder
 import net.voxelpi.varp.repository.Repository
 import net.voxelpi.varp.tree.Tree
 import org.slf4j.Logger
@@ -119,6 +120,13 @@ public class VarpEnvironment internal constructor() {
             val environment = VarpEnvironment()
             environment.load(definition)
             return Result.success(environment)
+        }
+
+        public suspend fun build(builder: EnvironmentDefinition.Builder.() -> Unit): Result<VarpEnvironment> = runCatching {
+            val definition = EnvironmentDefinition.environmentDefinition(builder)
+            val environment = VarpEnvironment()
+            environment.load(definition).getOrThrow()
+            return@runCatching environment
         }
     }
 }
