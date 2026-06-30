@@ -10,8 +10,8 @@ import kotlin.test.assertContentEquals
 class VarpEnvironmentTest {
 
     @Test
-    fun `test load from definition`() {
-        val definition = EnvironmentDefinition.environmentDefinition {
+    fun `test load from definition`() = runBlocking {
+        val environment = VarpEnvironment.build {
             repository("main", EphemeralStorage) {
                 mountedAt("/")
 
@@ -27,10 +27,7 @@ class VarpEnvironmentTest {
             repository("games_repo", EphemeralStorage) {
                 mountedAt("/games/")
             }
-        }
-        val environment = runBlocking {
-            VarpEnvironment.environment(definition).getOrThrow()
-        }
+        }.getOrThrow()
 
         assertContentEquals(environment.repositories.keys, listOf("main", "unused", "games_repo"))
         assertContentEquals(environment.compositor.mounts().map { it.targetPath.toString() }, listOf("/", "/games/"))
