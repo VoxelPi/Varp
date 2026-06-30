@@ -11,6 +11,8 @@ import net.voxelpi.varp.tree.path.FolderPath
 import net.voxelpi.varp.tree.path.NodeParentPath
 import net.voxelpi.varp.tree.path.RootPath
 import net.voxelpi.varp.tree.path.WarpPath
+import net.voxelpi.varp.tree.path.folderPath
+import net.voxelpi.varp.tree.path.warpPath
 import net.voxelpi.varp.tree.state.FolderState
 import net.voxelpi.varp.tree.state.WarpState
 import net.voxelpi.varp.tree.state.treeState
@@ -139,10 +141,10 @@ class CompositorTest {
             }
         }.getOrThrow()
 
-        assert(RootPath.folder("a").warp("warp") in environment.compositor) { "Main warp not created" }
-        assert(RootPath.folder("b").warp("warp") in environment.compositor) { "Secondary warp not created" }
-        assert(RootPath.folder("a").folder("folder") in environment.compositor) { "Main folder not created" }
-        assert(RootPath.folder("b").folder("folder") in environment.compositor) { "Secondary folder not created" }
+        assert(warpPath("a", "warp") in environment.compositor) { "Main warp not created" }
+        assert(warpPath("b", "warp") in environment.compositor) { "Secondary warp not created" }
+        assert(folderPath("a", "folder") in environment.compositor) { "Main folder not created" }
+        assert(folderPath("b", "folder") in environment.compositor) { "Secondary folder not created" }
     }
 
     @Test
@@ -157,13 +159,13 @@ class CompositorTest {
             }
         }.getOrThrow()
 
-        environment.compositor.create(RootPath.folder("a").warp("warp"), WarpState(Key.key("minecraft:overworld"), 1.0, 2.0, 3.0, 4f, 5f, "TEST")).getOrThrow()
-        assert(RootPath.folder("a").warp("warp") in environment.compositor) { "Main warp not created" }
-        assert(RootPath.folder("b").warp("warp") in environment.compositor) { "Secondary warp not created" }
+        environment.compositor.create(warpPath("a", "warp"), WarpState(Key.key("minecraft:overworld"), 1.0, 2.0, 3.0, 4f, 5f, "TEST")).getOrThrow()
+        assert(warpPath("a", "warp") in environment.compositor) { "Main warp not created" }
+        assert(warpPath("b", "warp") in environment.compositor) { "Secondary warp not created" }
 
-        environment.compositor.create(RootPath.folder("a").folder("folder"), FolderState("TEST")).getOrThrow()
-        assert(RootPath.folder("a").folder("folder") in environment.compositor) { "Main folder not created" }
-        assert(RootPath.folder("b").folder("folder") in environment.compositor) { "Secondary folder not created" }
+        environment.compositor.create(folderPath("a", "folder"), FolderState("TEST")).getOrThrow()
+        assert(folderPath("a", "folder") in environment.compositor) { "Main folder not created" }
+        assert(folderPath("b", "folder") in environment.compositor) { "Secondary folder not created" }
     }
 
     @Test
@@ -183,12 +185,12 @@ class CompositorTest {
             }
         }.getOrThrow()
 
-        environment.compositor.delete(RootPath.folder("a").warp("warp")).getOrThrow()
-        assert(RootPath.folder("a").warp("warp") !in environment.compositor) { "Main warp not deleted" }
-        assert(RootPath.folder("b").warp("warp") !in environment.compositor) { "Secondary warp not deleted" }
-        environment.compositor.delete(RootPath.folder("a").folder("folder")).getOrThrow()
-        assert(RootPath.folder("a").folder("folder") !in environment.compositor) { "Main folder not deleted" }
-        assert(RootPath.folder("b").folder("folder") !in environment.compositor) { "Secondary folder not deleted" }
+        environment.compositor.delete(warpPath("a", "warp")).getOrThrow()
+        assert(warpPath("a", "warp") !in environment.compositor) { "Main warp not deleted" }
+        assert(warpPath("b", "warp") !in environment.compositor) { "Secondary warp not deleted" }
+        environment.compositor.delete(folderPath("a", "folder")).getOrThrow()
+        assert(folderPath("a", "folder") !in environment.compositor) { "Main folder not deleted" }
+        assert(folderPath("b", "folder") !in environment.compositor) { "Secondary folder not deleted" }
     }
 
     @Test
@@ -209,16 +211,16 @@ class CompositorTest {
             }
         }.getOrThrow()
 
-        environment.compositor.move(RootPath.folder("a").warp("warp"), RootPath.folder("a").folder("stuff").warp("warp")).getOrThrow()
-        assert(RootPath.folder("a").warp("warp") !in environment.compositor) { "Main warp not deleted" }
-        assert(RootPath.folder("b").warp("warp") !in environment.compositor) { "Secondary warp not deleted" }
-        assert(RootPath.folder("a").folder("stuff").warp("warp") in environment.compositor) { "Main warp not created" }
-        assert(RootPath.folder("b").folder("stuff").warp("warp") in environment.compositor) { "Secondary warp not created" }
-        environment.compositor.move(RootPath.folder("a").folder("folder"), RootPath.folder("a").folder("stuff").folder("folder")).getOrThrow()
-        assert(RootPath.folder("a").folder("folder") !in environment.compositor) { "Main folder not deleted" }
-        assert(RootPath.folder("b").folder("folder") !in environment.compositor) { "Secondary folder not deleted" }
-        assert(RootPath.folder("a").folder("stuff").folder("folder") in environment.compositor) { "Main folder not created" }
-        assert(RootPath.folder("b").folder("stuff").folder("folder") in environment.compositor) { "Secondary folder not created" }
+        environment.compositor.move(warpPath("a", "warp"), warpPath("a", "stuff", "warp")).getOrThrow()
+        assert(warpPath("a", "warp") !in environment.compositor) { "Main warp not deleted" }
+        assert(warpPath("b", "warp") !in environment.compositor) { "Secondary warp not deleted" }
+        assert(warpPath("a", "stuff", "warp") in environment.compositor) { "Main warp not created" }
+        assert(warpPath("b", "stuff", "warp") in environment.compositor) { "Secondary warp not created" }
+        environment.compositor.move(folderPath("a", "folder"), folderPath("a", "stuff", "folder")).getOrThrow()
+        assert(folderPath("a", "folder") !in environment.compositor) { "Main folder not deleted" }
+        assert(folderPath("b", "folder") !in environment.compositor) { "Secondary folder not deleted" }
+        assert(folderPath("a", "stuff", "folder") in environment.compositor) { "Main folder not created" }
+        assert(folderPath("b", "stuff", "folder") in environment.compositor) { "Secondary folder not created" }
     }
 
     @Test
@@ -239,13 +241,13 @@ class CompositorTest {
         }.getOrThrow()
 
         val newWarpState = WarpState(Key.key("minecraft:overworld"), 1.0, 2.0, 3.0, 4f, 5f, name = "new_warp")
-        environment.compositor.update(RootPath.folder("a").warp("warp"), newWarpState).getOrThrow()
-        assertEquals(newWarpState, environment.compositor.state[RootPath.folder("a").warp("warp")], "Main warp not modified")
-        assertEquals(newWarpState, environment.compositor.state[RootPath.folder("b").warp("warp")], "Secondary warp not modified")
+        environment.compositor.update(warpPath("a", "warp"), newWarpState).getOrThrow()
+        assertEquals(newWarpState, environment.compositor.state[warpPath("a", "warp")], "Main warp not modified")
+        assertEquals(newWarpState, environment.compositor.state[warpPath("b", "warp")], "Secondary warp not modified")
 
         val newFolderState = FolderState(name = "new_folder")
-        environment.compositor.update(RootPath.folder("a").folder("folder"), newFolderState).getOrThrow()
-        assertEquals(newFolderState, environment.compositor.state[RootPath.folder("a").folder("folder")], "Main folder not modified")
-        assertEquals(newFolderState, environment.compositor.state[RootPath.folder("b").folder("folder")], "Secondary folder not modified")
+        environment.compositor.update(folderPath("a", "folder"), newFolderState).getOrThrow()
+        assertEquals(newFolderState, environment.compositor.state[folderPath("a", "folder")], "Main folder not modified")
+        assertEquals(newFolderState, environment.compositor.state[folderPath("b", "folder")], "Secondary folder not modified")
     }
 }

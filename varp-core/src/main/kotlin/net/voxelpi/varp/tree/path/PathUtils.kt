@@ -3,6 +3,27 @@ package net.voxelpi.varp.tree.path
 import net.voxelpi.varp.util.Movement
 import kotlin.collections.filter
 
+/**
+ * Constructs a [WarpPath] from the given node ids.
+ */
+public fun warpPath(node1: String, vararg nodes: String): WarpPath {
+    return WarpPath("/$node1/${nodes.joinToString("/")}")
+}
+
+/**
+ * Constructs a [FolderPath] from the given node ids.
+ */
+public fun folderPath(node1: String, vararg nodes: String): FolderPath {
+    return FolderPath("/$node1/${nodes.joinToString("/")}/")
+}
+
+/**
+ * Constructs a [NodeParentPath] from the given node ids.
+ */
+public fun nodeParentPath(vararg nodes: String): NodeParentPath {
+    return FolderPath("/${nodes.joinToString("/")}/")
+}
+
 @Suppress("UNCHECKED_CAST")
 public fun <T : NodeParentPath> topLevelPaths(paths: Collection<T>): Set<T> {
     val paths = paths.toSet() as Set<NodeParentPath>
