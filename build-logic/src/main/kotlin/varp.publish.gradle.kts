@@ -1,3 +1,5 @@
+import org.gradle.kotlin.dsl.register
+
 plugins {
     id("org.jetbrains.kotlin.jvm")
     id("org.jetbrains.dokka")
@@ -6,13 +8,15 @@ plugins {
 //    signing
 }
 
-val javadocJar by tasks.register<Jar>("dokkaJavadocJar") {
+val javadocJar = tasks.register<Jar>("dokkaJavadocJar") {
+    description = "Build the javadoc jar"
     dependsOn(tasks.dokkaGeneratePublicationJavadoc)
     from(tasks.dokkaGeneratePublicationJavadoc.flatMap { it.outputDirectory })
     archiveClassifier.set("javadoc")
 }
 
-val sourcesJar by tasks.registering(Jar::class) {
+val sourcesJar = tasks.register<Jar>("sourcesJar") {
+    description = "Build the sources jar"
     archiveClassifier.set("sources")
     from(sourceSets.getByName("main").allSource)
 }
