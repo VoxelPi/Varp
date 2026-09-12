@@ -53,14 +53,14 @@ class VarpKeyBindingService(val client: FabricVarpClient) {
             this.client.openExplorer(RootPath)
         }
         while (keyBindingCreateWarp.consumeClick()) {
-            val screen = client.screen
+            val screen = client.gui.screen()
             val parentPath = if (screen is FabricVarpExplorerScreen) screen.viewPath else RootPath
-            client.setScreen(FabricVarpCreateWarpScreen(parentPath))
+            client.gui.setScreen(FabricVarpCreateWarpScreen(parentPath))
         }
         while (keyBindingCreateFolder.consumeClick()) {
-            val screen = client.screen
+            val screen = client.gui.screen()
             val parentPath = if (screen is FabricVarpExplorerScreen) screen.viewPath else RootPath
-            client.setScreen(FabricVarpCreateFolderScreen(parentPath))
+            client.gui.setScreen(FabricVarpCreateFolderScreen(parentPath))
         }
     }
 

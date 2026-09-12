@@ -5,9 +5,9 @@ plugins {
     alias(libs.plugins.shadow)
 }
 
-val mcVersion: String by project
-val paperVersion: String by project
-val paperApiVersion: String by project
+val mcVersion: String = project.property("mcVersion") as String
+val paperVersion: String = project.property("paperVersion") as String
+val paperApiVersion: String = project.property("paperApiVersion") as String
 
 repositories {
     maven { url = uri("https://repo.papermc.io/repository/maven-public/") }
@@ -39,6 +39,7 @@ tasks {
         archiveBaseName.set("varp-paper")
         archiveVersion.set("${project.version}")
         archiveClassifier.set("")
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE
     }
 
     runServer {

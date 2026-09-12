@@ -34,10 +34,10 @@ class FabricVarpExplorerScreen(
     private val menuBar: ExplorerMenuBar = ExplorerMenuBar(viewPath, Sizing.fill(100), Sizing.content()).apply {
         selectPathAction = this@FabricVarpExplorerScreen::changeViewPath
         createWarpAction = {
-            Minecraft.getInstance().setScreen(FabricVarpCreateWarpScreen(it))
+            Minecraft.getInstance().gui.setScreen(FabricVarpCreateWarpScreen(it))
         }
         createFolderAction = {
-            Minecraft.getInstance().setScreen(FabricVarpCreateFolderScreen(it))
+            Minecraft.getInstance().gui.setScreen(FabricVarpCreateFolderScreen(it))
         }
     }
 
@@ -48,16 +48,16 @@ class FabricVarpExplorerScreen(
         selectFolderAction = this@FabricVarpExplorerScreen::changeViewContainer
 
         editWarpAction = {
-            Minecraft.getInstance().setScreen(FabricVarpEditWarpScreen(it))
+            Minecraft.getInstance().gui.setScreen(FabricVarpEditWarpScreen(it))
         }
         editFolderAction = {
-            Minecraft.getInstance().setScreen(FabricVarpEditFolderScreen(it))
+            Minecraft.getInstance().gui.setScreen(FabricVarpEditFolderScreen(it))
         }
         deleteWarpAction = {
-            Minecraft.getInstance().setScreen(FabricVarpDeleteNodeScreen(it))
+            Minecraft.getInstance().gui.setScreen(FabricVarpDeleteNodeScreen(it))
         }
         deleteFolderAction = {
-            Minecraft.getInstance().setScreen(FabricVarpDeleteNodeScreen(it))
+            Minecraft.getInstance().gui.setScreen(FabricVarpDeleteNodeScreen(it))
         }
     }
 

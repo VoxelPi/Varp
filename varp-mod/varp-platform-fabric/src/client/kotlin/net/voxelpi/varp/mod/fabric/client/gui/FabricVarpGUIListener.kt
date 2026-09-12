@@ -55,7 +55,7 @@ class FabricVarpGUIListener(
     }
 
     private fun refreshScreen() {
-        val screen = Minecraft.getInstance().screen ?: return
+        val screen = Minecraft.getInstance().gui.screen() ?: return
         if (screen is FabricVarpExplorerScreen) {
             val node = tree[screen.viewPath]
             val newViewPath = node?.path ?: RootPath
@@ -64,7 +64,7 @@ class FabricVarpGUIListener(
     }
 
     private fun refreshScreenNode(path: NodePath) {
-        val screen = Minecraft.getInstance().screen ?: return
+        val screen = Minecraft.getInstance().gui.screen() ?: return
         if (screen is FabricVarpExplorerScreen) {
             when (path) {
                 is FolderPath -> {

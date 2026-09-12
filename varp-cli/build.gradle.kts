@@ -58,6 +58,7 @@ application {
 tasks {
     shadowJar {
         transform(Log4j2PluginsCacheFileTransformer::class.java)
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE
     }
 
     named<JavaExec>("run") {

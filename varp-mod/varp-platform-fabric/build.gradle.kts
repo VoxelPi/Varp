@@ -106,5 +106,6 @@ tasks {
     shadowJar {
         configurations = listOf(project.configurations.shadow.get())
         exclude("META-INF")
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE
     }
 }

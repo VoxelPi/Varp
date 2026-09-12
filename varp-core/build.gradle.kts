@@ -17,6 +17,7 @@ dependencies {
     compileOnlyApi(libs.adventure.api)
     compileOnlyApi(libs.adventure.text.logger.slf4j)
     compileOnlyApi(libs.adventure.text.minimessage)
+    compileOnlyApi(libs.slf4j.api)
 
     compileOnlyApi(libs.event)
 
