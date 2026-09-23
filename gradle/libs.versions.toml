@@ -27,10 +27,10 @@ papwerweight = "2.0.0-beta.21"
 
 # Fabric
 minecraft = "26.2"
-fabric-api = "0.160.0+26.2"
+fabric-api = "0.161.0+26.2"
 fabric-kotlin = "1.14.1+kotlin.2.4.20"
 fabric-loader = "0.19.5"
-fabric-loom = "1.17-SNAPSHOT"
+fabric-loom = "1.18-SNAPSHOT"
 fabric-permissions-api = "0.7.0"
 
 # Fabric mods
