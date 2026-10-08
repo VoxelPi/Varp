@@ -6,7 +6,7 @@ val libs = the<LibrariesForLibs>()
 plugins {
     id("org.jetbrains.kotlin.jvm")
     id("org.jetbrains.dokka")
-    id("org.jlleitschuh.gradle.ktlint")
+    id("org.jmailen.kotlinter")
 }
 
 repositories {
@@ -42,14 +42,9 @@ tasks {
     test {
         useJUnitPlatform()
     }
+}
 
-    ktlint {
-        version.set("1.0.0")
-        verbose.set(true)
-        outputToConsole.set(true)
-        coloredOutput.set(true)
-        reporters {
-            reporter(org.jlleitschuh.gradle.ktlint.reporter.ReporterType.CHECKSTYLE)
-        }
-    }
+kotlinter {
+    ktlintVersion = "1.8.0"
+    reporters = arrayOf("checkstyle", "plain")
 }

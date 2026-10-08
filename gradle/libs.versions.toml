@@ -41,7 +41,7 @@ owo-lib = "0.13.1+26.2"
 blossom = "2.2.0"
 dokka = "2.2.0"
 indra = "4.1.0"
-ktlint = "14.2.0"
+kotlinter = "5.7.0"
 run-task = "3.1.0"
 shadow = "9.6.1"
 
@@ -118,7 +118,7 @@ dokka-plugin = { module = "org.jetbrains.dokka:dokka-gradle-plugin", version.ref
 indra-common = { module = "net.kyori:indra-common", version.ref = "indra" }
 indra-git = { module = "net.kyori:indra-git", version.ref = "indra" }
 kotlin-jvm-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
-ktlint-plugin = { module = "org.jlleitschuh.gradle:ktlint-gradle", version.ref = "ktlint" }
+kotlinter-plugin = { module = "org.jmailen.kotlinter:org.jmailen.kotlinter.gradle.plugin", version.ref = "kotlinter" }
 
 [bundles]
 adventure = ["adventure-api", "adventure-text-minimessage", "adventure-text-serializer-gson", "adventure-text-serializer-plain", "adventure-serializer-configurate4", "adventure-text-logger-slf4j"]
@@ -134,7 +134,7 @@ build-plugins = [
     "indra-common",
     "indra-git",
     "kotlin-jvm-plugin",
-    "ktlint-plugin",
+    "kotlinter-plugin",
 ]
 
 [plugins]
@@ -142,7 +142,7 @@ kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
 dooka-javadoc = { id = "org.jetbrains.dokka-javadoc", version.ref = "dokka" }
 fabric-loom = { id = "net.fabricmc.fabric-loom", version.ref = "fabric-loom" }
-ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }
+kotlinter = { id = "org.jmailen.kotlinter", version.ref = "kotlinter" }
 blossom = { id = "net.kyori.blossom", version.ref = "blossom" }
 indra = { id = "net.kyori.indra", version.ref = "indra" }
 indra-git = { id = "net.kyori.indra.git", version.ref = "indra" }
