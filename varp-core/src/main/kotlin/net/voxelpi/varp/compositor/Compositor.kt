@@ -87,18 +87,15 @@ public class Compositor(
             }?.filter { warp -> !warp.isSubpathOfAny(removedRepositoryFolders) } ?: emptySet()
 
             // Find all representatives of the deleted nodes.
-            val removedCompositorFolders = mounts()
-                .filter { it.repository.id != updatedRepository.id }
+            val removedCompositorFolders = mountsOfRepository(updatedRepository)
                 .flatMap { mount -> removedRepositoryFolders.mapNotNull { toCompositorPath(mount, it) } }
                 .toSet()
-            val removedCompositorWarps = mounts()
-                .filter { it.repository.id != updatedRepository.id }
+            val removedCompositorWarps = mountsOfRepository(updatedRepository)
                 .flatMap { mount -> removedRepositoryWarps.mapNotNull { toCompositorPath(mount, it) } }
                 .toSet()
 
             // Collect all mounts that need to be removed because they have a source path that is a proper subpath of a deleted node in the repository.
-            val removedMounts = mounts()
-                .filter { it.repository.id == updatedRepository.id }
+            val removedMounts = mountsOfRepository(updatedRepository)
                 .filter { it.sourcePath.isProperSubpathOfAny(removedRepositoryFolders) }
                 .toSet()
 
@@ -117,12 +114,10 @@ public class Compositor(
             val createdRepositoryWarps = (event.newState.warps - (event.previousState?.warps?.keys ?: emptySet())).mapKeys { event.path / it.key }
 
             // Find all representatives of the created nodes.
-            val createdCompositorFolders = mounts()
-                .filter { it.repository.id != updatedRepository.id }
+            val createdCompositorFolders = mountsOfRepository(updatedRepository)
                 .flatMap { mount -> createdRepositoryFolders.mapNotNull { (path, state) -> (toCompositorPath(mount, path) as? FolderPath)?.let { Pair(it, state) } } }
                 .toMap()
-            val createdCompositorWarps = mounts()
-                .filter { it.repository.id != updatedRepository.id }
+            val createdCompositorWarps = mountsOfRepository(updatedRepository)
                 .flatMap { mount -> createdRepositoryWarps.mapNotNull { (path, state) -> toCompositorPath(mount, path)?.let { Pair(it, state) } } }
                 .toMap()
 
@@ -156,13 +151,11 @@ public class Compositor(
                     .filterValues { it.first != it.second }
 
                 // Find all representatives of the modified nodes.
-                val modifiedCompositorFolders = mounts()
-                    .filter { it.repository.id != updatedRepository.id }
+                val modifiedCompositorFolders = mountsOfRepository(updatedRepository)
                     .flatMap { mount -> modifiedRepositoryFolders.mapNotNull { (path, change) -> toCompositorPath(mount, path)?.let { Pair(it, change) } } }
                     .toMap()
                     .filterKeys { it !in this.mounts.keys } // Ignore folders that are mount points, as these have their state defined by the mount (that doesn't change).
-                val modifiedCompositorWarps = mounts()
-                    .filter { it.repository.id != updatedRepository.id }
+                val modifiedCompositorWarps = mountsOfRepository(updatedRepository)
                     .flatMap { mount -> modifiedRepositoryWarps.mapNotNull { (path, change) -> toCompositorPath(mount, path)?.let { Pair(it, change) } } }
                     .toMap()
 
@@ -650,6 +643,13 @@ public class Compositor(
      */
     public fun mounts(): Collection<CompositorMount> {
         return mounts.values
+    }
+
+    /**
+     * Returns all mounts of this compositor for the given [repository].
+     */
+    public fun mountsOfRepository(repository: Repository<*, *>): Collection<CompositorMount> {
+        return mounts.values.filter { it.repository.id == repository.id }
     }
 
     /**

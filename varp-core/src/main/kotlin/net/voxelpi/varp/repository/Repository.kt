@@ -278,6 +278,6 @@ public class Repository<C : Any, H : StorageHandle>(
         }
 
         // Update storage.
-        storage.moveFolder(src, dst)
+        storage.moveFolder(src, dst).getOrThrow()
     }
 }
