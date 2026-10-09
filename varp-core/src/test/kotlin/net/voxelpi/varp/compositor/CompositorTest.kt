@@ -2,9 +2,13 @@ package net.voxelpi.varp.compositor
 
 import kotlinx.coroutines.runBlocking
 import net.kyori.adventure.key.Key
+import net.voxelpi.event.on
 import net.voxelpi.varp.ComponentTemplate
 import net.voxelpi.varp.MinecraftLocation
 import net.voxelpi.varp.environment.VarpEnvironment
+import net.voxelpi.varp.event.folder.FolderCreateEvent
+import net.voxelpi.varp.event.folder.FolderDeleteEvent
+import net.voxelpi.varp.event.folder.FolderPathChangeEvent
 import net.voxelpi.varp.repository.EphemeralStorage
 import net.voxelpi.varp.repository.Repository
 import net.voxelpi.varp.tree.path.FolderPath
@@ -19,6 +23,8 @@ import net.voxelpi.varp.tree.state.treeState
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class CompositorTest {
@@ -249,5 +255,110 @@ class CompositorTest {
         environment.compositor.update(folderPath("a", "folder"), newFolderState).getOrThrow()
         assertEquals(newFolderState, environment.compositor.state[folderPath("a", "folder")], "Main folder not modified")
         assertEquals(newFolderState, environment.compositor.state[folderPath("b", "folder")], "Secondary folder not modified")
+    }
+
+    @Test
+    fun `moving a visible folder behind a mount deletes its representative`(): Unit = runBlocking {
+        assertVisibilityTransition(initiallyHidden = false)
+    }
+
+    @Test
+    fun `moving a hidden folder out of a mount creates its representative`(): Unit = runBlocking {
+        assertVisibilityTransition(initiallyHidden = true)
+    }
+
+    private suspend fun assertVisibilityTransition(initiallyHidden: Boolean) {
+        val environment = VarpEnvironment.build {
+            repository("root", EphemeralStorage) {
+                mountedAt("/")
+            }
+            repository("main", EphemeralStorage) {
+                mountedAt("/a/")
+                defaultState = treeState("main") {
+                    folder("hidden") {
+                        if (initiallyHidden) {
+                            folder("subject") {
+                                folder("child") {}
+                                warp("warp", Key.key("minecraft:overworld"), 1.0, 2.0, 3.0, 4f, 5f)
+                            }
+                        }
+                    }
+                    if (!initiallyHidden) {
+                        folder("subject") {
+                            folder("child") {}
+                            warp("warp", Key.key("minecraft:overworld"), 1.0, 2.0, 3.0, 4f, 5f)
+                        }
+                    }
+                }
+            }
+            // This mount shadows /hidden/ in the main repository.
+            repository("overlay", EphemeralStorage) {
+                mountedAt("/a/hidden/")
+                defaultState = treeState("overlay") {
+                    warp("sentinel", Key.key("minecraft:overworld"), 9.0, 8.0, 7.0, 0f, 0f)
+                }
+            }
+        }.getOrThrow()
+
+        val compositor = environment.compositor
+        val main = assertNotNull(compositor.mount(folderPath("a"))).repository
+        val overlayMount = assertNotNull(compositor.mount(folderPath("a", "hidden")))
+        val sentinelPath = warpPath("a", "hidden", "sentinel")
+        val sentinelState = assertNotNull(compositor.state[sentinelPath])
+
+        val visibleRepositoryPath = folderPath("subject")
+        val hiddenRepositoryPath = folderPath("hidden", "subject")
+        val source = if (initiallyHidden) hiddenRepositoryPath else visibleRepositoryPath
+        val destination = if (initiallyHidden) visibleRepositoryPath else hiddenRepositoryPath
+
+        val visibleFolder = folderPath("a", "subject")
+        val visibleChild = folderPath("a", "subject", "child")
+        val visibleWarp = warpPath("a", "subject", "warp")
+        val expectedFolderState = assertNotNull(main.state[source])
+        val expectedChildState = assertNotNull(main.state[source / folderPath("child")])
+        val expectedWarpState = assertNotNull(main.state[source / warpPath("warp")])
+
+        // Establish that the test starts with the expected projection.
+        assertEquals(!initiallyHidden, visibleFolder in compositor)
+        assertEquals(!initiallyHidden, visibleChild in compositor)
+        assertEquals(!initiallyHidden, visibleWarp in compositor)
+
+        // Subscribe after setup so loading events do not affect the assertions.
+        val created = mutableListOf<FolderPath>()
+        val deleted = mutableListOf<FolderPath>()
+        val moved = mutableListOf<Pair<FolderPath, FolderPath>>()
+        compositor.eventScope.on { event: FolderCreateEvent -> created += event.folder.path }
+        compositor.eventScope.on { event: FolderDeleteEvent -> deleted += event.folder.path }
+        compositor.eventScope.on { event: FolderPathChangeEvent -> moved += event.oldPath to event.newPath }
+
+        // Move within the repository, bypassing Compositor.move().
+        main.move(source, destination).getOrThrow()
+
+        assertFalse(source in main, "Repository source must be removed")
+        assertTrue(destination in main, "Repository destination must exist")
+        assertEquals(expectedFolderState, main.state[destination])
+        assertEquals(expectedChildState, main.state[destination / folderPath("child")])
+        assertEquals(expectedWarpState, main.state[destination / warpPath("warp")])
+
+        if (initiallyHidden) {
+            assertEquals(expectedFolderState, compositor.state[visibleFolder], "Folder must become visible")
+            assertEquals(expectedChildState, compositor.state[visibleChild], "Child folder must become visible")
+            assertEquals(expectedWarpState, compositor.state[visibleWarp], "Warp must become visible")
+            assertEquals(listOf(visibleFolder), created.filter { it == visibleFolder })
+            assertTrue(deleted.isEmpty(), "Entering the view must not emit folder deletion")
+        } else {
+            assertFalse(visibleFolder in compositor, "Folder must become shadowed")
+            assertFalse(visibleChild in compositor, "Child folder must become shadowed")
+            assertFalse(visibleWarp in compositor, "Warp must become shadowed")
+            assertEquals(listOf(visibleFolder), deleted.filter { it == visibleFolder })
+            assertTrue(created.isEmpty(), "Becoming shadowed must not emit folder creation")
+        }
+
+        assertTrue(moved.isEmpty(), "Only one endpoint is visible, so no compositor move event is expected")
+        assertFalse(folderPath("a", "hidden", "subject") in compositor)
+        assertFalse(folderPath("a", "hidden", "subject", "child") in compositor)
+        assertFalse(warpPath("a", "hidden", "subject", "warp") in compositor)
+        assertEquals(overlayMount, compositor.mount(folderPath("a", "hidden")))
+        assertEquals(sentinelState, compositor.state[sentinelPath], "Overlay content must remain unchanged")
     }
 }
