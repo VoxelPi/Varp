@@ -946,6 +946,7 @@ public class Compositor(
             // Deletion is handled by removing the repository mount in the next step.
             // This means the repository content is never actually modified, therefore we need to manually call the delete event.
             eventScope.post(FolderDeleteEvent(Folder(this, path)))
+            this.state.delete(path)
         }
 
         // Unmount all mounts whose target path is a subpath of path.
@@ -961,6 +962,21 @@ public class Compositor(
             // Deletion was handled by removing the repository mount in the previous step.
             // This means the repository content was never actually modified, therefore we need to manually call the post delete event.
             eventScope.post(FolderPostDeleteEvent(path, previousState))
+
+            // It is possible that content previously hidden by a mount has become visible now that the mounts were removed.
+            val (parentMount, parentRepositoryPath) = toRepositoryLocation(path)
+            val repositorySubTree = parentMount.repository.state.subtree(parentRepositoryPath)
+            if (repositorySubTree != null) {
+                state[path] = repositorySubTree
+                eventScope.post(FolderCreateEvent(Folder(this, path)))
+                for (folder in repositorySubTree.folders.keys.sortedBy { it.level }) {
+                    eventScope.post(FolderCreateEvent(Folder(this, folder)))
+                }
+                for (warp in repositorySubTree.warps.keys.sortedBy { it.level }) {
+                    eventScope.post(WarpCreateEvent(Warp(this, warp)))
+                }
+            }
+
             return@runCatching previousState
         } else {
             // Delete the folder in the repository.
