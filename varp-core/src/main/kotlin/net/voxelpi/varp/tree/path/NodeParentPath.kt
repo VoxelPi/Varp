@@ -6,16 +6,6 @@ import java.util.regex.Pattern
 public sealed interface NodeParentPath : NodePath {
 
     /**
-     * Returns a list of all folders including the target folder if this is a folder path.
-     */
-    public val allFolders: List<String>
-        get() {
-            val matcher = PATH_PATTERN.matcher(value)
-            check(matcher.find())
-            return matcher.group(2).removeSuffix("/").split("/")
-        }
-
-    /**
      * Creates a [WarpPath] to the warp in the parent node referenced by this path with the name [id].
      */
     public fun warp(id: String): WarpPath {

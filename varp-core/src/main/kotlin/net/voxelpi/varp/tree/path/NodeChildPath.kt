@@ -15,16 +15,6 @@ public sealed interface NodeChildPath : NodePath {
      */
     public val parent: NodeParentPath
 
-    /**
-     * A [List] of all parent folders.
-     */
-    public val parentFolders: List<String>
-        get() {
-            val matcher = PATH_PATTERN.matcher(value)
-            check(matcher.find())
-            return matcher.group(2).removeSuffix("/").split("/")
-        }
-
     override val level: Int
         get() = value.removeSuffix("/").count { it == '/' || it == ':' }
 

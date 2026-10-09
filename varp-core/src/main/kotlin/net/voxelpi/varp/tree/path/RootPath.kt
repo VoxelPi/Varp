@@ -6,9 +6,6 @@ public data object RootPath : NodeParentPath {
 
     override val key: String = "/"
 
-    override val allFolders: List<String>
-        get() = emptyList()
-
     override val level: Int
         get() = 0
 
