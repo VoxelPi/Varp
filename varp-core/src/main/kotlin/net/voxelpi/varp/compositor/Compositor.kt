@@ -1000,7 +1000,7 @@ public class Compositor(
                 val state = srcMount.repository.delete(srcRepositoryPath).getOrThrow()
                 dstMount.repository.create(dstRepositoryPath, state).onFailure { exception ->
                     // Try to restore the warp at the previous location, then rethrow the exception.
-                    srcMount.repository.create(dstRepositoryPath, state).onFailure {
+                    srcMount.repository.create(srcRepositoryPath, state).onFailure {
                         logger.error("Failed to restore warp $src after failed move to $dst", it)
                     }
                     throw exception
@@ -1100,7 +1100,7 @@ public class Compositor(
             // Mount all mounts at their new locations.
             for (oldMount in movedMounts) {
                 val newMount = oldMount.copy(
-                    targetPath = dst / (oldMount.sourcePath.relativeTo(src)!!),
+                    targetPath = dst / (oldMount.targetPath.relativeTo(src)!!),
                 )
                 state[newMount.targetPath] = newMount.repository.state.subtree(newMount.sourcePath) ?: run {
                     // The source did already exist before and wasn't modified during the move.
