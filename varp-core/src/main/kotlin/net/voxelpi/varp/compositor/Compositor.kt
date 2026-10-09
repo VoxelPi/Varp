@@ -357,19 +357,19 @@ public class Compositor(
             // - Previously visible represants can become shadowed by other mounts which causes a folder (and its content) to be "created".
             // - Represants that where previously shadowed can become visible which causes a folder (and its content) to be "deleted".
             val localCompositorMoves = mutableListOf<Movement<FolderPath?>>()
-            for (mount in mounts().sortedBy { it.targetPath.value.length }.filter { it.repository.id == updatedRepository.id }) {
+            for (mount in mountsOfRepository(updatedRepository).sortedBy { it.targetPath.value.length }) {
                 val oldCompositorPath = toCompositorPath(mount, event.oldPath)
                 val newCompositorPath = toCompositorPath(mount, event.newPath)
                 if (oldCompositorPath == null && newCompositorPath == null) {
-                    // We can the ignore the movement, if the represant has no effect on the compositor tree.
+                    // We can ignore the movement, as the represant has no effect on the compositor tree.
                     continue
                 }
-                if (newCompositorPath !is FolderPath) {
+                if (newCompositorPath != null && newCompositorPath !is FolderPath) {
                     // Should not be possible, as the root must always exist.
                     logger.error("Encountered missing root during folder move in compositor $oldCompositorPath -> $newCompositorPath (caused by ${event.oldPath} -> ${event.newPath} in '${updatedRepository.id}').")
                     continue
                 }
-                if (oldCompositorPath !is FolderPath) {
+                if (oldCompositorPath != null && oldCompositorPath !is FolderPath) {
                     // Should not be possible, as the root can never be moved.
                     logger.error("Encountered moved root during folder move in compositor $oldCompositorPath -> $newCompositorPath. (caused by ${event.oldPath} -> ${event.newPath} in '${updatedRepository.id}')")
                     continue
