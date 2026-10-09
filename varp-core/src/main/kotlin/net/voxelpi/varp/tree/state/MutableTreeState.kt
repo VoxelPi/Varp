@@ -31,7 +31,7 @@ public data class MutableTreeState(
             RootPath -> update(state)
             is FolderPath -> {
                 delete(path)
-                this[path] = state
+                this[path] = state.root
                 folders.putAll(state.folders.mapKeys { path / it.key })
                 warps.putAll(state.warps.mapKeys { path / it.key })
             }
