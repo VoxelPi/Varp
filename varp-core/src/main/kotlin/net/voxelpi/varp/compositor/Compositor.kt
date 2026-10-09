@@ -904,6 +904,7 @@ public class Compositor(
             // Update the mount state instead of the underlying repository state.
             mounts.remove(mount.targetPath)
             mounts[mount.targetPath] = mount.copy(state = newState)
+            this.state[path] = newState
             eventScope.post(FolderStateChangeEvent(this[path]!!, newState = newState, oldState = mount.state))
             return@runCatching
         }
@@ -920,6 +921,7 @@ public class Compositor(
             // Update the overlay instead of the underlying repository state.
             mounts.remove(mount.targetPath)
             mounts[mount.targetPath] = mount.copy(state = newState)
+            this.state[path] = newState
             eventScope.post(RootStateChangeEvent(root, newState = newState, oldState = mount.state))
             return@runCatching
         }
