@@ -39,6 +39,12 @@ public data class MutableTreeState(
     }
 
     public fun move(src: WarpPath, dst: WarpPath): WarpState? {
+        if (src == dst) {
+            // Warp doesn't actually move.
+            return this[src]
+        }
+
+        // Move warp.
         val state = warps[src] ?: return null
         warps[dst] = state
         warps.remove(src)
@@ -46,6 +52,11 @@ public data class MutableTreeState(
     }
 
     public fun move(src: FolderPath, dst: FolderPath): FolderState? {
+        if (src == dst) {
+            // Folder doesn't actually move.
+            return this[src]
+        }
+
         // Move child warps.
         val childWarps = warps.filter { it.key.isProperSubpathOf(src) }
         warps.keys.removeAll(childWarps.keys)
