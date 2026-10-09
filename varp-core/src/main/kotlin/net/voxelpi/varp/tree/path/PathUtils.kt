@@ -7,21 +7,33 @@ import kotlin.collections.filter
  * Constructs a [WarpPath] from the given node ids.
  */
 public fun warpPath(node1: String, vararg nodes: String): WarpPath {
-    return WarpPath("/$node1/${nodes.joinToString("/")}")
+    return if (nodes.isEmpty()) {
+        WarpPath("/$node1")
+    } else {
+        WarpPath("/$node1/${nodes.joinToString("/")}")
+    }
 }
 
 /**
  * Constructs a [FolderPath] from the given node ids.
  */
 public fun folderPath(node1: String, vararg nodes: String): FolderPath {
-    return FolderPath("/$node1/${nodes.joinToString("/")}/")
+    return if (nodes.isEmpty()) {
+        FolderPath("/$node1/")
+    } else {
+        FolderPath("/$node1/${nodes.joinToString("/")}/")
+    }
 }
 
 /**
  * Constructs a [NodeParentPath] from the given node ids.
  */
 public fun nodeParentPath(vararg nodes: String): NodeParentPath {
-    return FolderPath("/${nodes.joinToString("/")}/")
+    return if (nodes.isEmpty()) {
+        RootPath
+    } else {
+        FolderPath("/${nodes.joinToString("/")}/")
+    }
 }
 
 @Suppress("UNCHECKED_CAST")
