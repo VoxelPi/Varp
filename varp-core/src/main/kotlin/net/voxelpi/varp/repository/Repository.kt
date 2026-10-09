@@ -250,7 +250,7 @@ public class Repository<C : Any, H : StorageHandle>(
         }
 
         // Update storage.
-        storage.moveWarp(src, dst)
+        storage.moveWarp(src, dst).getOrThrow()
     }
 
     public override suspend fun move(
