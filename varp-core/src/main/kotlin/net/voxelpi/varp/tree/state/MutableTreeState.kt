@@ -85,10 +85,18 @@ public data class MutableTreeState(
     }
 
     public fun update(newState: TreeState) {
+        // Make copies of the new states.
+        // This is important if the current state is being updated with itself.
+        val newWarps = newState.warps.toMap()
+        val newFolders = newState.folders.toMap()
+        val newRoot = newState.root
+
+        // Clear the previous state.
         warps.clear()
         folders.clear()
-        root = newState.root
-        folders.putAll(newState.folders)
-        warps.putAll(newState.warps)
+
+        root = newRoot
+        folders.putAll(newFolders)
+        warps.putAll(newWarps)
     }
 }
