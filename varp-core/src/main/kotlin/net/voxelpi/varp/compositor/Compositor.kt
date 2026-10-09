@@ -630,10 +630,10 @@ public class Compositor(
             state[targetPath] = repositorySubTree
             eventScope.post(FolderCreateEvent(Folder(this, targetPath)))
             for (folder in repositorySubTree.folders.keys.sortedBy { it.level }) {
-                eventScope.post(FolderCreateEvent(Folder(this, folder)))
+                eventScope.post(FolderCreateEvent(Folder(this, targetPath / folder)))
             }
             for (warp in repositorySubTree.warps.keys.sortedBy { it.level }) {
-                eventScope.post(WarpCreateEvent(Warp(this, warp)))
+                eventScope.post(WarpCreateEvent(Warp(this, targetPath / warp)))
             }
         }
     }
