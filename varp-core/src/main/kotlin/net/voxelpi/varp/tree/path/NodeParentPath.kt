@@ -52,7 +52,7 @@ public sealed interface NodeParentPath : NodePath {
     public operator fun div(path: RootPath): NodeParentPath
 
     public companion object {
-        private val PATH_PATTERN = Pattern.compile("^/((?:[a-z0-9_]+/)*)\$")
+        private val PATH_PATTERN = Pattern.compile("^/((?:[a-z0-9_]+/)*)$")
 
         /**
          * Checks if the given [text] is a valid [NodeParentPath].

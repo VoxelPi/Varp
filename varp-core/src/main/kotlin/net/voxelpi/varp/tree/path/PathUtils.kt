@@ -70,7 +70,7 @@ public fun <T : NodeParentPath> topLevelPaths(paths: Collection<T>): Set<T> {
 internal fun resolveLocalMovements(relativeMovements: Collection<Movement<FolderPath?>>): List<Movement<FolderPath?>> {
     val absoluteMovements = mutableListOf<Movement<FolderPath?>>()
 
-    // Assumption: Hierarchy "stays the same", meaning if the source of a movement is a subpath from the source of another then the destination also stays a subpath.
+    // Assumption: Hierarchy "stays the same", meaning if the source of a movement is a subpath from the source of another, then the destination also stays a subpath.
     for (move in relativeMovements.sortedBy { it.from?.level ?: -1 }) {
         if (move.to == null) {
             // The node gets deleted, so it doesn't have to be transformed.
@@ -86,7 +86,7 @@ internal fun resolveLocalMovements(relativeMovements: Collection<Movement<Folder
         }
 
         if (parentMove.to == null) {
-            // If the parent gets delete, the source also need to be deleted.
+            // If the parent gets deleted, the source also needs to be deleted.
             absoluteMovements += Movement(move.from, null)
             continue
         }

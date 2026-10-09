@@ -53,7 +53,7 @@ public data class WarpPath(
     }
 
     public companion object {
-        private val PATH_PATTERN = Pattern.compile("^/((?:[a-z0-9_]+/)*)([a-z0-9_]+)\$")
+        private val PATH_PATTERN = Pattern.compile("^/((?:[a-z0-9_]+/)*)([a-z0-9_]+)$")
 
         /**
          * Checks if the given [text] is a valid [WarpPath].

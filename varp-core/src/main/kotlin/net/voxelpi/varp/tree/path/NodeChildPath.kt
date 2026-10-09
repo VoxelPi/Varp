@@ -21,7 +21,7 @@ public sealed interface NodeChildPath : NodePath {
     override fun relativeTo(path: NodeParentPath): NodePath?
 
     public companion object {
-        private val PATH_PATTERN = Pattern.compile("^/((?:[a-z0-9_]+/(?!\$))*)([a-z0-9_]+)/?\$")
+        private val PATH_PATTERN = Pattern.compile("^/((?:[a-z0-9_]+/(?!$))*)([a-z0-9_]+)/?$")
 
         /**
          * Checks if the given [text] is a valid [NodeChildPath].

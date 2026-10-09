@@ -9,7 +9,7 @@ import java.util.regex.Pattern
 public sealed interface NodePath {
 
     /**
-     * The path of the node as string.
+     * The path of the node as a string.
      */
     public val value: String
 
@@ -54,7 +54,7 @@ public sealed interface NodePath {
     public fun relativeTo(path: NodeParentPath): NodePath?
 
     public companion object {
-        private val PATH_PATTERN = Pattern.compile("^/((?:[a-z0-9_]+/)*)([a-z0-9_]+)?\$")
+        private val PATH_PATTERN = Pattern.compile("^/((?:[a-z0-9_]+/)*)([a-z0-9_]+)?$")
 
         /**
          * Checks if the given [text] is a valid [NodePath].
