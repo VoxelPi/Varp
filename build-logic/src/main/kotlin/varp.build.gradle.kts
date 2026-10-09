@@ -28,9 +28,7 @@ dependencies {
 plugins.withId("org.jetbrains.kotlin.jvm") {
     extensions.configure<KotlinJvmProjectExtension>("kotlin") {
         jvmToolchain(25)
-        compilerOptions {
-            freeCompilerArgs.add("-Xexplicit-backing-fields")
-        }
+        compilerOptions {}
     }
 }
 
