@@ -140,7 +140,7 @@ public class Compositor(
                 // Find all nodes that were modified in the repository.
                 val existingRepositoryFolders = event.newState.folders.keys
                     .intersect(event.previousState.folders.keys)
-                    .associate { relativePath -> event.path / relativePath to Pair(event.previousState[relativePath]!!, event.newState[relativePath]!!) } + (RootPath to Pair(event.previousState.root, event.previousState.root))
+                    .associate { relativePath -> event.path / relativePath to Pair(event.previousState[relativePath]!!, event.newState[relativePath]!!) } + (RootPath to Pair(event.previousState.root, event.newState.root))
                 val existingRepositoryWarps = event.newState.warps.keys
                     .intersect(event.previousState.warps.keys)
                     .associate { relativePath -> event.path / relativePath to Pair(event.previousState[relativePath]!!, event.newState[relativePath]!!) }
