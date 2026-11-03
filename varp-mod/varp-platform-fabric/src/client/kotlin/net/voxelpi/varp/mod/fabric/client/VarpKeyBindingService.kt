@@ -8,7 +8,6 @@ import net.minecraft.client.Minecraft
 import net.minecraft.resources.Identifier
 import net.voxelpi.varp.mod.fabric.FabricVarpMod
 import net.voxelpi.varp.tree.path.RootPath
-import org.lwjgl.glfw.GLFW
 
 class VarpKeyBindingService(val client: FabricVarpClient) {
 
@@ -17,8 +16,8 @@ class VarpKeyBindingService(val client: FabricVarpClient) {
     val keyBindingOpenExplorer: KeyMapping = KeyMappingHelper.registerKeyMapping(
         KeyMapping(
             "key.${FabricVarpMod.MOD_ID}.open_explorer",
-            InputConstants.Type.KEYSYM,
-            GLFW.GLFW_KEY_V,
+            InputConstants.Type.KEYBOARD,
+            InputConstants.KEYCODE_V,
             keyBindingCategory,
         )
     )
@@ -26,8 +25,8 @@ class VarpKeyBindingService(val client: FabricVarpClient) {
     val keyBindingCreateWarp = KeyMappingHelper.registerKeyMapping(
         KeyMapping(
             "key.${FabricVarpMod.MOD_ID}.create_warp",
-            InputConstants.Type.KEYSYM,
-            GLFW.GLFW_KEY_UNKNOWN,
+            InputConstants.Type.KEYBOARD,
+            InputConstants.UNKNOWN.value,
             keyBindingCategory
         )
     )
@@ -35,8 +34,8 @@ class VarpKeyBindingService(val client: FabricVarpClient) {
     val keyBindingCreateFolder = KeyMappingHelper.registerKeyMapping(
         KeyMapping(
             "key.${FabricVarpMod.MOD_ID}.create_folder",
-            InputConstants.Type.KEYSYM,
-            GLFW.GLFW_KEY_UNKNOWN,
+            InputConstants.Type.KEYBOARD,
+            InputConstants.UNKNOWN.value,
             keyBindingCategory
         )
     )

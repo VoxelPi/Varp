@@ -17,9 +17,9 @@ public class PaperVarpPluginLoader implements PluginLoader {
 
     private static final String ADVENTURE_VERSION = "5.2.0";
     private static final String CLOUD_VERSION = "2.1.0";
-    private static final String CLOUD_MINECRAFT_VERSION = "2.0.0";
+    private static final String CLOUD_MINECRAFT_VERSION = "2.0.1";
     private static final String CONFIGURATE_VERSION = "4.2.0";
-    private static final String KOTLIN_VERSION = "2.4.20";
+    private static final String KOTLIN_VERSION = "2.4.21";
     private static final String MOONSHINE_VERSION = "2.0.4";
 
     @Override
