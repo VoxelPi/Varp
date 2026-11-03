@@ -4,15 +4,12 @@ import kotlinx.coroutines.cancel
 import net.kyori.adventure.platform.modcommon.MinecraftClientAudiences
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger
-import net.minecraft.client.Minecraft
 import net.voxelpi.varp.Varp
 import net.voxelpi.varp.mod.VarpModConstants
 import net.voxelpi.varp.mod.api.VarpClientInformation
 import net.voxelpi.varp.mod.client.VarpClientImpl
 import net.voxelpi.varp.mod.client.tree.VarpClientTree
 import net.voxelpi.varp.mod.fabric.FabricVarpMod
-import net.voxelpi.varp.mod.fabric.client.gui.FabricVarpGUIListener
-import net.voxelpi.varp.mod.fabric.client.gui.screen.FabricVarpExplorerScreen
 import net.voxelpi.varp.mod.fabric.client.network.FabricVarpClientNetworkHandler
 import net.voxelpi.varp.tree.path.NodeParentPath
 
@@ -30,8 +27,6 @@ class FabricVarpClient : VarpClientImpl() {
 
     override val tree: VarpClientTree = VarpClientTree(this, clientNetworkHandler)
 
-    private val guiRepositoryListener = FabricVarpGUIListener(tree)
-
     val keyBindingService = VarpKeyBindingService(this)
 
     val audience = MinecraftClientAudiences.of().audience()
@@ -40,11 +35,11 @@ class FabricVarpClient : VarpClientImpl() {
         if (!isBridgeEnabled()) {
             audience.sendMessage(Component.translatable("varp.bridge_not_active"))
         }
-        Minecraft.getInstance().gui.setScreen(FabricVarpExplorerScreen(path))
+        // TODO: Open varp explorer screen
+        // Minecraft.getInstance().gui.setScreen(FabricVarpExplorerScreen(path))
     }
 
     fun cleanup() {
-        guiRepositoryListener.cleanup()
         coroutineScope.cancel()
     }
 }

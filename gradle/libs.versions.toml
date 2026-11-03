@@ -35,7 +35,6 @@ fabric-permissions-api = "0.7.0"
 
 # Fabric mods
 modmenu = "20.0.2"
-owo-lib = "0.13.1+26.2"
 
 # Plugins
 blossom = "2.2.0"
@@ -110,7 +109,6 @@ fabric-permission-api = { module = "me.lucko:fabric-permissions-api", version.re
 
 # Fabric mods
 modmenu = { module = "com.terraformersmc:modmenu", version.ref = "modmenu"}
-owo-lib = { module = "io.wispforest:owo-lib", version.ref = "owo-lib"}
 
 # Plugins used in build logic
 blossom = { module = "net.kyori:blossom", version.ref = "blossom" }

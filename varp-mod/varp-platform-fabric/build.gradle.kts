@@ -52,9 +52,6 @@ dependencies {
     implementationAndInclude(libs.event)
 
     implementationAndInclude(libs.event)
-    implementation(libs.owo.lib) {
-        exclude("net.fabricmc.fabric-api")
-    }
 
     // Runtime mods
     runtimeOnly(libs.modmenu)

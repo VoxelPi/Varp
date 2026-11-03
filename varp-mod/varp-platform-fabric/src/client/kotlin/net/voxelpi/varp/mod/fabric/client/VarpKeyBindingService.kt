@@ -7,9 +7,6 @@ import net.minecraft.client.KeyMapping
 import net.minecraft.client.Minecraft
 import net.minecraft.resources.Identifier
 import net.voxelpi.varp.mod.fabric.FabricVarpMod
-import net.voxelpi.varp.mod.fabric.client.gui.screen.FabricVarpCreateFolderScreen
-import net.voxelpi.varp.mod.fabric.client.gui.screen.FabricVarpCreateWarpScreen
-import net.voxelpi.varp.mod.fabric.client.gui.screen.FabricVarpExplorerScreen
 import net.voxelpi.varp.tree.path.RootPath
 import org.lwjgl.glfw.GLFW
 
@@ -54,13 +51,15 @@ class VarpKeyBindingService(val client: FabricVarpClient) {
         }
         while (keyBindingCreateWarp.consumeClick()) {
             val screen = client.gui.screen()
-            val parentPath = if (screen is FabricVarpExplorerScreen) screen.viewPath else RootPath
-            client.gui.setScreen(FabricVarpCreateWarpScreen(parentPath))
+            // TODO: Open create warp screen.
+            // val parentPath = if (screen is FabricVarpExplorerScreen) screen.viewPath else RootPath
+            // client.gui.setScreen(FabricVarpCreateWarpScreen(parentPath))
         }
         while (keyBindingCreateFolder.consumeClick()) {
             val screen = client.gui.screen()
-            val parentPath = if (screen is FabricVarpExplorerScreen) screen.viewPath else RootPath
-            client.gui.setScreen(FabricVarpCreateFolderScreen(parentPath))
+            // TODO: Open create folder screen.
+            // val parentPath = if (screen is FabricVarpExplorerScreen) screen.viewPath else RootPath
+            // client.gui.setScreen(FabricVarpCreateFolderScreen(parentPath))
         }
     }
 
